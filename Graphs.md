@@ -29,7 +29,7 @@ in local streams. Annually, Pulaski County, VA receives 40 inches of precipitati
 * Ranges included
 * Averages included
 
-[!Polyline plot](plots/Pulaski-51155-2in-precipgraph1Proj.eps)
+[!Polyline plot](plots/Pulaski-51155-2in-precipgraph1Proj.png)
 
 
 ##<a id="C">C. Seasonal Graph</a>
