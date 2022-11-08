@@ -82,7 +82,49 @@ in local streams. Annually, Pulaski County, VA receives 40 inches of precipitati
 * RCP45 and RCP85 average both show that storms are increasing in intensity. For example, it would take ~3hr for 2 inches of precipitation to accrue under a 10-yr event, however under RCP4.5 and RCP8.5 2inches of precipitation could fall in under 1 hour for a 10-yr event.
 * There are minor differences between RCP4.5 (low) and RCP8.5 (high).
 
-<img src="plots/Pulaski_Virginia_51155-IDF.png" alt="IDF plot">
+<table border="0">
+ <tr>
+    <td><b>2020-2069</b></td>
+    <td><b>2050-2099</b></td>
+ </tr>
+ <tr>
+    <td><img src="plots/Pulaski_Virginia_51155-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+</table>
+
+<table border="0">
+ <tr>
+    <td><b>2020-2069</b></td>
+    <td><b>2050-2099</b></td>
+ </tr>
+ <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_2-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_2-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+  <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_5-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_5-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+   <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_10-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_10-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+   <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_25-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_25-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+   <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_50-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_50-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+   <tr>
+    <td><img src="plots/Pulaski_Virginia_51155_100-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155_100-yr_Uncertainty-IDF.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+</table>
+
+
 
 ## <a id="C">C. Seasonal Graph</a>
 
@@ -151,4 +193,19 @@ in local streams. Annually, Pulaski County, VA receives 40 inches of precipitati
 * Maximum ranges indicate more extreme events could occur in spring (March) as well as a longer peak in the summer from August through October. 
 * There are minor differences between RCP4.5 (low) and RCP8.5 (high).
 
-<img src="plots/Pulaski_Virginia_51155-2in-cycle.png" alt="IDF plot">
+
+
+<table border="0">
+ <tr>
+    <td><b>2020-2069</b></td>
+    <td><b>2050-2099</b></td>
+ </tr>
+ <tr>
+    <td><img src="plots/Pulaski_Virginia_51155-2in-cycle.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155-2in-cycle.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+  <tr>
+    <td><img src="plots/Pulaski_Virginia_51155-tot-cycle.png" alt="IDF plot" style="width:500px;"></td>
+    <td><img src="plots/2050/png/Pulaski_Virginia_51155-tot-cycle.png" alt="IDF plot" style="width:500px;"></td>
+ </tr>
+</table>
