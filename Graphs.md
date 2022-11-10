@@ -155,9 +155,6 @@ IDF curves are more of an expert level graph, specialized. It is common among en
 * RCP45 and RCP85 average both show that storms are increasing in intensity. For example, it would take ~3hr for 2 inches of precipitation to accrue under a 10-yr event, however under RCP4.5 and RCP8.5 2inches of precipitation could fall in under 1 hour for a 10-yr event.
 * There are minor differences between RCP4.5 (low) and RCP8.5 (high).
 
-
-**LABEL NEEDS FIXING**
-
 ### Pulaski County
 <table border="0">
  <tr>
