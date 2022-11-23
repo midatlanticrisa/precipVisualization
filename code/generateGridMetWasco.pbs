@@ -1,0 +1,17 @@
+# A script to mask the GridMet data to Mt. Sunapee, NH
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=25:00:00
+
+# Move to the code directory
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+shapePath="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/shapefiles"
+
+baseDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/"
+dataDir="/gpfs/group/kzk10/default/private/data_archive/UofI_MetData/data/"
+tempDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/GridMetintermeds/"
+
+state="mtsunapeeNH"
+
+singularity exec -B $baseDir:/base,$dataDir:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash GridMetncl.sh /base /data /temp $state $shapePath 
