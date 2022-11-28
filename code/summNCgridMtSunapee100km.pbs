@@ -1,0 +1,9 @@
+# A script to summarizing the GridMet data for mtsunapeeNH_100km
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=9:00:00
+
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+
+singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript summNCoutput_gridMet.R "mtsunapeeNH_100km/" "mtsunapeeNH_100km"

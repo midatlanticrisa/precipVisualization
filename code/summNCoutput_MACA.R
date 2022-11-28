@@ -81,8 +81,8 @@ source("ncSummFunctions_visual.R")
 #   dataDir <- paste("/base/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_MACA/", dataDirNm, sep="")
 # }
 
-dataDir <- paste("/base/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_MACA/", dataDirNm, sep="")
-outDir <- paste("/base/eesi/default/users/klr324/communityClimateOutlooks/cntyTimeSeries_MACA/", dataDirNm, sep="")
+dataDir <- paste("/base/cntyTimeSeries_MACA/", dataDirNm, sep="")
+outDir <- paste("/base/cntyTimeSeries_MACA/", dataDirNm, sep="")
 ncFiles <- list.files(dataDir, ".nc", full.names=T, recursive=F)
 prFiles <- ncFiles[grep("pr.day", ncFiles)]
 
