@@ -81,8 +81,8 @@ source("ncSummFunctions_visual.R")
 #   dataDir <- paste("/base/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_MACA/", dataDirNm, sep="")
 # }
 
-dataDir <- paste("/base/cntyTimeSeries_MACA/", dataDirNm, sep="")
-outDir <- paste("/base/cntyTimeSeries_MACA/", dataDirNm, sep="")
+dataDir <- paste("/base/TimeSeries_MACA/", dataDirNm, sep="")
+outDir <- paste("/base/TimeSeries_MACA/", dataDirNm, sep="")
 ncFiles <- list.files(dataDir, ".nc", full.names=T, recursive=F)
 prFiles <- ncFiles[grep("pr.day", ncFiles)]
 
@@ -111,9 +111,9 @@ if(length(which(chkWetResults2in!=2))==0){
 wetSummaries2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[1]]})
 wetByYr2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[2]]})
 oneTempTab2in <- do.call(rbind.data.frame, wetSummaries2in)
-write.csv(oneTempTab2in, paste0(dataDir, dataNm, "2incountyMACA_wetDays_", model, ".csv"), row.names=F)
+write.csv(oneTempTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDays_", model, ".csv"), row.names=F)
 oneTempYrTab2in <- do.call(rbind.data.frame, wetByYr2in)
-write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "2incountyMACA_wetDaysByYr_", model, ".csv"), row.names=F)
+write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDaysByYr_", model, ".csv"), row.names=F)
 
 # 1 inch ------------------------------------------------------------------
 calcWetDays <- lapply(prFiles, calcThresNumDays, decs=climDecs,
@@ -128,9 +128,9 @@ if(length(which(chkDaysWetResults!=2))==0){
 wetDaysSummaries <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[1]]})
 wetDaysByYr <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[2]]})
 oneDaysTempTab <- do.call(rbind.data.frame, wetDaysSummaries)
-write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "1incountyMACA_wetDays_", model, ".csv"), row.names=F)
+write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "countyMACA_1inwetDays_", model, ".csv"), row.names=F)
 oneDaysTempYrTab <- do.call(rbind.data.frame, wetDaysByYr)
-write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "1incountyMACA_wetDaysByYr_", model, ".csv"), row.names=F)
+write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "countyMACA_1inwetDaysByYr_", model, ".csv"), row.names=F)
 
 # Total precip ------------------------------------------------------------
 calcWetTot <- lapply(prFiles, calcThresWetTot, decs=climDecs, thres=NA,
@@ -182,10 +182,10 @@ wetCycle1950 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[1]]})
 wetCycle2020 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[2]]})
 oneTempCycle1950 <- do.call(rbind.data.frame, wetCycle1950)
 oneTempCycle1950 <- apply(oneTempCycle1950,2,as.character) #flatten the list
-write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_cent", futDecs[1], "_", model, ".csv"), row.names=F)
+write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[1], "_", model, ".csv"), row.names=F)
 oneTempCycle2020 <- do.call(rbind.data.frame, wetCycle2020)
 oneTempCycle2020 <- apply(oneTempCycle2020,2,as.character) #flatten the list
-write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_cent", futDecs[2], "_", model, ".csv"), row.names=F)
+write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[2], "_", model, ".csv"), row.names=F)
 
 print("cycle done!")
 
@@ -205,10 +205,10 @@ wetCycle1950Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[1
 wetCycle2020Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[2]]})
 oneTempCycle1950Ext <- do.call(rbind.data.frame, wetCycle1950Ext)
 oneTempCycle1950Ext <- apply(oneTempCycle1950Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", futDecs[1], "_", model, ".csv"), row.names=F)
+write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[1], "_", model, ".csv"), row.names=F)
 oneTempCycle2020Ext <- do.call(rbind.data.frame, wetCycle2020Ext)
 oneTempCycle2020Ext <- apply(oneTempCycle2020Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", futDecs[2], "_", model, ".csv"), row.names=F)
+write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[2], "_", model, ".csv"), row.names=F)
 
 print("Ext cycle done!")
 
@@ -226,9 +226,9 @@ if(length(which(chkWetResultsChange!=2))==0){
 wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
 wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
 oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
-write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_cent", model, ".csv"), row.names=F)
+write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_cent_", model, ".csv"), row.names=F)
 oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
-write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_cent", model, ".csv"), row.names=F)
+write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_cent_", model, ".csv"), row.names=F)
 
 print("IDF done!")
 
@@ -293,8 +293,8 @@ if(length(which(chkWetResultsChange!=2))==0){
 wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
 wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
 oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
-write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_fut", model, ".csv"), row.names=F)
+write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_fut_", model, ".csv"), row.names=F)
 oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
-write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_fut", model, ".csv"), row.names=F)
+write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_fut_", model, ".csv"), row.names=F)
 
 print("IDF done!")
