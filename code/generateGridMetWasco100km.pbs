@@ -1,0 +1,42 @@
+# A script to mask the GridMet data to Wasco, CA 100km
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=5:00:00
+
+# Move to the code directory
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+shapePath="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/shapefiles"
+
+baseDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/"
+dataDir="/gpfs/group/kzk10/default/private/data_archive/UofI_MetData/data/"
+tempDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/GridMetintermeds/"
+outDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/TimeSeries_GridMet/"
+
+state="wascoCA_100km"
+
+### Take action if the temp directories don’t exist ###
+if [ ! -d $tempDir ] 
+then
+      echo "Creating $tempDir directory"
+      mkdir $tempDir
+fi
+if [ ! -d $tempDir$state ] 
+then
+      echo "Creating $tempDir$state directory"
+      mkdir $tempDir$state
+fi
+
+### Take action if the output directories don’t exist ###
+if [ ! -d $outDir ]
+then
+      echo "Creating $outDir directory"
+      mkdir $outDir
+fi
+if [ ! -d $outDir$state ]
+then
+      echo "Creating $outDir$state directory"
+      mkdir $outDir$state
+fi
+
+singularity exec -B $baseDir:/base,$dataDir:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash GridMetncl.sh /base /data /temp $state $shapePath 

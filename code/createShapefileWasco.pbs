@@ -1,0 +1,21 @@
+# A script to create the shapefile to mask 100kmx100km box around Wasco, CA
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=1:00:00
+
+# Move to the code directory
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+
+shapefile="wascoCA.shp" 
+pathDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/shapefiles/"
+outDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/shapefiles/"
+
+## Create shapefiles for GridMET and MACA
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "50"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "100"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "150"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "200"

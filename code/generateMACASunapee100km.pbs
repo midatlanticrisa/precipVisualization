@@ -1,0 +1,71 @@
+# A script to mask the MACA data to Mt. Sunapee, NH
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=18
+#PBS -l walltime=5:00:00
+
+# Move to the code directory
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+
+# Use the gridMet shapefiles (-180 to 180)
+shapePath="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/shapefiles"
+
+baseDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/"
+dataDir="/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/data/fixed/"
+dataDirEXT="/gpfs/group/eesi/default/users/klr324/MACAv2-METDATA/data/fixed/"
+tempDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/MACA/"
+outDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/TimeSeries_MACA/"
+
+state="mtsunapeeNH_100km"
+
+### Take action if the temp directories don’t exist ###
+if [ ! -d $tempDir ] 
+then
+      echo "Creating $tempDir directory"
+      mkdir $tempDir
+fi
+if [ ! -d $tempDir$state ] 
+then
+      echo "Creating $tempDir$state directory"
+      mkdir $tempDir$state
+fi
+
+### Take action if the output directories don’t exist ###
+if [ ! -d $outDir ]
+then
+      echo "Creating $outDir directory"
+      mkdir $outDir
+fi
+if [ ! -d $outDir$state ]
+then
+      echo "Creating $outDir$state directory"
+      mkdir $outDir$state
+fi
+
+# Run MIROC5.0 and CCSM4.0 separately since the data is in a separate location. Remove both from model list below.
+# Also run one model first to make all the masks.
+singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state "CCSM4;" $shapePath
+
+singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state "MIROC5;" $shapePath
+
+#---------------------------------------------------------------
+# Remove "BNU-ESM;" from the list since it is previously run 
+#MODELS=("BNU-ESM;" "CCSM4;" "CNRM-CM5;" "GFDL-ESM2G;" "GFDL-ESM2M;" "HadGEM2-CC365;" "HadGEM2-ES365;" "IPSL-CM5A-LR;" "IPSL-CM5A-MR;" "IPSL-CM5B-LR;" "MIROC-ESM.0;" "MIROC-ESM-CHEM;" "MIROC5;" "MRI-CGCM3;" "NorESM1-M;" "bcc-csm1-1.0;" "bcc-csm1-1-m;" "inmcm4;" "CanESM2;" "CSIRO-Mk3-6;")
+
+MODELS=("BNU-ESM;" "CNRM-CM5;" "GFDL-ESM2G;" "GFDL-ESM2M;" "HadGEM2-CC365;" "HadGEM2-ES365;" "IPSL-CM5A-LR;" "IPSL-CM5A-MR;" "IPSL-CM5B-LR;" "MIROC-ESM.0;" "MIROC-ESM-CHEM;" "MRI-CGCM3;" "NorESM1-M;" "bcc-csm1-1.0;" "bcc-csm1-1-m;" "inmcm4;" "CanESM2;" "CSIRO-Mk3-6;")
+
+pos=$(( ${#MODELS[*]} - 1 ))
+last=${MODELS[$pos]}
+
+# Updated the data directory to the maca files with fixed coordinates
+for mod in "${MODELS[@]}"
+do
+  if [[ $mod == $last ]]
+  then
+     singularity exec -B $baseDir:/base,$dataDir:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state $mod $shapePath
+  else 
+     singularity exec -B $baseDir:/base,$dataDir:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state $mod $shapePath &
+  fi 
+done
+
+wait
