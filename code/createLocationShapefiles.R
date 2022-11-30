@@ -28,14 +28,16 @@ if (length(args)<4) {
        to input directory, path to output directory, and boolean for MACA).n", call.=FALSE)
 } else {
   # load Arguments about states
-  shapefile = args[1]       # "Maryland/" "mtsunapeeNH.shp"
-  pathDir = args[2]         # "/gpfs/group/kzk10/default/private/ren10/mlisk_collab/counties/shapefiles/"
-  outDir = args[3]          # Should be the temp directory: "/gpfs/group/kzk10/default/private/outlooks-temp/shapefiles/"
-  MACA = args[4]            # Boolean (true/false): if using maca dataset set to TRUE
+  shapefile = args[1]        # "Maryland/" "mtsunapeeNH.shp"
+  pathDir = args[2]          # "/gpfs/group/kzk10/default/private/ren10/mlisk_collab/counties/shapefiles/"
+  outDir = args[3]           # Should be the temp directory: "/gpfs/group/kzk10/default/private/outlooks-temp/shapefiles/"
+  MACA = args[4]             # Boolean (true/false): if using maca dataset set to TRUE
+  size = as.numeric(args[5]) # Size of the square to analyze. Ex: 100 will make a 100km x 100km square
 }
 
 library(rgdal)
 library(raster)
+library(measurements)
 
 # Compile loops
 library(compiler)
@@ -66,7 +68,7 @@ statenm = gsub(".shp", "", shapefile)
 print(paste("Creating shapefile for", statenm))
 
 # Create output folder if folder doesn't already exist
-outFolder = paste0(outDir, statenm)
+outFolder = paste0(outDir, statenm,"_",size,"km")
 ifelse(!dir.exists(outDir), dir.create(outDir), 
        paste("Nothing to do:", outDir, "already exists"))
 ifelse(!dir.exists(outFolder), dir.create(outFolder), 
@@ -92,7 +94,8 @@ if(statenm == "mtsunapeeNH"){
 usStates <- spTransform(usStates, crs(nad83)) 
 
 # set the radius for the plots
-radius <- 500 # radius in meters 500 m  = 100x100km square plot.
+radius <- conv_unit(size/2, "km", "m")
+#radius <- 50000 # radius in meters 50000 m  = 100x100km square plot.
 
 # define the plot edges based upon the plot radius. 
 yPlus <- usStates@coords[2] + radius
@@ -146,10 +149,10 @@ bbox <- spTransform(polysB, crs(wgs84))
   # cntyFP <- st@data$GEOID[i] # extract the county fips in case duplicates exist
   
   # Save the extent file
-  write.table(extent, paste0(outFolder, "/cnty.", statenm, 
+  write.table(extent, paste0(outFolder, "/cnty.", statenm,"_",size,"km", 
                              ".extent.txt"), row.names = FALSE,
               col.names=FALSE, quote=FALSE)
   # Save the counties as individual files
-  writeOGR(cnty, outFolder, paste0("cnty.", statenm, "."), 
+  writeOGR(cnty, outFolder, paste0("cnty.", statenm, "_",size,"km"), 
            driver = "ESRI Shapefile")
 # }

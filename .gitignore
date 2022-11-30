@@ -1,6 +1,21 @@
 # PDF files
 *.pdf
 
+# Log and error output files
+*.pbs.e*
+*.pbs.o*
+
+# Temp files
+temp/
+
+# NC output files
+TimeSeries_GridMet/*.nc
+TimeSeries_MACA/*.nc
+
+# all the csv files except the merged ones in MACA
+TimeSeries_MACA/*.csv
+!*/TimeSeries_MACA/*full.csv
+
 # History files
 .Rhistory
 .Rapp.history

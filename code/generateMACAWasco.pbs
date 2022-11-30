@@ -19,9 +19,9 @@ state="wascoCA"
 
 # Run MIROC5.0 and CCSM4.0 separately since the data is in a separate location. Remove both from model list below.
 # Also run one model first to make all the masks.
-singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash MacaWIncl.sh /base /data /temp $state "CCSM4;" $shapePath
+singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state "CCSM4;" $shapePath
 
-singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash MacaWIncl.sh /base /data /temp $state "MIROC5;" $shapePath
+singularity exec -B $baseDir:/base,$dataDirEXT:/data,$tempDir:/temp /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg /bin/bash Macancl.sh /base /data /temp $state "MIROC5;" $shapePath
 
 #---------------------------------------------------------------
 # Remove "BNU-ESM;" from the list since it is previously run 

@@ -5,11 +5,17 @@
 #PBS -l walltime=1:00:00
 
 # Move to the code directory
-cd /gpfs/group/eesi/default/users/klr324/precipVis
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
 
 shapefile="mtsunapeeNH.shp" 
-pathDir="/gpfs/group/eesi/default/users/klr324/precipVis/shapefiles/"
-outDir="/gpfs/group/eesi/default/users/klr324/precipVis/temp/shapefiles/"
+pathDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/shapefiles/"
+outDir="/gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/temp/shapefiles/"
 
 ## Create shapefiles for GridMET and MACA
-singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "50"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "100"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "150"
+
+singularity exec /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript createLocationShapefiles.R $shapefile $pathDir $outDir FALSE "200"

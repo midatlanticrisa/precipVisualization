@@ -69,11 +69,17 @@ dataDir <- paste("/base/TimeSeries_MACA/", dataDirNm, sep="")
 ##########################################################################
 # FUNCTION TO ORGANIZE DATA INTO ONE TABLE
 ##########################################################################
-organize.table <- function(dataDir, dataNm, var, byYear=FALSE){
+organize.table <- function(dataDir, dataNm, var, byYear=FALSE, justTotal=FALSE){
   # organize the Climate Stats into one table
   pat = paste0("_", var, "_")
   files <- list.files(dataDir, pat, full.names=T)
   
+  if(justTotal){
+    # Select only the total files
+    totind <- grep(paste0("countyMACA", pat), files)
+    if(!identical(totind, integer(0))){ files <- files[totind]}
+  }
+
   if(!byYear){
     # Remove files that have ByYr
     byind <- grep("ByYr", files)
@@ -105,7 +111,7 @@ organize.table(dataDir, dataNm, "1inwetDays")
 organize.table(dataDir, dataNm, "1inwetDaysByYr", byYear=TRUE)
 
 # total
-organize.table(dataDir, dataNm, "tot")
+organize.table(dataDir, dataNm, "tot", justTotal=TRUE)
 organize.table(dataDir, dataNm, "totByYr", byYear=TRUE)
 
 # total 99th

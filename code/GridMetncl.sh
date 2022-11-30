@@ -48,9 +48,9 @@ do
   IFS='.' read -ra splitName <<< "$cnty"
   
   # Set environmental variables with file names 
-  nameMask=${splitName[1]}"."${splitName[2]}
+  nameMask=${splitName[1]}
   tempMask=$tempDir"/"$state"/"$nameMask"_mask.nc"
-  cntyExt=$CntyDir"cnty."$nameMask"extent.txt"
+  cntyExt=$CntyDir"cnty."$nameMask".extent.txt"
 
   # # Clip to just the county level to reduce file size and improve R loading speed later on.
   # # Use the extent + 4 times the grid resolution from the shapefile as the bounding box

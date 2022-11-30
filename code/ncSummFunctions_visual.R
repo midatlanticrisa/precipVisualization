@@ -867,12 +867,14 @@ calcThresWetTot <- function(nc, decs, thres, base, type, fileNMSplt1, fileNMSplt
     timSeries5 <- do.call(rbind.data.frame, timSeries5)
     
     if(type=="tot_thres"){
-      colnames(timSeries5) <- paste0("fiveYrAveTot",gsub("\\.", "vin", thres),"WetDaysCentYr_", -10:19)
+      #colnames(timSeries5) <- paste0("fiveYrAveTotWetDaysCentYr_", -10:19)
       if(inRCP==T){
-        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, centralDecade=decs, aveWetDays=thirYrAve, pct95=thresholds$threshold_mm), timSeries5)
+       colnames(timSeries5) <- paste0("fiveYrAveTotWetDaysCentYr_", -10:19)
+        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
         yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
       }else{
-        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, centralDecade=decs, aveWetDays=thirYrAve, pct95=thresholds$threshold_mm), timSeries5)
+        colnames(timSeries5) <- paste0("fiveYrAveTot",gsub("\\.", "vmm", thres),"WetDaysCentYr_", -10:19)
+        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
         yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
       }
     }else if(type=="tot_thres95"){
