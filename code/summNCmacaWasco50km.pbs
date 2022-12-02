@@ -1,0 +1,26 @@
+# A script to summarize the MACA data for wascoCA_100km
+#!/bin/bash
+#PBS -A ren10_d_g_sc_eesi
+#PBS -l nodes=1:ppn=20
+#PBS -l walltime=5:00:00
+
+cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
+
+singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/eesi/default/altsw/containers/bullseye Rscript -e 'install.packages("lmom")'
+
+MODELS=("BNU-ESM" "CCSM4" "CNRM-CM5" "GFDL-ESM2G" "GFDL-ESM2M" "HadGEM2-CC365" "HadGEM2-ES365" "IPSL-CM5A-LR" "IPSL-CM5A-MR" "IPSL-CM5B-LR" "MIROC-ESM.0" "MIROC-ESM-CHEM" "MIROC5" "MRI-CGCM3" "NorESM1-M" "bcc-csm1-1.0" "bcc-csm1-1-m" "inmcm4" "CanESM2" "CSIRO-Mk3-6")
+
+pos=$(( ${#MODELS[*]} - 1 ))
+last=${MODELS[$pos]}
+
+for mod in "${MODELS[@]}"
+do
+  if [[ $mod == $last ]]
+  then
+     singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/eesi/default/altsw/containers/bullseye Rscript summNCoutput_MACA.R "wascoCA_50km/" "wascoCA_50km" $mod
+  else 
+     singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/eesi/default/altsw/containers/bullseye Rscript summNCoutput_MACA.R "wascoCA_50km/" "wascoCA_50km" $mod &
+  fi 
+done
+
+wait
