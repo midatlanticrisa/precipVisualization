@@ -6,7 +6,8 @@
 *.pbs.o*
 
 # Temp files
-temp/
+temp/GridMetintermeds
+temp/MACA
 
 # NC output files
 TimeSeries_GridMet/*/*.nc
