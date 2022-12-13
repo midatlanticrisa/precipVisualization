@@ -413,12 +413,14 @@ decluster_timeseries <- function(dataset, max.length, min.dt, sub.mult = 2) {
   }
   dec = as.data.frame(dec)
   if(nrow(dec) < max.length){
-    stop(paste0("Declustered timeseries is less than ", max.length, 
-                ". Increase the sub.mult to sample a larger subset timeseries."))
-  }
+   # stop(paste0("Declustered timeseries is less than ", max.length, 
+   #             ". Increase the sub.mult to sample a larger subset timeseries."))
+  dec = "FALSE"
+  } else {
   ind = which(dec$rank %in% 1:max.length)
   dec = dec[ind, ]
   # dec = dec[order(dec$vals, decreasing = TRUE), ]
+  }
   return(dec)
 }
 
@@ -450,6 +452,18 @@ calcChangeFactor <- function(nc, decs, type="pr", fileNMSplt1, fileNMSplt2, inRC
     gev_curves <- lapply(subByDec, function(dat){
       if(is.null(dim(dat))){ # if only one grid cell
         pds = decluster_timeseries(dat, max.length = 50, min.dt = 7, sub.mult = 2);
+   
+        if(pds == FALSE){
+          pds = decluster_timeseries(dat, max.length = 50, min.dt = 7, sub.mult = 3);
+        }
+        if(pds == FALSE){
+          pds = decluster_timeseries(dat, max.length = 50, min.dt = 7, sub.mult = 4);
+        }
+        if(pds == FALSE){
+          stop(paste0("Declustered timeseries is less than ", max.length, 
+                      "even after sub.mult=4. Increase the sub.mult to sample a larger subset timeseries."))
+        }
+
         lmoments = samlmu(pds$vals);
         gevparams = pelgev(lmoments);
         quant = quagev(1-probs, para = gevparams);
@@ -460,6 +474,17 @@ calcChangeFactor <- function(nc, decs, type="pr", fileNMSplt1, fileNMSplt2, inRC
                                                                            max.length = 50, 
                                                                            min.dt = 7, 
                                                                            sub.mult = 2);
+        if(pds == FALSE){
+          pds = decluster_timeseries(dat[X, ], max.length = 50, min.dt = 7, sub.mult = 3);
+        }
+        if(pds == FALSE){
+          pds = decluster_timeseries(dat[X, ], max.length = 50, min.dt = 7, sub.mult = 4);
+        }
+        if(pds == FALSE){
+          stop(paste0("Declustered timeseries is less than ", max.length, 
+                      "even after sub.mult=4. Increase the sub.mult to sample a larger subset timeseries."))
+        }
+
         lmoments = samlmu(pds$vals);
         gevparams = pelgev(lmoments);
         

@@ -119,19 +119,19 @@ organize.table(dataDir, dataNm, "99thtot")
 organize.table(dataDir, dataNm, "99thtotByYr", byYear=TRUE)
 
 # 2020 - 2069
-organize.table(dataDir, dataNm, "changeFactor_cent")
-organize.table(dataDir, dataNm, "GEV_cent")
-organize.table(dataDir, dataNm, "tot_cent1950")
-organize.table(dataDir, dataNm, "tot_cent2020")
-organize.table(dataDir, dataNm, "2in_cent1950")
-organize.table(dataDir, dataNm, "2in_cent2020")
+#organize.table(dataDir, dataNm, "changeFactor_cent")
+#organize.table(dataDir, dataNm, "GEV_cent")
+#organize.table(dataDir, dataNm, "tot_cent1950")
+#organize.table(dataDir, dataNm, "tot_cent2020")
+#organize.table(dataDir, dataNm, "2in_cent1950")
+#organize.table(dataDir, dataNm, "2in_cent2020")
 
 # 2050 - 2099
-organize.table(dataDir, dataNm, "changeFactor_fut")
-organize.table(dataDir, dataNm, "GEV_fut")
-organize.table(dataDir, dataNm, "tot_fut1950")
-organize.table(dataDir, dataNm, "tot_fut2050")
-organize.table(dataDir, dataNm, "2in_fut1950")
-organize.table(dataDir, dataNm, "2in_fut2050")
+#organize.table(dataDir, dataNm, "changeFactor_fut")
+#organize.table(dataDir, dataNm, "GEV_fut")
+#organize.table(dataDir, dataNm, "tot_fut1950")
+#organize.table(dataDir, dataNm, "tot_fut2050")
+#organize.table(dataDir, dataNm, "2in_fut1950")
+#organize.table(dataDir, dataNm, "2in_fut2050")
 ##########################################################################
 ##########################################################################

@@ -166,51 +166,51 @@ write.csv(oneTotTempYrTab99th, paste0(dataDir, dataNm, "countyMACA_99thtotByYr_"
 
 # 2020 --------------------------------------------------------------------
 
-##########################################################################
+# ##########################################################################
+# 
+# # # Seasonal Cycle --------------------------------------------------------
+# calcCycle <- lapply(prFiles, calcSeasonCycle, decs=centDecs, thres=NULL, type="tot",
+#                     fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                     trueDate=T)
+# 
+# chkWetResultsCycle <- sapply(calcCycle, length)
+# if(length(which(chkWetResultsCycle!=2))==0){
+#   gridvalsCycle <- (1:length(prFiles))
+# } else { gridvalsCycle <- (1:length(prFiles))[-which(chkWetResultsCycle!=2)] }
+# 
+# wetCycle1950 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[1]]})
+# wetCycle2020 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[2]]})
+# oneTempCycle1950 <- do.call(rbind.data.frame, wetCycle1950)
+# oneTempCycle1950 <- apply(oneTempCycle1950,2,as.character) #flatten the list
+# write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[1], "_", model, ".csv"), row.names=F)
+# oneTempCycle2020 <- do.call(rbind.data.frame, wetCycle2020)
+# oneTempCycle2020 <- apply(oneTempCycle2020,2,as.character) #flatten the list
+# write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[2], "_", model, ".csv"), row.names=F)
+# 
+# print("cycle done!")
 
-# # Seasonal Cycle --------------------------------------------------------
-calcCycle <- lapply(prFiles, calcSeasonCycle, decs=centDecs, thres=NULL, type="tot",
-                    fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                    trueDate=T)
-
-chkWetResultsCycle <- sapply(calcCycle, length)
-if(length(which(chkWetResultsCycle!=2))==0){
-  gridvalsCycle <- (1:length(prFiles))
-} else { gridvalsCycle <- (1:length(prFiles))[-which(chkWetResultsCycle!=2)] }
-
-wetCycle1950 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[1]]})
-wetCycle2020 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[2]]})
-oneTempCycle1950 <- do.call(rbind.data.frame, wetCycle1950)
-oneTempCycle1950 <- apply(oneTempCycle1950,2,as.character) #flatten the list
-write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[1], "_", model, ".csv"), row.names=F)
-oneTempCycle2020 <- do.call(rbind.data.frame, wetCycle2020)
-oneTempCycle2020 <- apply(oneTempCycle2020,2,as.character) #flatten the list
-write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_cent", centDecs[2], "_", model, ".csv"), row.names=F)
-
-print("cycle done!")
-
-##########################################################################
-# Seasonal Cycle Extremes --------------------------------------------------------
-calcCycleExt <- lapply(prFiles, calcSeasonCycle, decs=centDecs, 
-                       thres=conv_unit(2.0,"inch","mm"), type="extdays", 
-                       fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                       trueDate=T)
-
-chkWetResultsCycleExt <- sapply(calcCycleExt, length)
-if(length(which(chkWetResultsCycleExt!=2))==0){
-  gridvalsCycleExt <- (1:length(prFiles))
-} else { gridvalsCycleExt <- (1:length(prFiles))[-which(chkWetResultsCycleExt!=2)] }
-
-wetCycle1950Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[1]]})
-wetCycle2020Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[2]]})
-oneTempCycle1950Ext <- do.call(rbind.data.frame, wetCycle1950Ext)
-oneTempCycle1950Ext <- apply(oneTempCycle1950Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[1], "_", model, ".csv"), row.names=F)
-oneTempCycle2020Ext <- do.call(rbind.data.frame, wetCycle2020Ext)
-oneTempCycle2020Ext <- apply(oneTempCycle2020Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[2], "_", model, ".csv"), row.names=F)
-
-print("Ext cycle done!")
+# ##########################################################################
+# # Seasonal Cycle Extremes --------------------------------------------------------
+# calcCycleExt <- lapply(prFiles, calcSeasonCycle, decs=centDecs, 
+#                        thres=conv_unit(2.0,"inch","mm"), type="extdays", 
+#                        fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                        trueDate=T)
+# 
+# chkWetResultsCycleExt <- sapply(calcCycleExt, length)
+# if(length(which(chkWetResultsCycleExt!=2))==0){
+#   gridvalsCycleExt <- (1:length(prFiles))
+# } else { gridvalsCycleExt <- (1:length(prFiles))[-which(chkWetResultsCycleExt!=2)] }
+# 
+# wetCycle1950Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[1]]})
+# wetCycle2020Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[2]]})
+# oneTempCycle1950Ext <- do.call(rbind.data.frame, wetCycle1950Ext)
+# oneTempCycle1950Ext <- apply(oneTempCycle1950Ext,2,as.character) #flatten the list
+# write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[1], "_", model, ".csv"), row.names=F)
+# oneTempCycle2020Ext <- do.call(rbind.data.frame, wetCycle2020Ext)
+# oneTempCycle2020Ext <- apply(oneTempCycle2020Ext,2,as.character) #flatten the list
+# write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent", centDecs[2], "_", model, ".csv"), row.names=F)
+# 
+# print("Ext cycle done!")
 
 ##########################################################################
 # IDF Change Factor --------------------------------------------------------
@@ -232,52 +232,52 @@ print("Ext cycle done!")
 #
 #print("IDF done!")
 #
-##########################################################################
-# 2050 --------------------------------------------------------------------
+# ##########################################################################
+# # 2050 --------------------------------------------------------------------
+# 
+# # # Seasonal Cycle --------------------------------------------------------
+# calcCycle <- lapply(prFiles, calcSeasonCycle, decs=futDecs, thres=NULL, type="tot",
+#                     fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                     trueDate=T)
+# 
+# chkWetResultsCycle <- sapply(calcCycle, length)
+# if(length(which(chkWetResultsCycle!=2))==0){
+#   gridvalsCycle <- (1:length(prFiles))
+# } else { gridvalsCycle <- (1:length(prFiles))[-which(chkWetResultsCycle!=2)] }
+# 
+# wetCycle1950 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[1]]})
+# wetCycle2020 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[2]]})
+# oneTempCycle1950 <- do.call(rbind.data.frame, wetCycle1950)
+# oneTempCycle1950 <- apply(oneTempCycle1950,2,as.character) #flatten the list
+# write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_fut", futDecs[1], "_", model, ".csv"), row.names=F)
+# oneTempCycle2020 <- do.call(rbind.data.frame, wetCycle2020)
+# oneTempCycle2020 <- apply(oneTempCycle2020,2,as.character) #flatten the list
+# write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_fut", futDecs[2], "_", model, ".csv"), row.names=F)
+# 
+# print("cycle done!")
 
-# # Seasonal Cycle --------------------------------------------------------
-calcCycle <- lapply(prFiles, calcSeasonCycle, decs=futDecs, thres=NULL, type="tot",
-                    fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                    trueDate=T)
+# ##########################################################################
+# # Seasonal Cycle Extremes --------------------------------------------------------
+# calcCycleExt <- lapply(prFiles, calcSeasonCycle, decs=futDecs, 
+#                        thres=conv_unit(2.0,"inch","mm"), type="extdays", 
+#                        fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                        trueDate=T)
+# 
+# chkWetResultsCycleExt <- sapply(calcCycleExt, length)
+# if(length(which(chkWetResultsCycleExt!=2))==0){
+#   gridvalsCycleExt <- (1:length(prFiles))
+# } else { gridvalsCycleExt <- (1:length(prFiles))[-which(chkWetResultsCycleExt!=2)] }
+# 
+# wetCycle1950Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[1]]})
+# wetCycle2020Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[2]]})
+# oneTempCycle1950Ext <- do.call(rbind.data.frame, wetCycle1950Ext)
+# oneTempCycle1950Ext <- apply(oneTempCycle1950Ext,2,as.character) #flatten the list
+# write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_fut", futDecs[1], "_", model, ".csv"), row.names=F)
+# oneTempCycle2020Ext <- do.call(rbind.data.frame, wetCycle2020Ext)
+#oneTempCycle2020Ext <- apply(oneTempCycle2020Ext,2,as.character) #flatten the list
+#write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_fut", futDecs[2], "_", model, ".csv"), row.names=F)
 
-chkWetResultsCycle <- sapply(calcCycle, length)
-if(length(which(chkWetResultsCycle!=2))==0){
-  gridvalsCycle <- (1:length(prFiles))
-} else { gridvalsCycle <- (1:length(prFiles))[-which(chkWetResultsCycle!=2)] }
-
-wetCycle1950 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[1]]})
-wetCycle2020 <- lapply(gridvalsCycle, function(chd){calcCycle[[chd]][[2]]})
-oneTempCycle1950 <- do.call(rbind.data.frame, wetCycle1950)
-oneTempCycle1950 <- apply(oneTempCycle1950,2,as.character) #flatten the list
-write.csv(oneTempCycle1950, paste0(outDir, dataNm, "countyMACA_start_tot_fut", futDecs[1], "_", model, ".csv"), row.names=F)
-oneTempCycle2020 <- do.call(rbind.data.frame, wetCycle2020)
-oneTempCycle2020 <- apply(oneTempCycle2020,2,as.character) #flatten the list
-write.csv(oneTempCycle2020, paste0(outDir, dataNm, "countyMACA_start_tot_fut", futDecs[2], "_", model, ".csv"), row.names=F)
-
-print("cycle done!")
-
-##########################################################################
-# Seasonal Cycle Extremes --------------------------------------------------------
-calcCycleExt <- lapply(prFiles, calcSeasonCycle, decs=futDecs, 
-                       thres=conv_unit(2.0,"inch","mm"), type="extdays", 
-                       fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                       trueDate=T)
-
-chkWetResultsCycleExt <- sapply(calcCycleExt, length)
-if(length(which(chkWetResultsCycleExt!=2))==0){
-  gridvalsCycleExt <- (1:length(prFiles))
-} else { gridvalsCycleExt <- (1:length(prFiles))[-which(chkWetResultsCycleExt!=2)] }
-
-wetCycle1950Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[1]]})
-wetCycle2020Ext <- lapply(gridvalsCycleExt, function(chd){calcCycleExt[[chd]][[2]]})
-oneTempCycle1950Ext <- do.call(rbind.data.frame, wetCycle1950Ext)
-oneTempCycle1950Ext <- apply(oneTempCycle1950Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle1950Ext, paste0(outDir, dataNm, "countyMACA_start_2in_fut", futDecs[1], "_", model, ".csv"), row.names=F)
-oneTempCycle2020Ext <- do.call(rbind.data.frame, wetCycle2020Ext)
-oneTempCycle2020Ext <- apply(oneTempCycle2020Ext,2,as.character) #flatten the list
-write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_fut", futDecs[2], "_", model, ".csv"), row.names=F)
-
-print("Ext cycle done!")
+#print("Ext cycle done!")
 
 ##########################################################################
 ## IDF Change Factor --------------------------------------------------------

@@ -95,76 +95,76 @@ futDecs <- c(1950, 2050)
 climDecs <- c(1970, 2000, 2030, 2060)
 
 #nc <- prFiles
-# ##########################################################################
-# # Precipitation climate statistics
-# ##########################################################################
-# 2 inch ------------------------------------------------------------------
-calcWet2inDays <- lapply(prFiles, calcThresNumDays, decs=climDecs,
-                         thres=conv_unit(2.0,"inch","mm"), type="pr",
-                         fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                         trueDate=T)
-chkWetResults2in <- sapply(calcWet2inDays, length)
-if(length(which(chkWetResults2in!=2))==0){
-  gridvals2in <- (1:length(prFiles))
-} else { gridvals2in <- (1:length(prFiles))[-which(chkWetResults2in!=2)] }
-
-wetSummaries2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[1]]})
-wetByYr2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[2]]})
-oneTempTab2in <- do.call(rbind.data.frame, wetSummaries2in)
-write.csv(oneTempTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDays_", model, ".csv"), row.names=F)
-oneTempYrTab2in <- do.call(rbind.data.frame, wetByYr2in)
-write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDaysByYr_", model, ".csv"), row.names=F)
-
-# 1 inch ------------------------------------------------------------------
-calcWetDays <- lapply(prFiles, calcThresNumDays, decs=climDecs,
-                      thres=conv_unit(1.0,"inch","mm"), type="pr",
-                      fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-                      trueDate=T)
-chkDaysWetResults <- sapply(calcWetDays, length)
-if(length(which(chkDaysWetResults!=2))==0){
-  gridvals1in <- (1:length(prFiles))
-} else { gridvals1in <- (1:length(prFiles))[-which(chkDaysWetResults!=2)] }
-
-wetDaysSummaries <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[1]]})
-wetDaysByYr <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[2]]})
-oneDaysTempTab <- do.call(rbind.data.frame, wetDaysSummaries)
-write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "countyMACA_1inwetDays_", model, ".csv"), row.names=F)
-oneDaysTempYrTab <- do.call(rbind.data.frame, wetDaysByYr)
-write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "countyMACA_1inwetDaysByYr_", model, ".csv"), row.names=F)
-
-# Total precip ------------------------------------------------------------
-calcWetTot <- lapply(prFiles, calcThresWetTot, decs=climDecs, thres=NA,
-                     base =NA, type="tot", fileNMSplt1=".1950",
-                     fileNMSplt2="grid.", inRCP=T, trueDate=T)
-chkTotWetResults <- sapply(calcWetTot, length)
-if(length(which(chkTotWetResults!=2))==0){
-  gridvalsTot <- (1:length(prFiles))
-} else { gridvalsTot <- (1:length(prFiles))[-which(chkTotWetResults!=2)] }
-
-wetTotSummaries <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[1]]})
-wetTotByYr <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[2]]})
-oneTotTempTab <- do.call(rbind.data.frame, wetTotSummaries)
-write.csv(oneTotTempTab, paste0(dataDir, dataNm, "countyMACA_tot_", model, ".csv"), row.names=F)
-oneTotTempYrTab <- do.call(rbind.data.frame, wetTotByYr)
-write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyMACA_totByYr_", model, ".csv"), row.names=F)
-
-# Total precip 99th ------------------------------------------------------------
-calcWetTot99th <- lapply(prFiles, calcThresWetTot, decs=climDecs, thres="99th",
-                     base =NA, type="tot_thres", fileNMSplt1=".1950",
-                     fileNMSplt2="grid.", inRCP=T, trueDate=T)
-chkTotWetResults99th <- sapply(calcWetTot99th, length)
-if(length(which(chkTotWetResults99th!=2))==0){
-  gridvalsTot99th <- (1:length(prFiles))
-} else { gridvalsTot99th <- (1:length(prFiles))[-which(chkTotWetResults99th!=2)] }
-
-wetTotSummaries99th <- lapply(gridvalsTot99th, function(chd){calcWetTot99th[[chd]][[1]]})
-wetTotByYr99th <- lapply(gridvalsTot99th, function(chd){calcWetTot99th[[chd]][[2]]})
-oneTotTempTab99th <- do.call(rbind.data.frame, wetTotSummaries99th)
-write.csv(oneTotTempTab99th, paste0(dataDir, dataNm, "countyMACA_99thtot_", model, ".csv"), row.names=F)
-oneTotTempYrTab99th <- do.call(rbind.data.frame, wetTotByYr99th)
-write.csv(oneTotTempYrTab99th, paste0(dataDir, dataNm, "countyMACA_99thtotByYr_", model, ".csv"), row.names=F)
-
-# 2020 --------------------------------------------------------------------
+# # ##########################################################################
+# # # Precipitation climate statistics
+# # ##########################################################################
+# # 2 inch ------------------------------------------------------------------
+# calcWet2inDays <- lapply(prFiles, calcThresNumDays, decs=climDecs,
+#                          thres=conv_unit(2.0,"inch","mm"), type="pr",
+#                          fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                          trueDate=T)
+# chkWetResults2in <- sapply(calcWet2inDays, length)
+# if(length(which(chkWetResults2in!=2))==0){
+#   gridvals2in <- (1:length(prFiles))
+# } else { gridvals2in <- (1:length(prFiles))[-which(chkWetResults2in!=2)] }
+# 
+# wetSummaries2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[1]]})
+# wetByYr2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[2]]})
+# oneTempTab2in <- do.call(rbind.data.frame, wetSummaries2in)
+# write.csv(oneTempTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDays_", model, ".csv"), row.names=F)
+# oneTempYrTab2in <- do.call(rbind.data.frame, wetByYr2in)
+# write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "countyMACA_2inwetDaysByYr_", model, ".csv"), row.names=F)
+# 
+# # 1 inch ------------------------------------------------------------------
+# calcWetDays <- lapply(prFiles, calcThresNumDays, decs=climDecs,
+#                       thres=conv_unit(1.0,"inch","mm"), type="pr",
+#                       fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+#                       trueDate=T)
+# chkDaysWetResults <- sapply(calcWetDays, length)
+# if(length(which(chkDaysWetResults!=2))==0){
+#   gridvals1in <- (1:length(prFiles))
+# } else { gridvals1in <- (1:length(prFiles))[-which(chkDaysWetResults!=2)] }
+# 
+# wetDaysSummaries <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[1]]})
+# wetDaysByYr <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[2]]})
+# oneDaysTempTab <- do.call(rbind.data.frame, wetDaysSummaries)
+# write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "countyMACA_1inwetDays_", model, ".csv"), row.names=F)
+# oneDaysTempYrTab <- do.call(rbind.data.frame, wetDaysByYr)
+# write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "countyMACA_1inwetDaysByYr_", model, ".csv"), row.names=F)
+# 
+# # Total precip ------------------------------------------------------------
+# calcWetTot <- lapply(prFiles, calcThresWetTot, decs=climDecs, thres=NA,
+#                      base =NA, type="tot", fileNMSplt1=".1950",
+#                      fileNMSplt2="grid.", inRCP=T, trueDate=T)
+# chkTotWetResults <- sapply(calcWetTot, length)
+# if(length(which(chkTotWetResults!=2))==0){
+#   gridvalsTot <- (1:length(prFiles))
+# } else { gridvalsTot <- (1:length(prFiles))[-which(chkTotWetResults!=2)] }
+# 
+# wetTotSummaries <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[1]]})
+# wetTotByYr <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[2]]})
+# oneTotTempTab <- do.call(rbind.data.frame, wetTotSummaries)
+# write.csv(oneTotTempTab, paste0(dataDir, dataNm, "countyMACA_tot_", model, ".csv"), row.names=F)
+# oneTotTempYrTab <- do.call(rbind.data.frame, wetTotByYr)
+# write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyMACA_totByYr_", model, ".csv"), row.names=F)
+# 
+# # Total precip 99th ------------------------------------------------------------
+# calcWetTot99th <- lapply(prFiles, calcThresWetTot, decs=climDecs, thres="99th",
+#                      base =NA, type="tot_thres", fileNMSplt1=".1950",
+#                      fileNMSplt2="grid.", inRCP=T, trueDate=T)
+# chkTotWetResults99th <- sapply(calcWetTot99th, length)
+# if(length(which(chkTotWetResults99th!=2))==0){
+#   gridvalsTot99th <- (1:length(prFiles))
+# } else { gridvalsTot99th <- (1:length(prFiles))[-which(chkTotWetResults99th!=2)] }
+# 
+# wetTotSummaries99th <- lapply(gridvalsTot99th, function(chd){calcWetTot99th[[chd]][[1]]})
+# wetTotByYr99th <- lapply(gridvalsTot99th, function(chd){calcWetTot99th[[chd]][[2]]})
+# oneTotTempTab99th <- do.call(rbind.data.frame, wetTotSummaries99th)
+# write.csv(oneTotTempTab99th, paste0(dataDir, dataNm, "countyMACA_99thtot_", model, ".csv"), row.names=F)
+# oneTotTempYrTab99th <- do.call(rbind.data.frame, wetTotByYr99th)
+# write.csv(oneTotTempYrTab99th, paste0(dataDir, dataNm, "countyMACA_99thtotByYr_", model, ".csv"), row.names=F)
+# 
+# # 2020 --------------------------------------------------------------------
 
 ##########################################################################
 
@@ -212,26 +212,26 @@ write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_cent
 
 print("Ext cycle done!")
 
-##########################################################################
+#########################################################################
 # IDF Change Factor --------------------------------------------------------
-#calcChange <- lapply(prFiles, calcChangeFactor, decs=centDecs, type="pr",
-#                     fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-#                     trueDate=T)
-#length(calcChange)
-#chkWetResultsChange <- sapply(calcChange, length)
-#if(length(which(chkWetResultsChange!=2))==0){
-#  gridvalsChange <- (1:length(prFiles))
-#} else { gridvalsChange <- (1:length(prFiles))[-which(chkWetResultsChange!=2)] }
-#
-#wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
-#wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
-#oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
-#write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_cent_", model, ".csv"), row.names=F)
-#oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
-#write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_cent_", model, ".csv"), row.names=F)
-#
-#print("IDF done!")
-#
+calcChange <- lapply(prFiles, calcChangeFactor, decs=centDecs, type="pr",
+                    fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+                    trueDate=T)
+length(calcChange)
+chkWetResultsChange <- sapply(calcChange, length)
+if(length(which(chkWetResultsChange!=2))==0){
+ gridvalsChange <- (1:length(prFiles))
+} else { gridvalsChange <- (1:length(prFiles))[-which(chkWetResultsChange!=2)] }
+
+wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
+wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
+oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
+write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_cent_", model, ".csv"), row.names=F)
+oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
+write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_cent_", model, ".csv"), row.names=F)
+
+print("IDF done!")
+
 ##########################################################################
 # 2050 --------------------------------------------------------------------
 
@@ -279,22 +279,22 @@ write.csv(oneTempCycle2020Ext, paste0(outDir, dataNm, "countyMACA_start_2in_fut"
 
 print("Ext cycle done!")
 
-##########################################################################
-## IDF Change Factor --------------------------------------------------------
-#calcChange <- lapply(prFiles, calcChangeFactor, decs=futDecs, type="pr",
-#                     fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
-#                     trueDate=T)
-#length(calcChange)
-#chkWetResultsChange <- sapply(calcChange, length)
-#if(length(which(chkWetResultsChange!=2))==0){
-#  gridvalsChange <- (1:length(prFiles))
-#} else { gridvalsChange <- (1:length(prFiles))[-which(chkWetResultsChange!=2)] }
-#
-#wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
-#wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
-#oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
-#write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_fut_", model, ".csv"), row.names=F)
-#oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
-#write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_fut_", model, ".csv"), row.names=F)
-#
-#print("IDF done!")
+#########################################################################
+# IDF Change Factor --------------------------------------------------------
+calcChange <- lapply(prFiles, calcChangeFactor, decs=futDecs, type="pr",
+                    fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+                    trueDate=T)
+length(calcChange)
+chkWetResultsChange <- sapply(calcChange, length)
+if(length(which(chkWetResultsChange!=2))==0){
+ gridvalsChange <- (1:length(prFiles))
+} else { gridvalsChange <- (1:length(prFiles))[-which(chkWetResultsChange!=2)] }
+
+wetChangeFactor <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[1]]})
+wetGEV <- lapply(gridvalsChange, function(chd){calcChange[[chd]][[2]]})
+oneTempTab2in <- do.call(rbind.data.frame, wetChangeFactor)
+write.csv(oneTempTab2in, paste0(outDir, dataNm, "countyMACA_changeFactor_fut_", model, ".csv"), row.names=F)
+oneTempYrTab2in <- do.call(rbind.data.frame, wetGEV)
+write.csv(oneTempYrTab2in, paste0(outDir, dataNm, "countyMACA_GEV_fut_", model, ".csv"), row.names=F)
+
+print("IDF done!")
