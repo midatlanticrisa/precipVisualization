@@ -114,6 +114,10 @@ organize.table <- function(dataDir, dataNm, var, byYear=FALSE, justTotal=FALSE){
 # organize.table(dataDir, dataNm, "tot", justTotal=TRUE)
 # organize.table(dataDir, dataNm, "totByYr", byYear=TRUE)
 
+# 0.5 mm
+organize.table(dataDir, dataNm, "0p5mmwetDays")
+organize.table(dataDir, dataNm, "0p5mmwetDaysByYr", byYear=TRUE)
+
 # 99th thres
 organize.table(dataDir, dataNm, "99thThres")
 

@@ -148,6 +148,23 @@ climDecs <- c(1970, 2000, 2030, 2060)
 # oneTotTempYrTab <- do.call(rbind.data.frame, wetTotByYr)
 # write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyMACA_totByYr_", model, ".csv"), row.names=F)
 
+# 0.5 mm (Days with rain) ------------------------------------------------------------------
+calcWetDays0p5mm <- lapply(prFiles, calcThresNumDays, decs=climDecs,
+                      thres=0.5, type="pr",
+                      fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T,
+                      trueDate=T)
+chkDaysWetResults0p5mm <- sapply(calcWetDays0p5mm, length)
+if(length(which(chkDaysWetResults0p5mm!=2))==0){
+  gridvals0p5mm <- (1:length(prFiles))
+} else { gridvals0p5mm <- (1:length(prFiles))[-which(chkDaysWetResults0p5mm!=2)] }
+
+wetDaysSummaries0p5mm <- lapply(gridvals0p5mm, function(chd){calcWetDays0p5mm[[chd]][[1]]})
+wetDaysByYr0p5mm <- lapply(gridvals0p5mm, function(chd){calcWetDays0p5mm[[chd]][[2]]})
+oneDaysTempTab0p5mm <- do.call(rbind.data.frame, wetDaysSummaries0p5mm)
+write.csv(oneDaysTempTab0p5mm, paste0(dataDir, dataNm, "countyMACA_0p5mmwetDays_", model, ".csv"), row.names=F)
+oneDaysTempYrTab0p5mm <- do.call(rbind.data.frame, wetDaysByYr0p5mm)
+write.csv(oneDaysTempYrTa0p5mmb, paste0(dataDir, dataNm, "countyMACA_0p5mmwetDaysByYr_", model, ".csv"), row.names=F)
+
 # 99th Thres ------------------------------------------------------------------
 dS = c(1990, 2020, 2050)
 dE = c(2019, 2049, 2079)
