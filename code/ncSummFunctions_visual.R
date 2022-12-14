@@ -217,7 +217,7 @@ read.nc.50 <- function(nc, type, decs, inRCP, trueDate){
 # Function to read the netcdf files and find the 99th percentile threshold of 
 # daily precipitation
 ##########################################################################
-read.nc.99th <- function(nc, type, inRCP, trueDate){
+read.nc.99th <- function(nc, type, inRCP, trueDate, startDate="19900101", endDate="20191231"){
   # Start the clock!
   # ptm <- proc.time()
   
@@ -283,8 +283,8 @@ read.nc.99th <- function(nc, type, inRCP, trueDate){
     # if(length(edYrInd)==0){
     #   edYrInd<-which(tw==paste0(min(cds+49,maxYr),"0830"));
     # }
-    stYrInd<-which(tw=="19900101")
-    edYrInd<-which(tw=="20191201")
+    stYrInd<-which(tw==startDate)
+    edYrInd<-which(tw==endDate)
     subStack<-val[ ,stYrInd:edYrInd]
     # return(subStack)})
     
@@ -601,6 +601,46 @@ calcSeasonCycle <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, inR
 ##########################################################################
 # Number of days in a year above or below a threshold
 ##########################################################################
+calc99thThreshold <- function(nc, decsStart=1990, decsEnd=2019, type="pr", 
+                              fileNMSplt1, fileNMSplt2, inRCP=T, trueDate=T){
+  #################
+  #nc <- prFiles[1]
+  #nc <- tMaxFiles[3]
+  #decs <- centDecs
+  #thres <- conv_unit(2.0,"inch","mm")
+  #thres <- conv_unit(95, "F", "K")
+  #type <- "pr"
+  #fileNMSplt1 <- ".1950"
+  #fileNMSplt2 <- "grid."
+  #inRCP=T
+  #trueDate=T
+  #################
+  ##extract various aspects of the file name
+  fileName <- sapply(strsplit(nc, "/"), "[[", length(strsplit(nc, "/")[[1]]))
+  cntyName <- sapply(strsplit(sapply(strsplit(fileName,fileNMSplt1),"[[",1),fileNMSplt2), "[[", 2)
+  cntyFips <- sapply(strsplit(cntyName, "_"), "[[", 3)
+  if(inRCP==T){
+    rcpMod <- sapply(strsplit(sapply(strsplit(fileName,".0."),"[[",1),"cal"), "[[", 2)
+    wrcp <- substr(rcpMod, 2, 6)
+    model <- substr(rcpMod, 8, nchar(rcpMod))
+  }
+  print(cntyName)
+  
+  # Calculate the thresholds
+  thres <- lapply(X=1:length(decsStart), function(X){read.nc.99th(nc, type, inRCP, trueDate, 
+                                                                  startDate=paste0(decsStart[X], "0101"), 
+                                                                  endDate=paste0(decsEnd[X], "1231"))})
+  ##set up the output
+  if(inRCP==T){
+    outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model), period=paste(decsStart, decsEnd, sep="-"), thres=unlist(thres))
+  }else{
+    outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, period=paste(decsStart, decsEnd, sep="-"), thres=unlist(thres)))
+  }
+  return(outFrame)
+}
+##########################################################################
+# Number of days in a year above or below a threshold
+##########################################################################
 calcThresNumDays <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, inRCP=T, trueDate=T){
   #################
   #nc <- prFiles[1]
@@ -629,7 +669,7 @@ calcThresNumDays <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, in
   # Extract the variable
   if(type=="temp"){
     subByDec <- read.nc(nc, "temp", decs, inRCP, trueDate)
-  } else if(type=="pr"){
+  } else if(type=="pr" | type=="99thpr"){
     subByDec <- read.nc(nc, "pr", decs, inRCP, trueDate)
   } else if(type=="frost"){
     subByDec <- read.nc(nc, "temp", decs, inRCP, trueDate)
@@ -668,6 +708,36 @@ calcThresNumDays <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, in
       timSeries5 <- sapply(3:32, function(centYr){mean(yrSumm[(centYr-2):(centYr+2)], na.rm=T)});
       return(list(thirYrAve, timSeries5, yrSumm))})
       
+    } else if(type=="99thpr"){
+      ##the number of hot days per year, and then average over a few time periods
+      #dat<-subByDec[[1]]
+      if(thres == "99th"){
+        thres <- read.nc.99th(nc, "pr", inRCP, trueDate) # Determine the 99th threshold for 1990-2019 period
+      }
+      calcHotDays <- lapply(subByDec, function(dat){datNames<-colnames(dat); # extract all dates
+      if(is.null(datNames)){datNames<-names(dat)}; # if only one grid cell
+      decYrs<-unique(as.numeric(substr(datNames,2,5))); # extract years
+      ##isolate and summarize data by year
+      yrSumm<-sapply(decYrs, function(yr){
+        if(is.null(dim(dat))){ # if only one grid cell
+          yrData<-dat[grep(paste0("X",yr),datNames)];
+          yrData[which(yrData<thres)]<-0; # days less than the threshold aren't counted
+          yrData[which(yrData!=0)]<-1; # any day above threshold is one day
+          numDays<-sum(yrData); # Calculate the number of days in a year
+        } else {
+          yrData<-as.matrix(dat[,grep(paste0("X",yr),datNames)]);
+          yrData[which(yrData<thres)]<-0; # days less than the threshold aren't counted
+          yrData[which(yrData!=0)]<-1;
+          yearSums<-rowSums(yrData); # Sum the days for the year at each location
+          numDays<-mean(yearSums); # average the results across all grid points
+        }
+        return(numDays)})
+      names(yrSumm) <- decYrs
+      ##calculate the thirty year average for the decade
+      thirYrAve<-mean(yrSumm[3:32], na.rm=T);
+      ##calculate the five year average time series
+      timSeries5 <- sapply(3:32, function(centYr){mean(yrSumm[(centYr-2):(centYr+2)], na.rm=T)});
+      return(list(thirYrAve, timSeries5, yrSumm))})
     } else {
       calcHotDays <- lapply(subByDec, function(dat){datNames<-colnames(dat);
       if(is.null(datNames)){datNames<-names(dat)}; # if only one grid cell
@@ -731,6 +801,16 @@ calcThresNumDays <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, in
       }else{
         outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, centralDecade=decs, aveFrostDays=thirYrAve), timSeries5)
         yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, year=as.numeric(names(uniYrs)), frostDays=uniYrs))
+      }
+    } else if(type=="99thpr"){
+      if(inRCP==T){
+        colnames(timSeries5) <- paste0("fiveYrAveWetDaysCentYr_", -10:19)
+        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
+        yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
+      }else{
+        colnames(timSeries5) <- paste0("fiveYrAveTot_vmm",gsub("\\.", "p", round(thres, 2)),"WetDaysCentYr_", -10:19)
+        outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
+        yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
       }
     }
     
@@ -898,7 +978,7 @@ calcThresWetTot <- function(nc, decs, thres, base, type, fileNMSplt1, fileNMSplt
         outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
         yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, rcp=wrcp, model=model, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
       }else{
-        colnames(timSeries5) <- paste0("fiveYrAveTot",gsub("\\.", "vmm", thres),"WetDaysCentYr_", -10:19)
+        colnames(timSeries5) <- paste0("fiveYrAveTot_vmm",gsub("\\.", "p", round(thres, 2)),"WetDaysCentYr_", -10:19)
         outFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, centralDecade=decs, aveWetDays=thirYrAve, threshold=thres), timSeries5)
         yrFrame <- cbind.data.frame(data.frame(county=cntyName, FIPS=cntyFips, year=as.numeric(names(uniYrs)), wetDays=uniYrs))
       }

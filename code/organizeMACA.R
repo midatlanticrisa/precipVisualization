@@ -102,17 +102,24 @@ organize.table <- function(dataDir, dataNm, var, byYear=FALSE, justTotal=FALSE){
 ##########################################################################
 # # organize the yearly climate stats into one table
 
-# 2in
-organize.table(dataDir, dataNm, "2inwetDays")
-organize.table(dataDir, dataNm, "2inwetDaysByYr", byYear=TRUE)
+# # 2in
+# organize.table(dataDir, dataNm, "2inwetDays")
+# organize.table(dataDir, dataNm, "2inwetDaysByYr", byYear=TRUE)
+# 
+# # 1in
+# organize.table(dataDir, dataNm, "1inwetDays")
+# organize.table(dataDir, dataNm, "1inwetDaysByYr", byYear=TRUE)
+# 
+# # total
+# organize.table(dataDir, dataNm, "tot", justTotal=TRUE)
+# organize.table(dataDir, dataNm, "totByYr", byYear=TRUE)
 
-# 1in
-organize.table(dataDir, dataNm, "1inwetDays")
-organize.table(dataDir, dataNm, "1inwetDaysByYr", byYear=TRUE)
+# 99th thres
+organize.table(dataDir, dataNm, "99thThres")
 
-# total
-organize.table(dataDir, dataNm, "tot", justTotal=TRUE)
-organize.table(dataDir, dataNm, "totByYr", byYear=TRUE)
+# 99th days
+organize.table(dataDir, dataNm, "99thwetDays")
+organize.table(dataDir, dataNm, "99thwetDaysByYr", byYear=TRUE)
 
 # total 99th
 organize.table(dataDir, dataNm, "99thtot")

@@ -70,58 +70,82 @@ centDecs <- c(1970, 2000, 2030)  ##gridMet
 ##########################################################################
 # Precipitation climate statistics
 ##########################################################################
-# 2 inch ------------------------------------------------------------------
-calcWet2inDays <- lapply(prFiles, calcThresNumDays, decs=centDecs, 
-                         thres=conv_unit(2.0,"inch","mm"), type="pr", 
+# # 2 inch ------------------------------------------------------------------
+# calcWet2inDays <- lapply(prFiles, calcThresNumDays, decs=centDecs, 
+#                          thres=conv_unit(2.0,"inch","mm"), type="pr", 
+#                          fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F, 
+#                          trueDate=F)
+# chkWetResults2in <- sapply(calcWet2inDays, length)
+# if(length(which(chkWetResults2in!=2))==0){
+#   gridvals2in <- (1:length(prFiles))
+# } else { gridvals2in <- (1:length(prFiles))[-which(chkWetResults2in!=2)] }
+# 
+# wetSummaries2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[1]]})
+# wetByYr2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[2]]})
+# oneTempTab2in <- do.call(rbind.data.frame, wetSummaries2in)
+# write.csv(oneTempTab2in, paste0(dataDir, dataNm, "2incountyGridMet_wetDays.csv"), row.names=F)
+# oneTempYrTab2in <- do.call(rbind.data.frame, wetByYr2in)
+# write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "2incountyGridMet_wetDaysByYr.csv"), row.names=F)
+# 
+# # 1 inch ------------------------------------------------------------------
+# calcWetDays <- lapply(prFiles, calcThresNumDays, decs=centDecs,
+#                       thres=conv_unit(1.0,"inch","mm"), type="pr",
+#                       fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F,
+#                       trueDate=F)
+# 
+# chkWetResults1in <- sapply(calcWetDays, length)
+# if(length(which(chkWetResults1in!=2))==0){
+#   gridvals1in <- (1:length(prFiles))
+# } else { gridvals1in <- (1:length(prFiles))[-which(chkWetResults1in!=2)] }
+# 
+# wetDaysSummaries <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[1]]})
+# wetDaysByYr <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[2]]})
+# 
+# oneDaysTempTab <- do.call(rbind.data.frame, wetDaysSummaries)
+# write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "1incountyGridMet_wetDays.csv"), row.names=F)
+# oneDaysTempYrTab <- do.call(rbind.data.frame, wetDaysByYr)
+# write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "1incountyGridMet_wetDaysByYr.csv"), row.names=F)
+# 
+# # Total precip ------------------------------------------------------------
+# calcWetTot <- lapply(prFiles, calcThresWetTot, decs=centDecs, thres=NA, 
+#                      base =NA, type="tot", fileNMSplt1=".1979", 
+#                      fileNMSplt2="grid.", inRCP=F, trueDate=F)
+# chkWetResultsTot <- sapply(calcWetTot, length)
+# if(length(which(chkWetResultsTot!=2))==0){
+#   gridvalsTot <- (1:length(prFiles))
+# } else { gridvalsTot <- (1:length(prFiles))[-which(chkWetResultsTot!=2)] }
+# 
+# wetTotSummaries <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[1]]})
+# wetTotByYr <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[2]]})
+# 
+# oneTotTempTab <- do.call(rbind.data.frame, wetTotSummaries)
+# write.csv(oneTotTempTab, paste0(dataDir, dataNm, "countyGridMet_tot.csv"), row.names=F)
+# oneTotTempYrTab <- do.call(rbind.data.frame, wetTotByYr)
+# write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyGridMet_totByYr.csv"), row.names=F)
+
+# 99th Thres ------------------------------------------------------------------
+calcWet99thThres <- lapply(prFiles, calc99thThreshold, decsStart=1990, decsEnd=2019, 
+                            type="pr", fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F, 
+                            trueDate=F)
+one99th <- do.call(rbind.data.frame, calcWet99thThres)
+write.csv(one99th, paste0(dataDir, dataNm, "countyGridMet_99thThres.csv"), row.names=F)
+
+# 99th Days ------------------------------------------------------------------
+calcWet99thDays <- lapply(prFiles, calcThresNumDays, decs=centDecs, 
+                         thres="99th", type="99thpr", 
                          fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F, 
                          trueDate=F)
-chkWetResults2in <- sapply(calcWet2inDays, length)
-if(length(which(chkWetResults2in!=2))==0){
-  gridvals2in <- (1:length(prFiles))
-} else { gridvals2in <- (1:length(prFiles))[-which(chkWetResults2in!=2)] }
+chkWetResults99th <- sapply(calcWet99thDays, length)
+if(length(which(chkWetResults99th!=2))==0){
+  gridvals99th <- (1:length(prFiles))
+} else { gridvals99th <- (1:length(prFiles))[-which(chkWetResults99th!=2)] }
 
-wetSummaries2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[1]]})
-wetByYr2in <- lapply(gridvals2in, function(chd){calcWet2inDays[[chd]][[2]]})
-oneTempTab2in <- do.call(rbind.data.frame, wetSummaries2in)
-write.csv(oneTempTab2in, paste0(dataDir, dataNm, "2incountyGridMet_wetDays.csv"), row.names=F)
-oneTempYrTab2in <- do.call(rbind.data.frame, wetByYr2in)
-write.csv(oneTempYrTab2in, paste0(dataDir, dataNm, "2incountyGridMet_wetDaysByYr.csv"), row.names=F)
-
-# 1 inch ------------------------------------------------------------------
-calcWetDays <- lapply(prFiles, calcThresNumDays, decs=centDecs,
-                      thres=conv_unit(1.0,"inch","mm"), type="pr",
-                      fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F,
-                      trueDate=F)
-
-chkWetResults1in <- sapply(calcWetDays, length)
-if(length(which(chkWetResults1in!=2))==0){
-  gridvals1in <- (1:length(prFiles))
-} else { gridvals1in <- (1:length(prFiles))[-which(chkWetResults1in!=2)] }
-
-wetDaysSummaries <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[1]]})
-wetDaysByYr <- lapply(gridvals1in, function(chd){calcWetDays[[chd]][[2]]})
-
-oneDaysTempTab <- do.call(rbind.data.frame, wetDaysSummaries)
-write.csv(oneDaysTempTab, paste0(dataDir, dataNm, "1incountyGridMet_wetDays.csv"), row.names=F)
-oneDaysTempYrTab <- do.call(rbind.data.frame, wetDaysByYr)
-write.csv(oneDaysTempYrTab, paste0(dataDir, dataNm, "1incountyGridMet_wetDaysByYr.csv"), row.names=F)
-
-# Total precip ------------------------------------------------------------
-calcWetTot <- lapply(prFiles, calcThresWetTot, decs=centDecs, thres=NA, 
-                     base =NA, type="tot", fileNMSplt1=".1979", 
-                     fileNMSplt2="grid.", inRCP=F, trueDate=F)
-chkWetResultsTot <- sapply(calcWetTot, length)
-if(length(which(chkWetResultsTot!=2))==0){
-  gridvalsTot <- (1:length(prFiles))
-} else { gridvalsTot <- (1:length(prFiles))[-which(chkWetResultsTot!=2)] }
-
-wetTotSummaries <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[1]]})
-wetTotByYr <- lapply(gridvalsTot, function(chd){calcWetTot[[chd]][[2]]})
-
-oneTotTempTab <- do.call(rbind.data.frame, wetTotSummaries)
-write.csv(oneTotTempTab, paste0(dataDir, dataNm, "countyGridMet_tot.csv"), row.names=F)
-oneTotTempYrTab <- do.call(rbind.data.frame, wetTotByYr)
-write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyGridMet_totByYr.csv"), row.names=F)
+wetSummaries99th <- lapply(gridvals99th, function(chd){calcWet99thDays[[chd]][[1]]})
+wetByYr99th <- lapply(gridvals99th, function(chd){calcWet99thDays[[chd]][[2]]})
+oneTempTab99th <- do.call(rbind.data.frame, wetSummaries99th)
+write.csv(oneTempTab99th, paste0(dataDir, dataNm, "countyGridMet_99thwetDays.csv"), row.names=F)
+oneTempYrTab99th <- do.call(rbind.data.frame, wetByYr99th)
+write.csv(oneTempYrTab99th, paste0(dataDir, dataNm, "countyGridMet_99thwetDaysByYr.csv"), row.names=F)
 
 # Total precip 99th ------------------------------------------------------------
 calcWetTot99th <- lapply(prFiles, calcThresWetTot, decs=centDecs, thres="99th", 

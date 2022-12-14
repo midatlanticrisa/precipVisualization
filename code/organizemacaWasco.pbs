@@ -8,8 +8,8 @@ cd /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/code
 
 #singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_50km/" "wascoCA_50km"
 
-#singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_100km/" "wascoCA_100km"
+singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_100km/" "wascoCA_100km"
 
-singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_150km/" "wascoCA_150km"
+#singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_150km/" "wascoCA_150km"
 
 #singularity exec -B /gpfs/group/eesi/default/users/klr324/precipVis/precipVisualization/:/base /gpfs/group/kzk10/default/private/ren10/mlisk_collab/cntyTimeSeries_code/climateOutlookEnvCDOncl.simg Rscript organizeMACA.R "wascoCA_200km/" "wascoCA_200km"
