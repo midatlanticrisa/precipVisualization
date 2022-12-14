@@ -124,7 +124,7 @@ centDecs <- c(1970, 2000, 2030)  ##gridMet
 # write.csv(oneTotTempYrTab, paste0(dataDir, dataNm, "countyGridMet_totByYr.csv"), row.names=F)
 
 # 0.5 mm (Days with rain) ------------------------------------------------------------------
-calcWetDays0p5mm <- lapply(prFiles, calcThresNumDays, decs=climDecs,
+calcWetDays0p5mm <- lapply(prFiles, calcThresNumDays, decs=centDecs,
                            thres=0.5, type="pr",
                            fileNMSplt1=".1979", fileNMSplt2="grid.", inRCP=F,
                            trueDate=F)
@@ -138,7 +138,7 @@ wetDaysByYr0p5mm <- lapply(gridvals0p5mm, function(chd){calcWetDays0p5mm[[chd]][
 oneDaysTempTab0p5mm <- do.call(rbind.data.frame, wetDaysSummaries0p5mm)
 write.csv(oneDaysTempTab0p5mm, paste0(dataDir, dataNm, "countyGridMet_0p5mmwetDays.csv"), row.names=F)
 oneDaysTempYrTab0p5mm <- do.call(rbind.data.frame, wetDaysByYr0p5mm)
-write.csv(oneDaysTempYrTa0p5mmb, paste0(dataDir, dataNm, "countyGridMet_0p5mmwetDaysByYr.csv"), row.names=F)
+write.csv(oneDaysTempYrTab0p5mm, paste0(dataDir, dataNm, "countyGridMet_0p5mmwetDaysByYr.csv"), row.names=F)
 
 # 99th Thres ------------------------------------------------------------------
 calcWet99thThres <- lapply(prFiles, calc99thThreshold, decsStart=1990, decsEnd=2019, 

@@ -1,6 +1,7 @@
 # A script to summarize the MACA data for wascoCA_100km
 #!/bin/bash
-#PBS -A ren10_d_g_sc_eesi
+###PBS -A ren10_d_g_sc_eesi
+#PBS -A kaf26_c_g_sc_default
 #PBS -l nodes=1:ppn=20
 #PBS -l walltime=6:00:00
 
