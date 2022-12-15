@@ -175,7 +175,7 @@ one99th <- do.call(rbind.data.frame, calcWet99thThres)
 write.csv(one99th, paste0(dataDir, dataNm, "countyMACA_99thThres_", model, ".csv"), row.names=F)
 
 # 99th Days ------------------------------------------------------------------
-calcWet99thDays <- lapply(prFiles, calcThresNumDays, decs=centDecs, 
+calcWet99thDays <- lapply(prFiles, calcThresNumDays, decs=climDecs, 
                           thres="99th", type="99thpr", 
                           fileNMSplt1=".1950", fileNMSplt2="grid.", inRCP=T, 
                           trueDate=T)
