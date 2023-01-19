@@ -95,7 +95,7 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
   county.obs$period[which(county.obs$decade %in% past.decades)] <- "1990-2019"
   county.obs$period[which(county.obs$decade %in% mid.decades)] <- "2020-2049"
   
-  if(var == "tot"){
+  if(var == "tot" | var == "99tot"){
     county.obs$inches <- county.obs$wetDays/25.4
   } else {
     county.obs$inches <- county.obs$wetDays
@@ -135,7 +135,7 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
   rcp85Tab$period[which(rcp85Tab$decade %in% mid.decades)] <- "2020-2049"
   rcp85Tab$period[which(rcp85Tab$decade %in% future.decades)] <- "2050-2079"
   
-  if(var == "tot"){
+  if(var == "tot" | var == "99tot"){
     rcp45Tab$inches <- rcp45Tab$wetDays/25.4
     rcp85Tab$inches <- rcp85Tab$wetDays/25.4
   } else {
@@ -155,9 +155,12 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
   rcp85Means <- sapply(dec, function(dec_yr){mean(rcp85Tab$inches[which(rcp85Tab$decade %in% dec_yr)])})
   rcp85df <- data.frame(means = rcp85Means, baseline = dec)
   
+  rcp45_20502079 = mean(rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")])
+  rcp85_20502079 = mean(rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")])
+  
   # Export values ----------------------------------------------------------- 
   # round to nearest inch
-  if(var == "tot"){
+  if(var == "tot" | var == "99tot"){
     baseline <- baseline/25.4
   }
   
@@ -196,7 +199,13 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
                        hindcast2070increase45 = hindcastincrease45,
                        hindcast2070increase85 = hindcastincrease85,
                        percenttrendincrease45 = (hindcastincrease45/baseline)*100,
-                       percenttrendincrease85 = (hindcastincrease85/baseline)*100)
+                       percenttrendincrease85 = (hindcastincrease85/baseline)*100,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       obs2070incease45 = rcp45_20502079 - obsmean, 
+                       obs2070incease85 = rcp85_20502079 - obsmean, 
+                       percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
+                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100)
   
   # Plot --------------------------------------------------------------------
   if(create.plot){
@@ -224,17 +233,23 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
                width=5.72, height=4.04)
     }
     
+    if(add.legend){
     par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 0.5, 1), las=1)
+    }
+    
+    allvals = c(county.obs$inches, rcp45Tab$inches, rcp85Tab$inches)
     
     vioplot(inches~decade, data=rcp45Tab, col = c(rep(trans_colors[5], 5), rep(trans_colors[3], 7)),
             plotCentre = "line", side="left", xlab="", ylab=ylabel, xaxt="n", 
-            ylim=range(c(county.obs$inches, rcp45Tab$inches, rcp85Tab$inches, na.rm=TRUE)))
+            ylim=c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
     
     vioplot(inches~decade, data=rcp85Tab, col = c(rep(trans_colors[5], 5), rep(trans_colors[4], 7)), 
             plotCentre = "line", side = "right", add = T)
     
     stripchart(county.obs$inches~county.obs$decade, vertical=TRUE, 
-               method = "jitter", pch = 20, add = TRUE, col=colors[6])
+               method = "jitter", pch = 20, add = TRUE, col="black")
     
     axis(side=1, at=1:length(rcp45df$baseline), las = 2, label=rcp45df$baseline, tick=FALSE)
 
@@ -252,12 +267,12 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
       if(leg.inside){
         legend("topleft", legend = scenarios,
                pch = c(19, 19, 15, 15, 15, 20), pt.cex = c(1, 1, 2, 2, 2, 1),
-               col = c(colors[1:2], trans_colors[3:5], colors[6]), bty="n")
+               col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
       } else{
         # For Average
         add_legend("topright", legend = scenarios,
                    pch = c(15, 20, 19, 19, 15, 15), pt.cex = c(2, 1, 1, 1, 2, 2),
-                   col = c(trans_colors[5], colors[6], colors[1:2], trans_colors[3:4]),
+                   col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
                    bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
       }
     }
@@ -268,10 +283,313 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
 }
 
 ##########################################################################
+# Precipitation Box plot Graph
+##########################################################################
+calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var, 
+                          season = NULL, ylabel, 
+                             create.plot=TRUE, add.legend = TRUE){
+  #################
+  # fips <- "shp"
+  # dataTab=NHwet99thdays
+  # obsTab = NHwet99thObs
+  # ylabel = "Number of 1% precipitation days"
+  # var="99thdays"
+  # season = NULL
+  # outDir=NHprecipDir
+  # create.plot=TRUE
+  # add.legend = TRUE
+  #################
+  if(!is.null(season)){
+    if(season == "winter"){
+      obsTab$wetDays = obsTab$winter
+      dataTab$wetDays = dataTab$winter
+      
+      # Remove the first winter
+      obsTab = obsTab[-which(obsTab$year %in% 1979), ]
+      dataTab = dataTab[-which(dataTab$year %in% 1958), ]
+      
+    } else if(season == "winterspring"){
+      obsTab$wetDays = obsTab$winter + obsTab$spring
+      dataTab$wetDays = dataTab$winter + dataTab$spring
+      
+      # Remove the first winter
+      obsTab = obsTab[-which(obsTab$year %in% 1979), ]
+      dataTab = dataTab[-which(dataTab$year %in% 1958), ]
+      
+    } else if(season == "summerfall"){
+      obsTab$wetDays = obsTab$summer + obsTab$fall
+      dataTab$wetDays = dataTab$summer + dataTab$fall
+      
+    } else if(season == "spring"){
+      obsTab$wetDays = obsTab$spring
+      dataTab$wetDays = dataTab$spring
+      
+    } else if(season == "summer"){
+      obsTab$wetDays = obsTab$summer
+      dataTab$wetDays = dataTab$summer
+      
+    } else if(season == "fall"){
+      obsTab$wetDays = obsTab$fall
+      dataTab$wetDays = dataTab$fall
+      
+    } else{
+      print("Season is not winter, spring, summer, or fall")
+    }
+  }
+  
+  # Set average periods -----------------------------------------------------
+  tar.decades <- c(1960, 1970, 1980) ###CODE TO SET CHRONOLOGICAL BASELINE
+  past.decades <- c(1990, 2000, 2010) ###CODE TO SET CHRONOLOGICAL BASELINE
+  mid.decades <- c(2020, 2030, 2040) ###CODE TO SET CHRONOLOGICAL BASELINE
+  future.decades <- c(2050, 2060, 2070)
+  
+  # Format observations -----------------------------------------------------
+  county.obs <- obsTab[obsTab$FIPS==fips,]
+  county.obs$decade <- round_any(county.obs$year, 10, floor)
+  
+  county.obs$period <- county.obs$decade 
+  county.obs$period[which(county.obs$decade %in% tar.decades)] <- "1960-1989"
+  county.obs$period[which(county.obs$decade %in% past.decades)] <- "1990-2019"
+  county.obs$period[which(county.obs$decade %in% mid.decades)] <- "2020-2049"
+
+  if(var == "tot" | var == "99tot"){
+    county.obs$inches <- county.obs$wetDays/25.4
+  } else {
+    county.obs$inches <- county.obs$wetDays
+  }
+  
+  # Format hindcasts and projections ----------------------------------------
+  ##Loop to class each observation by decade, then appending as an extra column
+  dataTab$decade <- round_any(dataTab$year, 10, floor)
+  decades <- unique(dataTab$decade)
+  years <- unique(dataTab$year)
+  
+  # ##Calculations to determine baseline precip levels from 1950-1980
+  # baseSelect <- dataTab[which((dataTab$decade %in% tar.decades) & dataTab$FIPS==fips),]
+  ##Calculations to determine baseline precip levels from 1950-1980
+  baseSelect <- dataTab[which((dataTab$decade %in% past.decades) & dataTab$FIPS==fips),]
+  
+  ##Baseline calculation of wet days per model-year
+  baseline <- mean(baseSelect$wetDays) #/ nrow(baseSelect) # Includes rcp45 and rcp85 but values should be the same
+  rcp45Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp45",]
+  rcp85Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp85",]
+  
+  # Remove partial 30-yr periods (1950s and 2080s)
+  rcp45Tab = rcp45Tab[-which(rcp45Tab$decade %in% 1950), ]
+  rcp45Tab = rcp45Tab[-which(rcp45Tab$decade %in% 2080), ]
+  rcp85Tab = rcp85Tab[-which(rcp85Tab$decade %in% 1950), ]
+  rcp85Tab = rcp85Tab[-which(rcp85Tab$decade %in% 2080), ]
+  
+  rcp45Tab$period <- rcp45Tab$decade 
+  rcp45Tab$period[which(rcp45Tab$decade %in% tar.decades)] <- "1960-1989"
+  rcp45Tab$period[which(rcp45Tab$decade %in% past.decades)] <- "1990-2019"
+  rcp45Tab$period[which(rcp45Tab$decade %in% mid.decades)] <- "2020-2049"
+  rcp45Tab$period[which(rcp45Tab$decade %in% future.decades)] <- "2050-2079"
+  
+  rcp85Tab$period <- rcp85Tab$decade 
+  rcp85Tab$period[which(rcp85Tab$decade %in% tar.decades)] <- "1960-1989"
+  rcp85Tab$period[which(rcp85Tab$decade %in% past.decades)] <- "1990-2019"
+  rcp85Tab$period[which(rcp85Tab$decade %in% mid.decades)] <- "2020-2049"
+  rcp85Tab$period[which(rcp85Tab$decade %in% future.decades)] <- "2050-2079"
+  
+  if(var == "tot" | var == "99tot"){
+    rcp45Tab$inches <- rcp45Tab$wetDays/25.4
+    rcp85Tab$inches <- rcp85Tab$wetDays/25.4
+  } else {
+    rcp45Tab$inches <- rcp45Tab$wetDays
+    rcp85Tab$inches <- rcp85Tab$wetDays
+  }
+  
+  county.rcp45.avg <- sapply(decades, function(dec){decTab<-rcp45Tab[rcp45Tab$decade==dec,];
+  decSumm<-mean((decTab$wetDays - baseline)/baseline);
+  return(decSumm)})
+  
+  dec = decades[-which(decades %in% c(1950, 2080))]
+  
+  rcp45Means <- sapply(dec, function(dec_yr){mean(rcp45Tab$inches[which(rcp45Tab$decade %in% dec_yr)])})
+  rcp45df <- data.frame(means = rcp45Means, baseline = dec)
+  
+  rcp85Means <- sapply(dec, function(dec_yr){mean(rcp85Tab$inches[which(rcp85Tab$decade %in% dec_yr)])})
+  rcp85df <- data.frame(means = rcp85Means, baseline = dec)
+  
+  rcp45_20502079 = mean(rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")])
+  rcp85_20502079 = mean(rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")])
+  
+  # Export values ----------------------------------------------------------- 
+  # round to nearest inch
+  if(var == "tot" | var == "99tot"){
+    baseline <- baseline/25.4
+  }
+  
+  # Find 1990 to 2019 mean (i.e., 30 year average) of the observations
+  obsmean = mean(county.obs$inches[match(1990, county.obs$year): match(2019, county.obs$year)])
+  
+  # Calculate the linear regression to find the rate of change over the historic/projection period
+  # That is 1979 to 2020
+  linreg45 = lm(rcp45df$means~rcp45df$baseline)
+  trend45.mean = linreg45$coefficients['rcp45df$baseline']
+  
+  linreg85 = lm(rcp85df$means~rcp85df$baseline)
+  trend85.mean = linreg85$coefficients['rcp85df$baseline']
+  
+  day45mean = trend45.mean*2070 + linreg45$coefficients['(Intercept)']
+  day85mean = trend85.mean*2070 + linreg85$coefficients['(Intercept)']
+  dayincrease45 = day45mean - obsmean
+  dayincrease85 = day85mean - obsmean
+  hindcastincrease45 = day45mean - baseline
+  hindcastincrease85 = day85mean - baseline
+  
+  yr2070ind = which(rcp45df$baseline == 2070)
+  
+  exptval = data.frame(chngercp45 = rcp45df$means[yr2070ind] - baseline, 
+                       chngercp85 = rcp85df$means[yr2070ind] - baseline,
+                       realrcp45 = rcp45df$means[yr2070ind], 
+                       realrcp85 = rcp85df$means[yr2070ind],
+                       baseline = baseline,
+                       obsmean = obsmean,
+                       day45mean = day45mean,
+                       day85mean = day85mean,
+                       trend45.mean = trend45.mean,
+                       trend85.mean = trend85.mean,
+                       obs2070incease45 = dayincrease45,
+                       obs2070incease85 = dayincrease85,
+                       hindcast2070increase45 = hindcastincrease45,
+                       hindcast2070increase85 = hindcastincrease85,
+                       percenttrendincrease45 = (hindcastincrease45/baseline)*100,
+                       percenttrendincrease85 = (hindcastincrease85/baseline)*100,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       obs2070incease45 = rcp45_20502079 - obsmean, 
+                       obs2070incease85 = rcp85_20502079 - obsmean, 
+                       percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
+                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100)
+  
+  # Plot --------------------------------------------------------------------
+  if(create.plot){
+    ##Setting some graphical information
+    colors <- c(rgb(0, 0.4, 0.6, 1), rgb(1, 0.2, 0.4, 1), rgb(0, 0.4, 0.6, 0.4), 
+                rgb(1, 0.2, 0.4, 0.4), rgb(0.8, 0.8, 0.8, 0.8), "#999999")
+    
+    # Transparent colors with transparent color function
+    trans_colors100 = makeTransparent(colors, 100)
+    trans_colors150 = makeTransparent(colors, 150)
+    trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
+    # 
+    # # Constructing graph ------------------------------------------------------
+    # if(is.null(season)){
+    #   # cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+    #   #                 "-", fips, "-", var, "-precipBoxgraph1.eps"), 
+    #   #          width=5.72, height=4.04)
+    # } else {
+    #   folderpath = path.expand(paste0(outDir, season, "/"))
+    #   if(!dir.exists(folderpath)){ 
+    #     dir.create(folderpath, recursive=T)
+    #   }
+    #   cairo_ps(paste0(folderpath, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+    #                   "-", fips, "-", var, "-", season, "-precipBoxgraph1.eps"), 
+    #            width=5.72, height=4.04)
+    # }
+    
+    # if(add.legend){
+    #   par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    # } else {
+    #   par(mgp=c(1.5,.5,0), mar=c(3, 4, 0.5, 1), las=1)
+    # }
+    
+    # allvals = c(county.obs$inches, rcp45Tab$inches, rcp85Tab$inches)
+    
+    ##Assembling into a data frame for plotting
+    hindAve = rep(NA, nrow(rcp45Tab))
+    for(i in 1:nrow(rcp45Tab)){
+      hindAve[i] = mean(rcp45Tab$inches[i], rcp85Tab$inches[i])
+    }
+    hindTab = data.frame(decade = rcp45Tab$decade, model = rcp45Tab$model, inches=hindAve)
+    subhind = hindTab[which(hindTab$decade %in% seq(1960, 2010, by=10)), ]
+    subrcp45 = rcp45Tab[which(rcp45Tab$decade %in% seq(2020, 2070, by=10)), ]
+    subrcp85 = rcp85Tab[which(rcp85Tab$decade %in% seq(2020, 2070, by=10)), ]
+
+    datatest = data.frame(decade = c(subhind$decade, subrcp45$decade, subrcp85$decade), 
+                          inches = c(subhind$inches, subrcp45$inches, subrcp85$inches),
+                          type = c(rep("hindcast", nrow(subhind)), 
+                                   rep("rcp45", nrow(subrcp45)),
+                                   rep("rcp85", nrow(subrcp85))))
+    
+    df2 = datatest
+    df2$type <- factor(df2$type, levels = c("hindcast","rcp45","rcp85"))
+    df2$decade = as.character(df2$decade)
+    
+    # Count the number of decades (for boxplot)
+    decadeind = which(decades %in% unique(county.obs$decade))
+    for(dind in decadeind){
+      county.obs$int[which(county.obs$decade == decades[dind])] <- dind
+    }
+    county.obs$int = county.obs$int -1 # Chart starts at 1960 not 1950
+    county.obs$shape = "Observations" # for legend
+    
+    # compute lower and upper whiskers limits
+    ylim1 = boxplot.stats(df2$inches)$stats[c(1, 5)]
+    
+    ylim2 = c(min(c(ylim1[1], county.obs$inches)), 
+              max(c(county.obs$inches, ylim1[2]*1.2)))
+
+    # Plot legend inside the graph or in the outer margin
+    if(add.legend){
+      bpl <- ggplot(data = df2, aes(x=decade,y=inches, color=type)) +
+        stat_boxplot(geom = "errorbar")+
+        scale_color_manual(values=rep("black", 3))+
+        geom_boxplot(aes(fill=type), outlier.shape = NA) +
+        theme_bw() + 
+        theme_update(panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(),
+                     strip.background = element_blank()) +
+        theme(legend.position="top", legend.box.spacing = unit(0, "pt"),
+              legend.margin=margin(0,0,0,-6), legend.spacing.x = unit(0.1, "cm"),
+              legend.text=element_text(size=9),
+              axis.title = element_text(size = 12, colour="black"), 
+              axis.text = element_text(size = 12, colour="black")) +
+        geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), color="black") +
+        labs(x="", y=ylabel, color="", fill="", shape="") + 
+        guides(color="none") + 
+        scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
+                          labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
+        coord_cartesian(ylim = ylim2)
+      # show(bpl)
+
+    } else {
+      bpl <- ggplot(data = df2, aes(x=decade,y=inches, color=type)) +
+        stat_boxplot(geom = "errorbar")+
+        scale_color_manual(values=rep("black", 3))+
+        geom_boxplot(aes(fill=type), outlier.shape = NA, show.legend = FALSE) +
+        theme_bw() + 
+        theme_update(panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(),
+                     strip.background = element_blank()) +
+        theme(axis.title = element_text(size = 12, colour="black"), 
+              axis.text = element_text(size = 12, colour="black")) +
+        geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), 
+                   color="black", show.legend = FALSE) +
+        labs(x="", y=ylabel, color="", fill="", shape="") + 
+        guides(color="none") +
+        scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1")) +
+        coord_cartesian(ylim = ylim2)
+      # print(bp)
+    }
+    # dev.off()
+    psname = paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)),
+                    "-", fips, "-", var, "-precipBoxgraph1.eps")
+    ggsave(filename=psname, plot=bpl, width=5.72, height=4.04, units="in")
+  }
+  
+  return(exptval)
+  # return(bpl)
+}
+
+
+##########################################################################
 # Precipitation Change Bar Graph
 ##########################################################################
 calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, ylabel, 
-                                     create.plot=TRUE, leg.inside = TRUE){
+                                     create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
   #################
   # fips <- wet2indays$FIPS[1]
   # dataTab <- wet2indays
@@ -291,6 +609,7 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
   ## Do most recent decade 1990 - 2019
   # tar.decades <- c(1960, 1970, 1980) ###CODE TO SET CHRONOLOGICAL BASELINE
   tar.decades <- c(1990, 2000, 2010) ###CODE TO SET CHRONOLOGICAL BASELINE
+  future.decades <- c(2050, 2060, 2070)
   baseSelect <- dataTab[which((dataTab$decade %in% tar.decades) & dataTab$FIPS==fips),]
   
   ##Baseline calculation of wet days per model-year
@@ -307,6 +626,13 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
   county.rcp85.avg <- sapply(decades, function(dec){decTab<-rcp85Tab[rcp85Tab$decade==dec,];
   decSumm<-mean((decTab$wetDays - baseline)/baseline);
   return(decSumm)})
+  
+  ## "2050-2079"
+  rcp45Tab_ind = which(rcp45Tab$decade %in% future.decades)
+  rcp85Tab_ind = which(rcp85Tab$decade %in% future.decades)
+  
+  rcp45_20502079 = mean(rcp45Tab$wetDays[rcp45Tab_ind])
+  rcp85_20502079 = mean(rcp85Tab$wetDays[rcp85Tab_ind])
   
   ## Determine standard deviation
   county.rcp45.sd <- sapply(decades, function(dec){decTab<-rcp45Tab[rcp45Tab$decade==dec,];
@@ -376,7 +702,13 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
                        chngercp85 = graphing.data['rcp85','2070']*100,
                        realrcp45 = (graphing.data['rcp45','2070']*baseline)+baseline,
                        realrcp85 = (graphing.data['rcp85','2070']*baseline)+baseline,
-                       baseline = baseline)
+                       baseline = baseline,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       hindcast2070incease45 = rcp45_20502079 - baseline, 
+                       hindcast2070incease85 = rcp85_20502079 - baseline, 
+                       percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
+                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100)
   # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
   #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
   #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
@@ -400,15 +732,20 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
                       "-", fips, "-", var, "-", season, "-precipnochangeBargraph1.eps"), 
                width=5.72, height=4.04)
     }
-    par(mar=c(3, 5, 2, 1), las=1)
+    if(!leg.inside){
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+    }
     
     # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, -1)
-    maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
-    minVal <- round(min(graphing.data[3, ], na.rm=T)*100, 1)
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
+    # minVal <- round(min(graphing.data[3, ], na.rm=T)*100, 1)
+    allvals = round((graphing.data[1:3, ])*100, 1)
     
     ##make the bar plot
     #Might need to adjust y axis here and below, as needed
-    pretty_axis = pretty(c(minVal, maxVal))
+    pretty_axis = pretty(c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
     barplot(graphing.data[1:2, ]*100, beside = T, col = colors, 
             ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
             space = c(0, 0.4))
@@ -427,6 +764,7 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
     mtext(side=1, at=c(0.55, 1.5, 2.45, 3.4, 4.35, 5.35,
                        6.3, 7.3, 8.3, 9.2, 10.2, 11.2), las = 2, decades)
     
+    if(add.legend){
     # Plot legend inside the graph or in the outer margin
     if(leg.inside){
       legend("topleft", legend = scenarios,
@@ -434,7 +772,8 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
     } else{
       add_legend("topright", legend = scenarios,
                  fill = c(colors, "gray60"),
-                 bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
+                 bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
+    }
     }
     dev.off()
   }
@@ -447,9 +786,9 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
 ##########################################################################
 calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir, 
                                   ylabel = NULL, season = NULL, var, create.plot=TRUE,
-                                  leg.inside = FALSE){
+                                  leg.inside = FALSE, add.legend = TRUE){
   #################
-  # fips <- wet2indays$FIPS[1]
+  # fips <- "shp"
   # dataAveTab = wet2inAve
   # dataTab=wet2indays
   # obsTab = wet2inObs
@@ -490,25 +829,31 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
   decadal45Tabs <- lapply(centDecs, function(cd){dataAveTab[dataAveTab$FIPS==fips & dataAveTab$centralDecade==cd & dataAveTab$rcp=="rcp45",]})
   decadal85Tabs <- lapply(centDecs, function(cd){dataAveTab[dataAveTab$FIPS==fips & dataAveTab$centralDecade==cd & dataAveTab$rcp=="rcp85",]})
   
+  if(var == "99tot" | var == "99thdays"){
+    stind = 8
+  } else {
+    stind = 7
+  }
+  
   #annual means
-  statMeans45 <- lapply(decadal45Tabs, function(st){colMeans(st[,7:ncol(st)])})
-  statMeans85 <- lapply(decadal85Tabs, function(st){colMeans(st[,7:ncol(st)])})
+  statMeans45 <- lapply(decadal45Tabs, function(st){colMeans(st[,stind:ncol(st)])})
+  statMeans85 <- lapply(decadal85Tabs, function(st){colMeans(st[,stind:ncol(st)])})
   
   #column mins
-  statMins45 <- lapply(decadal45Tabs, function(st){calcVec<-sapply(7:ncol(st),function(col){min(st[,col])});
+  statMins45 <- lapply(decadal45Tabs, function(st){calcVec<-sapply(stind:ncol(st),function(col){min(st[,col])});
   names(calcVec)<-names(statMeans45[[1]]);
   return(calcVec)})
   
-  statMins85 <- lapply(decadal85Tabs, function(st){calcVec<-sapply(7:ncol(st),function(col){min(st[,col])});
+  statMins85 <- lapply(decadal85Tabs, function(st){calcVec<-sapply(stind:ncol(st),function(col){min(st[,col])});
   names(calcVec)<-names(statMeans45[[1]]);
   return(calcVec)})
   
   #column maxes 
-  statMaxs45 <- lapply(decadal45Tabs, function(st){calcVec<-sapply(7:ncol(st),function(col){max(st[,col])});
+  statMaxs45 <- lapply(decadal45Tabs, function(st){calcVec<-sapply(stind:ncol(st),function(col){max(st[,col])});
   names(calcVec)<-names(statMeans45[[1]]);
   return(calcVec)})
   
-  statMaxs85 <- lapply(decadal85Tabs, function(st){calcVec<-sapply(7:ncol(st),function(col){max(st[,col])});
+  statMaxs85 <- lapply(decadal85Tabs, function(st){calcVec<-sapply(stind:ncol(st),function(col){max(st[,col])});
   names(calcVec)<-names(statMeans45[[1]]);
   return(calcVec)})
   
@@ -568,13 +913,14 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
   predPoltly <- tsYrData[pltYr2019:pltYr2070,]
   
   # Convert mm to inches
-  if(var == "tot"){
+  if(var == "tot" | var == "99tot"){
     predPoltly[ ,2:ncol(predPoltly)] = predPoltly[ ,2:ncol(predPoltly)]/25.4
     histPoltly[ ,2:ncol(histPoltly)] = histPoltly[ ,2:ncol(histPoltly)]/25.4
     tsData[ ,2:ncol(tsData)] = tsData[ ,2:ncol(tsData)]/25.4
     county.obs[ ,obs.ind] = county.obs[ ,obs.ind]/25.4
     rcp45 = rcp45/25.4
     rcp85 = rcp85/25.4
+    baseline=baseline/25.4
   }
   
   # Export values -----------------------------------------------------------
@@ -621,7 +967,12 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
   # Find index for the year 2070
   predyr2070 = match(2070, predPoltly$year)
   tsr2070 = match(2070, tsData$year)
+  tsr2050 = match(2050, tsData$year)
+  tsr2079 = match(2079, tsData$year)
   
+  rcp45_20502079 = mean(tsData$rcp45.means[tsr2050:tsr2079])
+  rcp85_20502079 = mean(tsData$rcp85.means[tsr2050:tsr2079])
+
   # Create dataframe of values to export
   exptval = data.frame(obsmean = obsmean,
                        hindcastbaseline = baseline,
@@ -637,10 +988,18 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
                        obs2070incease85 = dayincrease85,
                        hindcast2070increase45 = hindcastincrease45,
                        hindcast2070increase85 = hindcastincrease85,
+                       percenttrendincrease45 = (hindcastincrease45/baseline)*100,
+                       percenttrendincrease85 = (hindcastincrease85/baseline)*100,
                        # rlt1960 = dayincrease,
                        # trend = round(trend, 2),
                        mean452070 = tsData$rcp45.means[tsr2070],
-                       mean852070 = tsData$rcp85.means[tsr2070])
+                       mean852070 = tsData$rcp85.means[tsr2070],
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       obs2070incease45 = rcp45_20502079 - obsmean, 
+                       obs2070incease85 = rcp85_20502079 - obsmean, 
+                       percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
+                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100)
                        # mean452070 = round(tsData$rcp45.means[tsr2070],0),
                        # mean852070 = round(tsData$rcp85.means[tsr2070],0))
   
@@ -671,9 +1030,14 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
       cairo_ps(paste0(outDir, unique(sapply(strsplit(county45Tabs$county,"_"),"[[",1)), 
                       "-", fips, "-", var,"-", season, "-precipgraph1Proj.eps"), width=5.72, height=4.04)
     }
-    par(mar=c(3, 5, 2, 1))
     
-    plot(0, type="n",xlab="", ylab=ylabel, xaxs="i", 
+    if(add.legend){
+      par(mar=c(3, 5, 2.5, 1))
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 0.5, 1), las=1)
+    }
+    
+    plot(0, type="n",xlab="", ylab=ylabel, xaxs="i", yaxt="n", xaxt="n",
          ylim=c(ymintick,ymaxtick), xlim=c(1978.25,2079))
     
     polygon(y = c(predPoltly$rcp45.mins, rev(predPoltly$rcp45.maxs)), x = c(predPoltly$year, rev(predPoltly$year)), col = trans_colors[3], border = NA)
@@ -687,32 +1051,346 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
     lines(tsData$year[yrind:nrow(tsData)], tsData$rcp45.means[yrind:nrow(tsData)], col=colors[1], lwd=2)
     lines(tsData$year[yrind:nrow(tsData)], tsData$rcp85.means[yrind:nrow(tsData)], col=colors[2], lwd=2)
     
-    points(county.obs$year, county.obs[ ,obs.ind], pch=20, col = colors[6])
+    points(county.obs$year, county.obs[ ,obs.ind], pch=20, col = "black")
+    abline(h=obsmean, lty=2)
+    axis(2, las=2)
+    axis(1, at=seq(1990,2070, by=20))
     
     # Constructing Legend -----------------------------------------------------
     scenarios <- c("Observations", "Hindcast Range", "Low Emissions Average", 
                    "High Emissions Average", "Low Emissions Range", 
                    "High Emissions Range")
-    
+    if(add.legend){
     # Plot legend inside the graph or in the outer margin
     if(leg.inside){
       legend("topleft", legend = scenarios,
              pch = c(NA, NA, 15, 15, 15, 20), lty=c(2, 2, NA, NA, NA, NA),
              lwd=c(2, 2, NA, NA, NA, NA), pt.cex = c(NA, NA, 2, 2, 2, 1),
-             col = c(colors[1:2], trans_colors[3:5], colors[6]), bty="n")
+             col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
     } else{
       # For Average
+      legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
       add_legend("topright", legend = scenarios,
                  pch = c(20, 15, NA, NA, 15, 15), lty=c(NA, NA, 1, 1, NA, NA),
                  lwd=c(NA, NA, 2, 2, NA, NA), pt.cex = c(1, 2, NA, NA, 2, 2),
-                 col = c(colors[6], trans_colors[5], colors[1:2], trans_colors[3:4]),
+                 col = c("black", trans_colors[5], colors[1:2], trans_colors[3:4]),
                  bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
+      
+    }
     }
     
     dev.off()
   }
   return(exptval)
 }
+
+##########################################################################
+# Precipitation Violin Graph
+##########################################################################
+calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var, 
+                             ylabel, plot_type = "poly", create.plot=TRUE, leg.inside = TRUE, 
+                             add.legend = TRUE){
+  #################
+  # fips <- "shp"
+  # dataTab <- NHwet99thThres
+  # obsTab = NHwet99thObsThres
+  # ylabel = "1% precipitation event"
+  # # percent=FALSE
+  # outDir=outDir
+  # # season = NULL
+  # var = "99th"
+  # plot_type = "box"
+  # create.plot = TRUE
+  # leg.inside = FALSE
+  #################
+  
+  # Set average periods -----------------------------------------------------
+  clim.decades <- c("1990-2019", "2020-2049", "2050-2079")
+  
+  # Format observations -----------------------------------------------------
+  county.obs <- obsTab[obsTab$FIPS==fips,]
+  
+  # Convert from mm to inches
+  county.obs$inches <- county.obs$thres/25.4
+  
+  # Format hindcasts and projections ----------------------------------------
+  ## Seperate the scenarios
+  rcp45Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp45",]
+  rcp85Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp85",]
+ 
+  # Convert from mm to inches
+  rcp45Tab$inches <- rcp45Tab$thres/25.4
+  rcp85Tab$inches <- rcp85Tab$thres/25.4
+  
+  # Calculate the mean, min, and max over the 20 models
+  rcp45Means <- sapply(clim.decades, function(dec_yr){mean(rcp45Tab$inches[which(rcp45Tab$period %in% dec_yr)])})
+  rcp85Means <- sapply(clim.decades, function(dec_yr){mean(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
+  rcp45Min <- sapply(clim.decades, function(dec_yr){min(rcp45Tab$inches[which(rcp45Tab$period %in% dec_yr)])})
+  rcp85Min <- sapply(clim.decades, function(dec_yr){min(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
+  rcp45Max <- sapply(clim.decades, function(dec_yr){max(rcp45Tab$inches[which(rcp45Tab$period %in% dec_yr)])})
+  rcp85Max <- sapply(clim.decades, function(dec_yr){max(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
+
+  rcp45df <- data.frame(min = rcp45Min, mean = rcp45Means, max = rcp45Max)
+  rcp85df <- data.frame(min = rcp85Min, mean = rcp85Means, max = rcp85Max)
+  
+  # Export values ----------------------------------------------------------- 
+  baseline = mean(c(rcp45df$mean[1], rcp85df$mean[1]))
+  hindcastincrease45 = rcp45df$mean[3] - baseline
+  hindcastincrease85 = rcp85df$mean[3] - baseline
+  obs2070incease45 = (rcp45df$mean[3] - county.obs$inches)
+  obs2070incease85 = (rcp85df$mean[3] - county.obs$inches)
+  
+  exptval = data.frame(obsmean = county.obs$inches,
+                       hindcastmean = baseline,
+                       obs2070incease45 = obs2070incease45,
+                       obs2070incease85 = obs2070incease85,
+                       percentobsincrease45 = (obs2070incease45/county.obs$inches)*100,
+                       percentobsincrease85 = (obs2070incease85/county.obs$inches)*100,
+                       hindcast2070increase45 = hindcastincrease45,
+                       hindcast2070increase85 = hindcastincrease85,
+                       percenthindincrease45 = (hindcastincrease45/baseline)*100,
+                       percenthindincrease85 = (hindcastincrease85/baseline)*100,
+                       rcp45_20502079 = rcp45df$mean[3],
+                       rcp85_20502079 = rcp85df$mean[3])
+  
+  # Plot --------------------------------------------------------------------
+  if(create.plot){
+    ##Setting some graphical information
+    colors <- c(rgb(0, 0.4, 0.6, 1), rgb(1, 0.2, 0.4, 1), rgb(0, 0.4, 0.6, 0.4), 
+                rgb(1, 0.2, 0.4, 0.4), rgb(0.8, 0.8, 0.8, 0.8), "#999999")
+    
+    # Transparent colors with transparent color function
+    trans_colors100 = makeTransparent(colors, 100)
+    trans_colors150 = makeTransparent(colors, 150)
+    trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
+    
+    allvals = c(county.obs$inches, rcp45Tab$inches, rcp85Tab$inches)
+    
+    # Constructing graph ------------------------------------------------------
+    if(plot_type == "vio"){
+      cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+                      "-", fips, "-", var, "-viograph1.eps"), 
+               width=5.72, height=4.04)
+      
+      par(mar=c(3, 4, 2, 1), las=1)
+      
+      vioplot(inches~period, data=rcp45Tab, col = c(trans_colors[5], rep(trans_colors[3], 2)),
+              plotCentre = "line", side="left", xlab="", ylab=ylabel, xaxt="n", 
+              ylim=c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
+      
+      vioplot(inches~period, data=rcp85Tab, col = c(trans_colors[5], rep(trans_colors[4], 2)), 
+              plotCentre = "line", side = "right", add = T)
+      
+      stripchart(county.obs$inches~county.obs$period, vertical=TRUE, 
+                 method = "jitter", pch = 20, add = TRUE, col="black")
+      
+      axis(side=1, at=1:nrow(rcp45df), las = 1, label=rownames(rcp45df), tick=FALSE)
+      
+      points(2:3, rcp45df$mean[2:3], pch = 19, col = colors[1])
+      points(2:3, rcp85df$mean[2:3], pch = 19, col = colors[2])
+      
+      # Constructing Legend -----------------------------------------------------
+      scenarios <- c("Hindcast Range", "Observations", 
+                     "Low Emissions Average", "High Emissions Average",
+                     "Low Emissions Range", "High Emissions Range")
+      
+      # Plot legend inside the graph or in the outer margin
+      if(add.legend){
+        if(leg.inside){
+          legend("topleft", legend = scenarios,
+                 pch = c(19, 19, 15, 15, 15, 20), pt.cex = c(1, 1, 2, 2, 2, 1),
+                 col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
+        } else{
+          # For Average
+          add_legend("topright", legend = scenarios,
+                     pch = c(15, 20, 19, 19, 15, 15), pt.cex = c(2, 1, 1, 1, 2, 2),
+                     col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
+                     bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
+        }
+      }
+      dev.off()
+    } else if(plot_type == "bar"){
+    cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+                    "-", fips, "-", var, "-bargraph1.eps"), 
+             width=5.72, height=4.04)
+    
+    par(mar=c(3, 4, 2, 1), las=1)
+    
+    graphing.data = mat.or.vec(3,3)
+    graphing.data[1,] = c((baseline - baseline), rep(NA, 2))
+    graphing.data[2,] = c(NA, (rcp45df$mean[2:3] - baseline))
+    graphing.data[3,] = c(NA, (rcp85df$mean[2:3] - baseline))
+    graphing.data = (graphing.data/baseline)*100
+    
+    colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    ##make the bar plot
+    #Might need to adjust y axis here and below, as needed
+    pretty_axis = pretty(range(graphing.data, na.rm=TRUE))
+    barplot(graphing.data[2:3, ], beside = T, col = colors_bar, 
+            ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
+            space = c(0, 0.4))
+    box()
+    par(new = T)
+    barplot(graphing.data[1, ], ylim = range(pretty_axis),
+            col = "gray60", width = c(rep(0.8, times = 7)), 
+            xlab = "", xaxt = "n", axes = F)
+    abline(h = 0, lty = 3, lwd = 1, col = "black")
+    # abline(linreg45)
+    # abline(linreg85)
+    # box()
+    
+    #Adding x and y axes text
+    axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, "%"))
+    mtext(side=2, line=2.7, at=mean(pretty_axis), ylabel, font=1, las=0)
+    # mtext(side=1, at=c(0.55, 1.5, 2.45), las = 1, clim.decades)
+    axis(side=1, at=c(0.55, 1.5, 2.45), las = 1, label=rownames(rcp45df), tick=FALSE)
+    
+    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    
+    # Plot legend inside the graph or in the outer margin
+    if(leg.inside){
+      legend("topleft", legend = scenarios,
+             fill = c(colors_bar, "gray60"), bty="n")
+    } else{
+      add_legend("topright", legend = scenarios,
+                 fill = c(colors_bar, "gray60"),
+                 bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
+    }
+    dev.off()
+    
+    } else if(plot_type == "box"){
+      
+      ##Assembling into a data frame for plotting
+      hindAve = rep(NA, nrow(rcp45Tab))
+      for(i in 1:nrow(rcp45Tab)){
+        hindAve[i] = mean(rcp45Tab$inches[i], rcp85Tab$inches[i])
+      }
+      hindTab = data.frame(period = rcp45Tab$period, model = rcp45Tab$model, inches=hindAve)
+      subhind = hindTab[which(hindTab$period %in% unique(hindTab$period)[1]), ]
+      subrcp45 = rcp45Tab[which(rcp45Tab$period %in% unique(hindTab$period)[2:3]), ]
+      subrcp85 = rcp85Tab[which(rcp85Tab$period %in% unique(hindTab$period)[2:3]), ]
+      
+      datatest = data.frame(period = c(subhind$period, subrcp45$period, subrcp85$period), 
+                            inches = c(subhind$inches, subrcp45$inches, subrcp85$inches),
+                            type = c(rep("hindcast", nrow(subhind)), 
+                                     rep("rcp45", nrow(subrcp45)),
+                                     rep("rcp85", nrow(subrcp85))))
+      
+      df2 = datatest
+      df2$type <- factor(df2$type, levels = c("hindcast","rcp45","rcp85"))
+      df2$period = as.character(df2$period)
+      
+      # Count the number of decades (for boxplot)
+      decadeind = which(clim.decades %in% unique(county.obs$period))
+      for(dind in decadeind){
+        county.obs$int[which(county.obs$period == clim.decades[dind])] <- dind
+      }
+      county.obs$shape = "Observations" # for legend
+      
+      # compute lower and upper whiskers limits
+      ylim1 = boxplot.stats(df2$inches)$stats[c(1, 5)]
+      
+      ylim2 = c(min(c(ylim1[1], county.obs$inches)), 
+                max(c(county.obs$inches, ylim1[2])))
+      
+      if(add.legend){
+        bpl <- ggplot(data = df2, aes(x=period,y=inches, color=type)) +
+          stat_boxplot(geom = "errorbar")+
+          scale_color_manual(values=rep("black", 3))+
+          geom_boxplot(aes(fill=type), outlier.shape = NA) +
+          theme_bw() + 
+          theme_update(panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank(),
+                       strip.background = element_blank()) +
+          theme(legend.position="top", legend.box.spacing = unit(0, "pt"),
+                legend.margin=margin(0,0,0,-6), legend.spacing.x = unit(0.1, "cm"),
+                legend.text=element_text(size=9),
+                axis.title = element_text(size = 12, colour="black"), 
+                axis.text = element_text(size = 12, colour="black")) +
+          geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), color="black") +
+          labs(x="", y=ylabel, color="", fill="", shape="") + 
+          guides(color="none") + 
+          scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
+                            labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
+          coord_cartesian(ylim = ylim2)
+      } else {
+        bpl <- ggplot(data = df2, aes(x=period,y=inches, color=type)) +
+          stat_boxplot(geom = "errorbar")+
+          scale_color_manual(values=rep("black", 3))+
+          geom_boxplot(aes(fill=type), outlier.shape = NA, show.legend = FALSE) +
+          theme_bw() + 
+          theme_update(panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank(),
+                       strip.background = element_blank()) +
+          theme(axis.title = element_text(size = 12, colour="black"), 
+                axis.text = element_text(size = 12, colour="black")) +
+          geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), 
+                     color="black", show.legend = FALSE) +
+          labs(x="", y=ylabel, color="", fill="", shape="") + 
+          guides(color="none") +
+          scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1")) +
+          coord_cartesian(ylim = ylim2)
+        # print(bp)
+      }
+      psname = paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)),
+                      "-", fips, "-", var, "-Boxgraph1.eps")
+      ggsave(filename=psname, plot=bpl, width=5.72, height=4.04, units="in")
+      
+    
+  } else if(plot_type == "poly"){
+    cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+                    "-", fips, "-", var, "-polygraph1.eps"), 
+             width=5.72, height=4.04)
+    
+    par(mar=c(3, 4, 2, 1), las=1)
+    
+    plot(0, type="n", xlab="", ylab=ylabel, xaxt="n", 
+         ylim=c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)), 
+         xlim=c(0.5,3.5))
+    
+    rect(0.5, mean(c(rcp45df$min[1], rcp85df$min[1])), 1.5, 
+         mean(c(rcp45df$max[1], rcp85df$max[1])), col=trans_colors[5], border=NA)
+    rect(1.5, rcp85df$min[2], 2.5, rcp85df$max[2], col=trans_colors[4], border=NA)
+    rect(2.5, rcp85df$min[3], 3.5, rcp85df$max[3], col=trans_colors[4], border=NA)
+    
+    rect(1.5, rcp45df$min[2], 2.5, rcp45df$max[2], col=trans_colors[3], border=NA)
+    rect(2.5, rcp45df$min[3], 3.5, rcp45df$max[3], col=trans_colors[3], border=NA)
+    
+    points(1, county.obs$inches, pch = 20, col="black")
+    lines(c(1.5, 2.5), rep(rcp85df$mean[2], 2), col=colors[4], lwd=3)
+    lines(c(2.5, 3.5), rep(rcp85df$mean[3], 2), col=colors[4], lwd=3)
+    lines(c(1.5, 2.5), rep(rcp45df$mean[2], 2), col=colors[3], lwd=3)
+    lines(c(2.5, 3.5), rep(rcp45df$mean[3], 2), col=colors[3], lwd=3)
+    
+    # mtext(side=1, at=1:3, las = 1, clim.decades)
+    axis(side=1, at=1:3, las = 1, label=rownames(rcp45df), tick=FALSE)
+    
+    # Constructing Legend -----------------------------------------------------
+    scenarios <- c("Hindcast Range", "Observations", 
+                   "Low Emissions Average", "High Emissions Average",
+                   "Low Emissions Range", "High Emissions Range")
+    
+    # Plot legend inside the graph or in the outer margin
+    if(add.legend){
+      if(leg.inside){
+        legend("topleft", legend = scenarios,
+               pch = c(19, 19, 15, 15, 15, 20), pt.cex = c(1, 1, 2, 2, 2, 1),
+               col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
+      } else{
+        # For Average
+        add_legend("topright", legend = scenarios,
+                   pch = c(15, 20, NA, NA, 15, 15), pt.cex = c(2, 1, NA, NA, 2, 2),
+                   lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
+                   col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
+                   bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
+      }
+    }
+    dev.off()
+  }
+  }
+  return(exptval)
+}
+
 
 ##########################################################################
 # SEASONAL GRAPHS
@@ -1397,7 +2075,7 @@ calcSeasPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
 ##########################################################################
 # Plot seasonal cycle
 ##########################################################################
-calcSeasCycle <- function(fips, pastdat, futdat, type, outDir, ylabel = NULL){
+calcSeasCycle <- function(fips, pastdat, futdat, type, outDir, ylabel = NULL, futyear=2020){
   #################
   # pastdat = cycletot1950
   # futdat = cycletot2020
@@ -1407,27 +2085,31 @@ calcSeasCycle <- function(fips, pastdat, futdat, type, outDir, ylabel = NULL){
   # outDir <- precipDir
   #################
 
+# Set future year timeframe: default is 2020 - 2069
+xstart = paste0("X", futyear)
+xend = paste0("X", futyear+49)
+
 listmon = tolower(month.abb)
 
 rcp45Tab <- lapply(listmon, function(mon){pastdat[pastdat$FIPS==fips & pastdat$months==mon & pastdat$rcp=="rcp45",]})
-Tab45 <- lapply(rcp45Tab, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
-Tab45max <- lapply(rcp45Tab, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
-Tab45min <- lapply(rcp45Tab, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
+Tab45 <- lapply(rcp45Tab, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
+Tab45max <- lapply(rcp45Tab, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
+Tab45min <- lapply(rcp45Tab, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
 
 rcp85Tab <- lapply(listmon, function(mon){pastdat[pastdat$FIPS==fips & pastdat$months==mon & pastdat$rcp=="rcp85",]})
-Tab85 <- lapply(rcp85Tab, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
-Tab85max <- lapply(rcp85Tab, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
-Tab85min <- lapply(rcp85Tab, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')]))})
+Tab85 <- lapply(rcp85Tab, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
+Tab85max <- lapply(rcp85Tab, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
+Tab85min <- lapply(rcp85Tab, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X1950'):which(colnames(dat) == 'X1999')], na.rm = TRUE))})
 
 rcp45Tab2020 <- lapply(listmon, function(mon){futdat[futdat$FIPS==fips & futdat$months==mon & futdat$rcp=="rcp45",]})
-Tab452020 <- lapply(rcp45Tab2020, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
-Tab452020max <- lapply(rcp45Tab2020, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
-Tab452020min <- lapply(rcp45Tab2020, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
+Tab452020 <- lapply(rcp45Tab2020, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
+Tab452020max <- lapply(rcp45Tab2020, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
+Tab452020min <- lapply(rcp45Tab2020, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
 
 rcp85Tab2020 <- lapply(listmon, function(mon){futdat[futdat$FIPS==fips & futdat$months==mon & futdat$rcp=="rcp85",]})
-Tab852020 <- lapply(rcp85Tab2020, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
-Tab852020max <- lapply(rcp85Tab2020, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
-Tab852020min <- lapply(rcp85Tab2020, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == 'X2020'):which(colnames(dat) == 'X2069')]))})
+Tab852020 <- lapply(rcp85Tab2020, function(dat){mean(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
+Tab852020max <- lapply(rcp85Tab2020, function(dat){max(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
+Tab852020min <- lapply(rcp85Tab2020, function(dat){min(rowMeans(dat[ ,which(colnames(dat) == xstart):which(colnames(dat) == xend)], na.rm = TRUE))})
 
 monthly = data.frame(rcp45_1950 = unlist(Tab45), rcp85_1950 = unlist(Tab85), rcp45_2020 = unlist(Tab452020), rcp85_2020 = unlist(Tab852020),
                      rcp45_1950max = unlist(Tab45max), rcp85_1950max = unlist(Tab85max), 
@@ -1435,7 +2117,7 @@ monthly = data.frame(rcp45_1950 = unlist(Tab45), rcp85_1950 = unlist(Tab85), rcp
                      rcp45_1950min = unlist(Tab45min), rcp85_1950min = unlist(Tab85min), 
                      rcp45_2020min = unlist(Tab452020min), rcp85_2020min = unlist(Tab852020min))
 
-if(type=="tot"){
+if(type=="tot" | type=="99tot"){
   monthly = monthly/25.4
 }
 
@@ -1452,7 +2134,7 @@ trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
 ylimits = range(monthly)
 
 # Constructing graph ------------------------------------------------------
-cairo_ps(paste0(outDir, unique(rcp45Tab[[1]]$county), "-", type,"-cycle.eps"), width=5.72, height=4.04)
+cairo_ps(paste0(outDir, unique(rcp45Tab[[1]]$county), "-", type,futyear,"-cycle.eps"), width=5.72, height=4.04)
 
 par(mgp=c(1.5,.5,0), mar=c(3, 3, 2, 1))
 
@@ -1482,7 +2164,6 @@ add_legend("topright", legend = scenarios,
            lwd=c(2, NA, 2, 2, NA, NA), pt.cex = c(NA, 2, NA, NA, 2, 2),
            col = c(colors[6], trans_colors[5], colors[1:2], trans_colors[3:4]),
            bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
-
 
 dev.off()
 }
@@ -1542,32 +2223,335 @@ calcIDF <- function(fips, changeFactor, idf, rp, outDir){
   color45 = brewer.pal((length(rp)+1), "Blues")[2:(length(rp)+1)]
   color85 = brewer.pal((length(rp)+1), "Reds")[2:(length(rp)+1)]
   
-  namerp = paste0(rp, "yr")
+  namerp = paste0(rp, "-yr")
   
-  cairo_ps(paste0(outDir, unique(rcp45Tab$county), "-IDF.eps"), width=5.72, height=4.04)
-  par(mgp=c(1.5,.5,0), mar=c(3, 3, 1, 1))
-  
-  plot(duration, type="n", xlab="Duration", ylab="Depth (in)", ylim=ylimits, 
-       xlim = xlimits, xaxt="n", las=1, log="x")
+  # cairo_ps(paste0(outDir, unique(rcp45Tab$county), "-IDF.eps"), width=5.72, height=4.04)
+  cairo_ps(paste0(outDir, unique(rcp45Tab$county), "-IDF.eps"), width=4, height=11)
+  par(mfrow=c(length(rp), 1), mgp=c(1.5,.5,0), mar=c(3, 3, 1, 1))
   
   for(i in 1:length(rp)){
+    if(i == 1){
+      par(mar=c(0.5, 3, 1, 1))
+    } else if(i == length(rp)){
+      par(mar=c(3, 3, 0, 1))
+    } else {
+      par(mar=c(1, 3, 0.5, 1))
+    }
+    plot(duration, type="n", xlab="Duration", ylab="", ylim=ylimits, 
+         xlim = xlimits, xaxt="n", las=1, log="x")
     lines(duration, subidf[ ,which(colnames(subidf) == paste0("X", rp[i]))], col=colors[6], lwd=2)
     lines(duration, idf45_df[ ,which(colnames(idf45_df) == paste0("X", rp[i]))], col=colors[1], lwd=2)
     lines(duration, idf85_df[ ,which(colnames(idf85_df) == paste0("X", rp[i]))], col=colors[2], lwd=2)
-    text(duration[10], idf85_df[ ,which(colnames(idf85_df) == paste0("X", rp[i]))][10], col=colors[2], 
-           labels = namerp[i], cex=0.9)
-    text(duration[9], idf45_df[ ,which(colnames(idf45_df) == paste0("X", rp[i]))][9], col=colors[1], 
-         labels = namerp[i], cex=0.9)
-    text(duration[8], subidf[ ,which(colnames(subidf) == paste0("X", rp[i]))][8], col=colors[6], 
-         labels = namerp[i], cex=0.9)
+    # text(duration[10], idf85_df[ ,which(colnames(idf85_df) == paste0("X", rp[i]))][10], col=colors[2], 
+    #        labels = namerp[i], cex=0.9)
+    # text(duration[9], idf45_df[ ,which(colnames(idf45_df) == paste0("X", rp[i]))][9], col=colors[1], 
+    #      labels = namerp[i], cex=0.9)
+    # text(duration[8], subidf[ ,which(colnames(subidf) == paste0("X", rp[i]))][8], col=colors[6], 
+    #      labels = namerp[i], cex=0.9)
+    abline(v=duration, col = "lightgray", lty = "dotted")
+    grid(nx=NA, ny=NULL)
+    legend("topleft", namerp[i], bty="n")
+    if(i == 1){
+      scenarios <- c("", "Low Emissions Average", "High Emissions Average", "Hindcast Average")
+      legend("topleft", legend = scenarios, pch=c(NA, 15,15,15), pt.cex=2,
+             col = c(NA, colors, "gray60"), bty="n")
+    }
   }
-
+  mtext(side=2, line=-1.5, "Depth (in)", font=1, las=0, outer=TRUE)
+  
   #Adding x and y axes text
   axis(side = 1, at = duration, labels = durlab, cex=0.8)
+  dev.off()
+}
 
-  scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
-  legend("topleft", legend = scenarios,
-         fill = c(colors, "gray60"), bty="n")
+##########################################################################
+# Plot seasonal cycle
+##########################################################################
+colMaxs <- function(data) sapply(data, max, na.rm = TRUE)
+colMins <- function(data) sapply(data, min, na.rm = TRUE)
+
+calcIDF_range <- function(fips, changeFactor, idf, rp, timeframe, outDir){
+  
+  #################
+  # fips = 51155
+  # idf = idfPulaski
+  # rp = 25
+  # changeFactor
+  #outDir <- tempDir
+  #################
+  
+  rcp45Tab <- changeFactor[changeFactor$FIPS==fips & changeFactor$rcp=="rcp45",]
+  factor45 <- colMeans(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  factor45max <- colMaxs(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  factor45min <- colMins(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  
+  rcp85Tab <- changeFactor[changeFactor$FIPS==fips & changeFactor$rcp=="rcp85",]
+  factor85 <- colMeans(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  factor85max <- colMaxs(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  factor85min <- colMins(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  
+  subidf <- idf[, c(1, which(colnames(idf) %in% paste0("X", rp)))]
+  
+  idf45 <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45[which(names(factor45)==paste0("X", returnperiod, "yr"))]})
+  idf45_df <- cbind.data.frame(idf45)
+  colnames(idf45_df) = paste0("X", rp)
+  rownames(idf45_df) = gsub(":", "", subidf$by.duration.for.ARI..years..)
+  
+  idf45max <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45max[which(names(factor45max)==paste0("X", returnperiod, "yr"))]})
+  idf45max_df <- cbind.data.frame(idf45max)
+  idf45min <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45min[which(names(factor45min)==paste0("X", returnperiod, "yr"))]})
+  idf45min_df <- cbind.data.frame(idf45min)
+  colnames(idf45min_df) <- "min45"
+  colnames(idf45max_df) <- "max45"
+  
+  idf45_df <- cbind.data.frame(idf45_df, idf45min_df, idf45max_df)
+  
+  idf85 <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85[which(names(factor85)==paste0("X", returnperiod, "yr"))]})
+  idf85_df <- cbind.data.frame(idf85)
+  colnames(idf85_df) = paste0("X", rp)
+  rownames(idf85_df) = gsub(":", "", subidf$by.duration.for.ARI..years..)
+  
+  idf85max <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85max[which(names(factor85max)==paste0("X", returnperiod, "yr"))]})
+  idf85max_df <- cbind.data.frame(idf85max)
+  idf85min <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85min[which(names(factor85min)==paste0("X", returnperiod, "yr"))]})
+  idf85min_df <- cbind.data.frame(idf85min)
+  colnames(idf85min_df) <- "min85"
+  colnames(idf85max_df) <- "max85"
+  
+  idf85_df <- cbind.data.frame(idf85_df, idf85min_df, idf85max_df)
+  
+  # Duration in minutes
+  # 5-min, 10-min, 15-min, 30-min, 60-min, 2-hr, 3-hr, 6-hr, 12-hr
+  # 24-hr, 2-day, 3-day, 4-day, 7-day, 10-day, 20-day, 30-day, 45-day, 60-day
+  duration = c(5, 10, 15, 30, 60, 120, 180, 360, 720, 1440, 2880, 4320, 5760, 
+               10080, 14400, 28800, 43200, 64800, 86400)
+  durlab = c("5-min", "10-min", "15-min", "30-min", "60-min", "2-hr", "3-hr", 
+             "6-hr", "12-hr", "24-hr", "2-day", "3-day", "4-day", "7-day", 
+             "10-day", "20-day", "30-day", "45-day", "60-day")
+  
+  ylimits = range(subidf[1:which(subidf[ ,1]=="24-hr:"),2:ncol(subidf)], 
+                  idf45_df[1:which(rownames(idf45_df)=='24-hr'), ], 
+                  idf85_df[1:which(rownames(idf85_df)=='24-hr'), ])
+  xlimits = c(5, 1440)
+  
+  # Set colors
+  colors <- c(rgb(0, 0.4, 0.6, 1), rgb(1, 0.2, 0.4, 1), rgb(0, 0.4, 0.6, 0.4), 
+              rgb(1, 0.2, 0.4, 0.4), rgb(0.8, 0.8, 0.8, 0.8), "#999999")
+  
+  # Transparent colors with transparent color function
+  trans_colors100 = makeTransparent(colors, 100)
+  trans_colors150 = makeTransparent(colors, 150)
+  trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
+  
+  # colorhind = brewer.pal((length(rp)+1), "Greys")[2:(length(rp)+1)]
+  # color45 = brewer.pal((length(rp)+1), "Blues")[2:(length(rp)+1)]
+  # color85 = brewer.pal((length(rp)+1), "Reds")[2:(length(rp)+1)]
+  
+  namerp = paste0(rp, "-yr")
+  
+  # cairo_ps(paste0(outDir, unique(rcp45Tab$county), "-IDF.eps"), width=5.72, height=4.04)
+  cairo_ps(paste0(outDir, unique(rcp45Tab$county), "_", rp, "-yr_",
+                  timeframe, "_Uncertainty-IDF.eps"), width=5.72, height=4.04)
+  par(mfrow=c(length(rp), 1), mgp=c(1.5,.5,0), mar=c(3, 3, 1, 1))
+  
+  # for(i in 1:length(rp)){
+  #   if(i == 1){
+  #     par(mar=c(0.5, 3, 1, 1))
+  #   } else if(i == length(rp)){
+  #     par(mar=c(3, 3, 0, 1))
+  #   } else {
+  #     par(mar=c(1, 3, 0.5, 1))
+  #   }
+    plot(duration, type="n", xlab="Duration", ylab="", ylim=ylimits, 
+         xlim = xlimits, xaxt="n", las=1, log="x")
+
+    polygon(y = c(idf45_df$min45, rev(idf45_df$max45)), x = c(duration, rev(duration)), col = trans_colors[3], border = NA)
+    polygon(y = c(idf85_df$min85, rev(idf85_df$max85)), x = c(duration, rev(duration)), col = trans_colors[4], border = NA)
+    
+    # polygon(y = c(monthly$rcp45_1950min, rev(monthly$rcp45_1950max)), 
+    #         x = c(1:12, 12:1), col = trans_colors[5], border = NA)
+    
+    # lines(duration, subidf[ ,which(colnames(subidf) == paste0("X", rp))], col=colors[6], lwd=2)
+    lines(duration, subidf[ ,which(colnames(subidf) == paste0("X", rp))], col="dimgrey", lwd=2)
+    lines(duration, idf45_df[ ,which(colnames(idf45_df) == paste0("X", rp))], col=colors[1], lwd=2)
+    lines(duration, idf85_df[ ,which(colnames(idf85_df) == paste0("X", rp))], col=colors[2], lwd=2)
+    # text(duration[10], idf85_df[ ,which(colnames(idf85_df) == paste0("X", rp[i]))][10], col=colors[2], 
+    #        labels = namerp[i], cex=0.9)
+    # text(duration[9], idf45_df[ ,which(colnames(idf45_df) == paste0("X", rp[i]))][9], col=colors[1], 
+    #      labels = namerp[i], cex=0.9)
+    # text(duration[8], subidf[ ,which(colnames(subidf) == paste0("X", rp[i]))][8], col=colors[6], 
+    #      labels = namerp[i], cex=0.9)
+    abline(v=duration, col = "lightgray", lty = "dotted")
+    grid(nx=NA, ny=NULL)
+    abline(h=2, col = "black", lty = "dashed", lwd=1.5)
+    legend("topleft", namerp, bty="n")
+    # if(i == 1){
+    scenarios <- c("", "Atlas 14", "Low Emissions Average", 
+                   "High Emissions Average", "Low Emissions Range", 
+                   "High Emissions Range")
+    legend("topleft", legend = scenarios, pch=c(NA,NA,NA,NA,15,15), 
+           lty=c(NA,1,1,1,NA,NA), pt.cex=c(NA,NA,NA,NA,2,2),
+           lwd=c(NA,2,2,2,NA,NA),
+           col = c(NA, "dimgrey", colors[1:2], trans_colors[3:4]), bty="n")
+    
+    # # For Average
+    # add_legend("topright", legend = scenarios,
+    #            pch = c(NA, 15, NA, NA, 15, 15), lty=c(1, NA, 1, 1, NA, NA),
+    #            lwd=c(2, NA, 2, 2, NA, NA), pt.cex = c(NA, 2, NA, NA, 2, 2),
+    #            col = c(colors[6], trans_colors[5], colors[1:2], trans_colors[3:4]),
+    #            bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
+    # 
+    #   scenarios <- c("", "Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    #   legend("topleft", legend = scenarios, pch=c(NA, 15,15,15), pt.cex=2,
+    #          col = c(NA, colors, "gray60"), bty="n")
+  #   }
+  # }
+  mtext(side=2, line=-1.3, "Depth (in)", font=1, las=0, outer=TRUE)
+  
+  #Adding x and y axes text
+  axis(side = 1, at = duration, labels = durlab, cex=0.8)
+  dev.off()
+}
+##########################################################################
+# Plot seasonal cycle
+##########################################################################
+calcIDF_depth <- function(fips, changeFactor, idf, rp, depth, timeframe, outDir){
+  
+  #################
+  # fips="shp"
+  # changeFactor=changeFactor2020
+  # idf=idfAtlas14
+  # rp=c(2, 5, 10, 25, 50, 100)
+  # depth = 2
+  #outDir <- precipDir
+  #################
+  
+  rcp45Tab <- changeFactor[changeFactor$FIPS==fips & changeFactor$rcp=="rcp45",]
+  factor45 <- colMeans(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  factor45max <- colMaxs(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  factor45min <- colMins(rcp45Tab[ ,5:ncol(rcp45Tab)])
+  
+  rcp85Tab <- changeFactor[changeFactor$FIPS==fips & changeFactor$rcp=="rcp85",]
+  factor85 <- colMeans(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  factor85max <- colMaxs(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  factor85min <- colMins(rcp85Tab[ ,5:ncol(rcp85Tab)])
+  
+  subidf <- idf[, c(1, which(colnames(idf) %in% paste0("X", rp)))]
+  
+  idf45 <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45[which(names(factor45)==paste0("X", returnperiod, "yr"))]})
+  idf45_df <- cbind.data.frame(idf45)
+  colnames(idf45_df) = paste0("X", rp)
+  rownames(idf45_df) = gsub(":", "", subidf$by.duration.for.ARI..years..)
+  
+  idf45max <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45max[which(names(factor45max)==paste0("X", returnperiod, "yr"))]})
+  idf45max_df <- cbind.data.frame(idf45max)
+  idf45min <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor45min[which(names(factor45min)==paste0("X", returnperiod, "yr"))]})
+  idf45min_df <- cbind.data.frame(idf45min)
+  colnames(idf45min_df) <- paste0("X", rp)
+  colnames(idf45max_df) <- paste0("X", rp)
+  
+  idf85 <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85[which(names(factor85)==paste0("X", returnperiod, "yr"))]})
+  idf85_df <- cbind.data.frame(idf85)
+  colnames(idf85_df) = paste0("X", rp)
+  rownames(idf85_df) = gsub(":", "", subidf$by.duration.for.ARI..years..)
+  
+  idf85max <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85max[which(names(factor85max)==paste0("X", returnperiod, "yr"))]})
+  idf85max_df <- cbind.data.frame(idf85max)
+  idf85min <- lapply(rp, function(returnperiod){subidf[ ,which(colnames(subidf) == paste0("X", returnperiod))] * 
+      factor85min[which(names(factor85min)==paste0("X", returnperiod, "yr"))]})
+  idf85min_df <- cbind.data.frame(idf85min)
+  colnames(idf85min_df) <- paste0("X", rp)
+  colnames(idf85max_df) <- paste0("X", rp)
+  
+  # Duration in minutes
+  # 5-min, 10-min, 15-min, 30-min, 60-min, 2-hr, 3-hr, 6-hr, 12-hr
+  # 24-hr, 2-day, 3-day, 4-day, 7-day, 10-day, 20-day, 30-day, 45-day, 60-day
+  duration = c(5, 10, 15, 30, 60, 120, 180, 360, 720, 1440, 2880, 4320, 5760, 
+               10080, 14400, 28800, 43200, 64800, 86400)
+  durlab = c("5-min", "10-min", "15-min", "30-min", "60-min", "2-hr", "3-hr", 
+             "6-hr", "12-hr", "24-hr", "2-day", "3-day", "4-day", "7-day", 
+             "10-day", "20-day", "30-day", "45-day", "60-day")
+  
+  time_45 = apply(idf45_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  time_85 = apply(idf85_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  time_idf = apply(subidf[ ,2:7], 2, function(X){approx(X, duration, xout = depth)$y})
+  time_45min = apply(idf45min_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  time_85min = apply(idf85min_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  time_45max = apply(idf45max_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  time_85max = apply(idf85max_df, 2, function(X){approx(X, duration, xout = depth)$y})
+  
+  # Set any NA values to 1 minute which is offscreen.
+  time_idf[is.na(time_idf)] = 1
+  time_45[is.na(time_45)] = 1
+  time_85[is.na(time_85)] = 1
+  time_45min[is.na(time_45min)] = 1
+  time_45max[is.na(time_45max)] = 1
+  time_85min[is.na(time_85min)] = 1
+  time_85max[is.na(time_85max)] = 1
+  xlimits=c(duration[1], max(c(time_45, time_85, time_idf, time_45min, 
+                               time_85min, time_45max, time_85max), na.rm = TRUE))
+  
+  # Set colors
+  colors <- c(rgb(0, 0.4, 0.6, 1), rgb(1, 0.2, 0.4, 1), rgb(0, 0.4, 0.6, 0.4), 
+              rgb(1, 0.2, 0.4, 0.4), rgb(0.8, 0.8, 0.8, 0.8), "#999999")
+  
+  # Transparent colors with transparent color function
+  trans_colors100 = makeTransparent(colors, 100)
+  trans_colors150 = makeTransparent(colors, 150)
+  trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
+  
+  cairo_ps(paste0(outDir, unique(rcp45Tab$county), "-", round(depth,1), "in_", 
+                  timeframe, "_IDF.eps"), width=5.72, height=4.04)
+  par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(3, 3, 2, 1))
+  
+  plot(time_idf, rp, yaxt="n", xaxt="n", log="x", type="l", 
+       xlim=xlimits, col="dimgrey", ylim=range(rp), yaxs="i",
+       ylab="Return period (yr)", xlab = "Duration", lwd=2)
+  axis(2, at=rp)
+  axis(1, at=duration, label=durlab)
+  
+  polygon(x = c(time_45min, rev(time_45max)), y = c(rp, rev(rp)), col = trans_colors[3], border = NA)
+  polygon(x = c(time_85min, rev(time_85max)), y = c(rp, rev(rp)), col = trans_colors[4], border = NA)
+  lines(time_idf, rp, col="dimgrey", lwd=2)
+  lines(time_45, rp, col=colors[1], lwd=2)
+  lines(time_85, rp, col=colors[2], lwd=2)
+
+  abline(v=duration, col = "lightgray", lty = "dotted")
+  abline(h=rp, col = "lightgray", lty = "dotted")
+  legend("topright", legend = paste("Depth:", round(depth, 1), "in"), bty="n")
+  # scenarios <- c("", "Atlas 14", "Low Emissions Average", 
+  #                "High Emissions Average", "Low Emissions Range", 
+  #                "High Emissions Range")
+  # legend("topright", legend = scenarios, pch=c(NA,NA,NA,NA,15,15), 
+  #        lty=c(NA,1,1,1,NA,NA), pt.cex=c(NA,NA,NA,NA,2,2),
+  #        lwd=c(NA,2,2,2,NA,NA),
+  #        col = c(NA, "dimgrey", colors[1:2], trans_colors[3:4]), bty="n")
+  # 
+  # scenarios <- c("Hindcast Average", "Hindcast Range", "Low Emissions Average", 
+  #                "High Emissions Average", "Low Emissions Range", 
+  #                "High Emissions Range")
+  scenarios <- c("Low Emissions Average", 
+  "High Emissions Average", "Low Emissions Range", 
+  "High Emissions Range", "Atlas 14")
+  
+  # For Average
+  add_legend("topright", legend = scenarios,
+             pch = c(NA,NA,15,15,NA), lty=c(1,1,NA,NA,1),
+             lwd=c(2,2,NA,NA,2), pt.cex = c(NA,NA,2,2,NA),
+             col = c(colors[1:2], trans_colors[3:4], "dimgrey"),
+             bty='n', cex=0.8, ncol=3, text.width=c(0.48, 0.48, 0.43, 0.43, 0.3))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
+  
   dev.off()
 }
 

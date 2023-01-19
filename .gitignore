@@ -5,6 +5,11 @@
 *.pbs.e*
 *.pbs.o*
 
+# Hide Outlook design files
+outlooks/*.pdf
+outlooks/*.indd
+outlooks/*.png
+
 # Temp files
 temp/GridMetintermeds
 temp/MACA
@@ -16,6 +21,9 @@ TimeSeries_MACA/*/*.nc
 # all the csv files except the merged ones in MACA
 TimeSeries_MACA/*/*.csv
 !TimeSeries_MACA/*/*full.csv
+
+# DS_Store files
+*/*.DS_Store
 
 # History files
 .Rhistory
