@@ -216,8 +216,12 @@ read.nc.50 <- function(nc, type, decs, inRCP, trueDate){
 ##########################################################################
 # Function to read the netcdf files and find the 99th percentile threshold of 
 # daily precipitation
+# method='yearlyAve'
+# method='periodAve'
 ##########################################################################
-read.nc.99th <- function(nc, type, inRCP, trueDate, startDate="19900101", endDate="20191231"){
+read.nc.99th <- function(nc, type, inRCP, trueDate, startDate="19900101", 
+                         endDate="20191231", method='periodAve'){ 
+
   # Start the clock!
   # ptm <- proc.time()
   
@@ -288,29 +292,48 @@ read.nc.99th <- function(nc, type, inRCP, trueDate, startDate="19900101", endDat
     subStack<-val[ ,stYrInd:edYrInd]
     # return(subStack)})
     
-    datNames<-colnames(subStack);
-    if(is.null(datNames)){datNames<-names(subStack)}; # if only one grid cell
-    decYrs<-unique(as.numeric(substr(datNames,2,5)));
-    ##isolate and summarize data by year
-    yrSumm<-sapply(decYrs, function(yr){
-      if(is.null(dim(subStack))){ # if only one grid cell
-        yrData<-subStack[grep(paste0("X",yr),datNames)];
-        per99 <- quantile(yrData[-which(yrData<0.5)], prob=0.99)
-      } else {
-        yrData<-as.matrix(subStack[,grep(paste0("X",yr),datNames)]);
-        per99 <- apply(yrData, 1, function(X){quantile(X[-which(X<0.5)], prob=0.99)})
-      }
-      return(per99)})
-    per99mean <- mean(yrSumm)
+    ## For each station, the 99th percentile threshold of daily precipitation was determined 
+    ## from the 1901-2016 data using only days with at least 0.5 mm of precipitation.
     
-    # # For each station, the 99th percentile threshold of daily precipitation was determined 
-    # # from the 1901-2016 data using only days with at least 0.5 mm of precipitation.
-    # if(is.null(dim(subStack))){ # if one grid point
-    #   per99 <- quantile(subStack[-which(subStack<0.5)], prob=0.99)
-    # } else {
-    #   per99grids <- apply(subStack, 1, function(X){quantile(X[-which(X<0.5)], prob=0.99)})
-    #   per99 <- mean(per99grids)
-    # }
+    # Option 1: Take the average from each year
+    # 1. Extract the data for each individual year from 1990-2019 
+    #     (this will be a matrix, grid points x days in the year) (660 grid points x 365 days)
+    # 2. calculate the 99th val at each grid point for a specified year.
+    # 3. calculate the mean across all grid points to get the 99th val for the region for the specific year
+    # 4. repeat for 30+ years
+    # 5. calculate the mean across those 30+ years to get the 99th val
+    if(method == 'yearlyAve'){
+      datNames<-colnames(subStack);
+      if(is.null(datNames)){datNames<-names(subStack)}; # if only one grid cell
+      decYrs<-unique(as.numeric(substr(datNames,2,5)));
+      ##isolate and summarize data by year
+      yrSumm<-sapply(decYrs, function(yr){
+        if(is.null(dim(subStack))){ # if only one grid cell
+          yrData<-subStack[grep(paste0("X",yr),datNames)];
+          per99 <- quantile(yrData[-which(yrData<0.5)], prob=0.99)
+        } else {
+          yrData<-as.matrix(subStack[,grep(paste0("X",yr),datNames)]);
+          per99 <- apply(yrData, 1, function(X){quantile(X[-which(X<0.5)], prob=0.99)})
+        }
+        return(per99)})
+      per99mean <- mean(yrSumm)
+    }
+
+    # Option 2: Use the whole time period instead of the average of individual years
+    # 1. Extract the data for the entire time period 1990:2019 
+    #     (matrix, grid points x entire time period) (660 grid points x (30 years x 365 days))
+    # 2. Calculate the 99th val at each grid point for the entire time period
+    # 3. Calculate the mean across all grid points to get the 99th val for the 
+    #     region for the 30yr time period
+    if(method == 'periodAve'){
+      if(is.null(dim(subStack))){ # if one grid point
+        per99 <- quantile(subStack[-which(subStack<0.5)], prob=0.99)
+      } else {
+        per99grids <- apply(subStack, 1, function(X){quantile(X[-which(X<0.5)], prob=0.99)})
+        per99 <- mean(per99grids)
+      }
+      per99mean <- per99
+    }
     return(per99mean)
   }
 }
@@ -599,7 +622,7 @@ calcSeasonCycle <- function(nc, decs, thres, type, fileNMSplt1, fileNMSplt2, inR
   }
 }
 ##########################################################################
-# Number of days in a year above or below a threshold
+# Calculate 99th thresholds
 ##########################################################################
 calc99thThreshold <- function(nc, decsStart=1990, decsEnd=2019, type="pr", 
                               fileNMSplt1, fileNMSplt2, inRCP=T, trueDate=T){
