@@ -1,6 +1,6 @@
 # A script to organize the MACA data for Mt Sunapee
 #!/bin/bash
-#PBS -A ren10_d_g_sc_eesi
+#PBS -A kaf26_c_g_sc_default
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=2:00:00
 

@@ -1,6 +1,6 @@
 # A script to summarizing the GridMet data for mtsunapeeNH_100km
 #!/bin/bash
-#PBS -A ren10_d_g_sc_eesi
+#PBS -A kaf26_c_g_sc_default
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=1:00:00
 
