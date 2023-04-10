@@ -358,6 +358,14 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
     county.obs$inches <- county.obs$wetDays
   }
   
+  ##Loop to calculate values for each observation decade 
+  obsdecade = unique(county.obs$decade)
+  obsdecade.avg <- sapply(obsdecade, function(dec){decTab<-county.obs[county.obs$decade==dec,];
+  decSumm<-mean(decTab$inches);
+  return(decSumm)})
+  
+  obs.avg = data.frame(decade = obsdecade, obs = obsdecade.avg)
+  
   # Format hindcasts and projections ----------------------------------------
   ##Loop to class each observation by decade, then appending as an extra column
   dataTab$decade <- round_any(dataTab$year, 10, floor)
@@ -441,6 +449,14 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
   
   yr2070ind = which(rcp45df$baseline == 2070)
   
+  # What is the change between vals in 2050-2070 vs 30-year observation mean
+  val.increase45 = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - obsmean
+  val.increase85 = rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")] - obsmean
+  
+  # What is the percent with values above zero?
+  likl.increase45 = (length(which(val.increase45 > 0))/length(val.increase45))*100
+  likl.increase85 = (length(which(val.increase85 > 0))/length(val.increase85))*100
+  
   exptval = data.frame(chngercp45 = rcp45df$means[yr2070ind] - baseline, 
                        chngercp85 = rcp85df$means[yr2070ind] - baseline,
                        realrcp45 = rcp45df$means[yr2070ind], 
@@ -462,7 +478,9 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
                        obs2070incease45 = rcp45_20502079 - obsmean, 
                        obs2070incease85 = rcp85_20502079 - obsmean, 
                        percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
-                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100)
+                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100,
+                       likl.increase45 = likl.increase45, 
+                       likl.increase85 = likl.increase85)
   
   # Plot --------------------------------------------------------------------
   if(create.plot){
@@ -504,7 +522,8 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
       hindAve[i] = mean(rcp45Tab$inches[i], rcp85Tab$inches[i])
     }
     hindTab = data.frame(decade = rcp45Tab$decade, model = rcp45Tab$model, inches=hindAve)
-    subhind = hindTab[which(hindTab$decade %in% seq(1960, 2010, by=10)), ]
+    # subhind = hindTab[which(hindTab$decade %in% seq(1960, 2010, by=10)), ]
+    subhind = hindTab[which(hindTab$decade %in% seq(1980, 2010, by=10)), ]
     subrcp45 = rcp45Tab[which(rcp45Tab$decade %in% seq(2020, 2070, by=10)), ]
     subrcp85 = rcp85Tab[which(rcp85Tab$decade %in% seq(2020, 2070, by=10)), ]
 
@@ -518,21 +537,48 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
     df2$type <- factor(df2$type, levels = c("hindcast","rcp45","rcp85"))
     df2$decade = as.character(df2$decade)
     
+    # # Count the number of decades (for boxplot)
+    # decadeind = which(decades %in% unique(county.obs$decade))
+    # for(dind in decadeind){
+    #   county.obs$int[which(county.obs$decade == decades[dind])] <- dind
+    # }
+    # county.obs$int = county.obs$int -1 # Chart starts at 1960 not 1950
+    # county.obs$shape = "Observations" # for legend
+    
+    obs.avg$shape = "Observation Average" # for legend
+    
+    # Show full decades (10 years of data) only 
+    
+    obs.avg = obs.avg[which(obs.avg$decade==1980):which(obs.avg$decade==2010), ]
     # Count the number of decades (for boxplot)
-    decadeind = which(decades %in% unique(county.obs$decade))
+    decadeind = which(decades %in% unique(obs.avg$decade))
     for(dind in decadeind){
-      county.obs$int[which(county.obs$decade == decades[dind])] <- dind
+      obs.avg$int[which(obs.avg$decade == decades[dind])] <- dind
     }
-    county.obs$int = county.obs$int -1 # Chart starts at 1960 not 1950
-    county.obs$shape = "Observations" # for legend
+    obs.avg$int = obs.avg$int -3 # Chart starts at 1960 not 1950
     
     # compute lower and upper whiskers limits
     ylim1 = boxplot.stats(df2$inches)$stats[c(1, 5)]
     
-    ylim2 = c(min(c(ylim1[1], county.obs$inches)), 
-              max(c(county.obs$inches, ylim1[2]*1.2)))
-
-    # Plot legend inside the graph or in the outer margin
+    # ylim2 = c(min(c(ylim1[1], county.obs$inches)), 
+    #           max(c(county.obs$inches, ylim1[2]*1.2)))
+    ylim2 = c(min(c(ylim1[1], obs.avg$obs)), 
+              max(c(obs.avg$obs, ylim1[2]*1.2)))
+    
+    # geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), color="black") +
+# legend.margin=margin(0,0,0,-6), 
+    
+    # scale_y_continuous(values="black", 
+    #                    labels='1990-2019 average') +
+    # legend.margin=margin(0,-10,0,-10), 
+    
+    library(grid)
+    # Create a text
+    grob <- grobTree(textGrob("1990-2019 average", x=0.1,  y=0.95, hjust=0), gp=gpar(fontsize=10))#,
+                              #gp=gpar(col="red", fontsize=13, fontface="italic")))
+    grob2 <- grobTree(textGrob("- - -", x=0.025,  y=0.95, hjust=0), gp=gpar(fontsize=10))
+    
+    # Plot legend
     if(add.legend){
       bpl <- ggplot(data = df2, aes(x=decade,y=inches, color=type)) +
         stat_boxplot(geom = "errorbar")+
@@ -543,15 +589,20 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
                      panel.grid.minor = element_blank(),
                      strip.background = element_blank()) +
         theme(legend.position="top", legend.box.spacing = unit(0, "pt"),
-              legend.margin=margin(0,0,0,-6), legend.spacing.x = unit(0.1, "cm"),
+              legend.margin=margin(0,0,0,0), 
+              legend.spacing.x = unit(0.05, "cm"),
               legend.text=element_text(size=9),
-              axis.title = element_text(size = 12, colour="black"), 
-              axis.text = element_text(size = 12, colour="black")) +
-        geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), color="black") +
+              plot.margin = margin(2, 15, 2, 2),
+              axis.title = element_text(size = 12, colour="black"),
+              axis.text.y = element_text(size = 12, colour="black"),
+              axis.text.x = element_text(size = 12, colour="black", angle=90)) +
+        geom_hline(yintercept=obsmean, linetype="dashed") +
         labs(x="", y=ylabel, color="", fill="", shape="") + 
         guides(color="none") + 
         scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
                           labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
+        annotation_custom(grob) + annotation_custom(grob2) + 
+        geom_point(data=obs.avg, aes(x=int, y=obs, shape = shape), color="black") +
         coord_cartesian(ylim = ylim2)
       # show(bpl)
 
@@ -564,9 +615,12 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
         theme_update(panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
                      strip.background = element_blank()) +
-        theme(axis.title = element_text(size = 12, colour="black"), 
-              axis.text = element_text(size = 12, colour="black")) +
-        geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), 
+        theme(axis.title = element_text(size = 14, colour="black"), 
+              axis.text.y = element_text(size = 14, colour="black"),
+              axis.text.x = element_text(size = 14, colour="black", angle=90)) +
+        # geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), 
+        #            color="black", show.legend = FALSE) +
+        geom_point(data=obs.avg, aes(x=decade, y=obs, shape = shape), 
                    color="black", show.legend = FALSE) +
         labs(x="", y=ylabel, color="", fill="", shape="") + 
         guides(color="none") +
@@ -583,12 +637,607 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
   return(exptval)
   # return(bpl)
 }
+##########################################################################
+# Precipitation Obs Bar Graph
+##########################################################################
+calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = NULL, ylabel, 
+                               create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
+  #################
+  # fips <- wet2indays$FIPS[1]
+  # dataTab <- wet2indays
+  # ylabel = "Percent Change in days with\nprecipitation ≥ 2in"
+  # outDir <- precipDir
+  # season = NULL
+  # var = "2in"
+  # create.plot = TRUE
+  # leg.inside = FALSE
+  #################
+  
+  ## Do most recent decade 1990 - 2019
+  past.decades <- c(1960, 1970, 1980) ###CODE TO SET CHRONOLOGICAL BASELINE
+  tar.decades <- c(1990, 2000, 2010) ###CODE TO SET CHRONOLOGICAL BASELINE
+  mid.decades <- c(2020, 2030, 2040)
+  future.decades <- c(2050, 2060, 2070)
+  
+  county.obs <- obsTab[obsTab$FIPS==fips,]
+  county.obs$decade <- round_any(county.obs$year, 10, floor)
+  
+  county.obs$period <- county.obs$decade 
+  county.obs$period[which(county.obs$decade %in% past.decades)] <- "1960-1989"
+  county.obs$period[which(county.obs$decade %in% tar.decades)] <- "1990-2019"
+  county.obs$period[which(county.obs$decade %in% mid.decades)] <- "2020-2049"
+  
+  if(var == "tot" | var == "99tot"){
+    county.obs$inches <- county.obs$wetDays/25.4
+  } else {
+    county.obs$inches <- county.obs$wetDays
+  }
+  
+  ##Loop to calculate values for each observation decade 
+  obsdecade = unique(county.obs$decade)
+  obsdecade.avg <- sapply(obsdecade, function(dec){decTab<-county.obs[county.obs$decade==dec,];
+  decSumm<-mean(decTab$inches);
+  return(decSumm)})
+  
+  obs.avg = data.frame(decade = obsdecade, obs = obsdecade.avg)
+  
+  ##Loop to class each observation by decade, then appending as an extra column
+  dataTab$decade <- round_any(dataTab$year, 10, floor)
+  decades <- unique(dataTab$decade)
+  
+  ##Calculations to determine baseline precip levels from 1950-1980
+  baseSelect <- dataTab[which((dataTab$decade %in% tar.decades) & dataTab$FIPS==fips),]
+  
+  ##Baseline calculation of wet days per model-year
+  baseline <- sum(baseSelect$wetDays) / nrow(baseSelect)
+  rcp45Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp45",]
+  rcp85Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp85",]
+  
+  ##Loop to calculate values for each decade and RCP 4.5
+  county.rcp45.avg <- sapply(decades, function(dec){decTab<-rcp45Tab[rcp45Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays);
+  return(decSumm)})
+  
+  ##Loop to calculate values for each decade and RCP 8.5
+  county.rcp85.avg <- sapply(decades, function(dec){decTab<-rcp85Tab[rcp85Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays);
+  return(decSumm)})
+  
+  ## "2050-2079"
+  rcp45Tab_ind = which(rcp45Tab$decade %in% future.decades)
+  rcp85Tab_ind = which(rcp85Tab$decade %in% future.decades)
+  
+  rcp45_20502079 = mean(rcp45Tab$wetDays[rcp45Tab_ind])
+  rcp85_20502079 = mean(rcp85Tab$wetDays[rcp85Tab_ind])
+  
+  ##Assembling into a data frame for plotting
+  graphing.data <- data.frame(rbind(county.rcp45.avg, county.rcp85.avg, 
+                                    c(county.rcp45.avg[1:5], 
+                                      mean(c(county.rcp45.avg[6], 
+                                             county.rcp85.avg[6])), 
+                                      mean(c(county.rcp45.avg[7], 
+                                             county.rcp85.avg[7])),
+                                      rep(NA, times = 7))))
+  graphing.data[1, 1:7] <- rep(NA, times= 7)
+  graphing.data[2, 1:7] <- rep(NA, times= 7)
+  colnames(graphing.data) <- as.character(decades)
+  rownames(graphing.data) <- c("rcp45", "rcp85", "hindcast")
+  
+  graphing.data <- as.matrix(graphing.data)
+  graphing.data <- graphing.data[,which(colnames(graphing.data)==1980):which(colnames(graphing.data)==2070)]
+  
+  # Show full decades (10 years of data) only 
+  obs.avg = obs.avg[which(obs.avg$decade==1980):which(obs.avg$decade==2010), ]
+  
+  # Export values -----------------------------------------------------------
+  
+  # Calculate the linear regression to find the rate of change over the historic period
+  # That is 1979 to 2019
+  rcp45.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1980):which(colnames(graphing.data)==2000)],
+                 graphing.data['rcp45', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)]) - baseline
+  rcp85.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1980):which(colnames(graphing.data)==2000)],
+                 graphing.data['rcp85', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])- baseline
+  
+  linreg45 = lm(rcp45.time~c(1:length(rcp45.time)))
+  trend45 = linreg45$coefficients['c(1:length(rcp45.time))']
+  
+  linreg85 = lm(rcp85.time~c(1:length(rcp85.time)))
+  trend85 = linreg85$coefficients['c(1:length(rcp85.time))']
+  
+  # Calculate # of days increase over baseline
+  time.ind = which(names(rcp85.time)=="2070")
+  increase45 = trend45*time.ind + linreg45$coefficients['(Intercept)']
+  increase85 = trend85*time.ind + linreg85$coefficients['(Intercept)']
+  
+  # What is the change between vals in 2050-2070 vs 30-year hindcast mean
+  val.hind.increase45 = rcp45Tab$wetDays[rcp45Tab_ind] - baseline
+  val.hind.increase85 = rcp85Tab$wetDays[rcp85Tab_ind] - baseline
+  
+  # What is the percent with values above zero?
+  likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
+  likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
+  
+  #To calculate percent-increase by 2070 and insert in Outlook text. 
+  #We'll estimate conservatively, using RCP 4.5 and rounding down to
+  #nearest multiple of 5
+  exptval = data.frame(trend45 = trend45,
+                       trend85 = trend85, 
+                       increase45 = increase45,
+                       increase85 = increase85,
+                       chngercp45 = graphing.data['rcp45','2070'],
+                       chngercp85 = graphing.data['rcp85','2070'],
+                       realrcp45 = graphing.data['rcp45','2070']+baseline,
+                       realrcp85 = graphing.data['rcp85','2070']+baseline,
+                       baseline = baseline,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       hindcast2070incease45 = rcp45_20502079 - baseline, 
+                       hindcast2070incease85 = rcp85_20502079 - baseline, 
+                       percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
+                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100,
+                       likl.hind.increase45 = likl.hind.increase45,
+                       likl.hind.increase85 = likl.hind.increase85)
+  # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
+  #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
+  #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
+  #                      realrcp85 = round(graphing.data['rcp85','2070']*baseline))
+  
+  # Plot --------------------------------------------------------------------
+  if(create.plot){
+    ##Setting some graphical information
+    colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    decades <- paste0(colnames(graphing.data), " ")
+    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    
+    countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
+    ##Plotting
+    if(is.null(season)){
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-ObsprecipBargraph1.eps"), 
+               width=5.72, height=4.04)
+    } else {
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-", season, "-ObsprecipBargraph1.eps"), 
+               width=5.72, height=4.04)
+    }
+    if(!leg.inside){
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+    }
+    
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, -1)
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
+    # minVal <- round(min(graphing.data[3, ], na.rm=T)*100, 1)
+    # allvals = round(c(graphing.data[1:3, ], county.obs$wetDays), 1)
+    allvals = round(c(graphing.data[1:3, ], obs.avg$obs), 1)
+    
+    ##make the bar plot
+    #Might need to adjust y axis here and below, as needed
+    # start at 0 if its number of days
+    if(var == "99thdays"){
+      pretty_axis = pretty(c(0, max(allvals, na.rm=TRUE))) 
+    } else {
+      pretty_axis = pretty(c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
+    }
+    
+    barplot(graphing.data[1:2, ], beside = T, col = colors, 
+            ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
+            space = c(0, 0.4), xpd=FALSE)
+    par(new = T)
+    barplot(graphing.data[3, ], ylim = range(pretty_axis),
+            col = "gray60", width = c(rep(0.8, times = 7)), 
+            xlab = "", xaxt = "n", axes = F, xpd=FALSE)
+    abline(h = baseline, lty = 2)
+    # abline(linreg45)
+    # abline(linreg85)
+    box()
 
+    points(c(0.55, 1.5, 2.45, 3.4), obs.avg$obs, pch=20, col = "black")
+    
+    #Adding x and y axes text
+    axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, " "))
+    mtext(side=2, line=2, at=mean(pretty_axis), ylabel, font=1, las=0)
+    mtext(side=1, at=c(0.55, 1.5, 2.45, 3.4, 4.35, 5.35,
+                       6.3, 7.3, 8.3, 9.2), las = 2, decades)
+    
+    if(add.legend){
+      # Plot legend inside the graph or in the outer margin
+      if(leg.inside){
+        legend("topright", legend = scenarios,fill = c(colors, "gray60"), bty="n")
+        legend("topright", legend = c(rep("", 3),"Observation Average", "1990-2019 average"),
+               pch=c(NA,NA,NA,20,NA), lty=c(NA,NA,NA,NA,2), bty="n")
+      } else{
+        legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
+        add_legend("topright", legend = c(scenarios, "Observation Average"),
+                   pch = c(15, 15, 15, 20), pt.cex = c(2, 2, 2, 1),
+                   col = c(colors, "gray60", "black"),
+                   bty='n', cex=0.8, ncol=2, text.width=c(0.55, 0.55, 0.5, 0.5))
+        
+        # pch = c(20, 15, NA, NA, 15, 15), lty=c(NA, NA, 1, 1, NA, NA),
+        # lwd=c(NA, NA, 2, 2, NA, NA), pt.cex = c(1, 2, NA, NA, 2, 2),
+        # col = c("black", trans_colors[5], colors[1:2], trans_colors[3:4]),
+        # bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53)
+      }
+    }
+    dev.off()
+  }
+  
+  return(exptval)
+}
+
+##########################################################################
+# Precipitation Bar Graph
+##########################################################################
+calcPrecipBarGraph <- function(fips, dataTab, outDir, var, season = NULL, ylabel, 
+                                     create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
+  #################
+  # fips <- wet2indays$FIPS[1]
+  # dataTab <- wet2indays
+  # ylabel = "Percent Change in days with\nprecipitation ≥ 2in"
+  # outDir <- precipDir
+  # season = NULL
+  # var = "2in"
+  # create.plot = TRUE
+  # leg.inside = FALSE
+  #################
+  
+  ##Loop to class each observation by decade, then appending as an extra column
+  dataTab$decade <- round_any(dataTab$year, 10, floor)
+  decades <- unique(dataTab$decade)
+  
+  ##Calculations to determine baseline precip levels from 1950-1980
+  ## Do most recent decade 1990 - 2019
+  # tar.decades <- c(1960, 1970, 1980) ###CODE TO SET CHRONOLOGICAL BASELINE
+  tar.decades <- c(1990, 2000, 2010) ###CODE TO SET CHRONOLOGICAL BASELINE
+  future.decades <- c(2050, 2060, 2070)
+  baseSelect <- dataTab[which((dataTab$decade %in% tar.decades) & dataTab$FIPS==fips),]
+  
+  ##Baseline calculation of wet days per model-year
+  baseline <- sum(baseSelect$wetDays) / nrow(baseSelect)
+  rcp45Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp45",]
+  rcp85Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp85",]
+  
+  ##Loop to calculate values for each decade and RCP 4.5
+  county.rcp45.avg <- sapply(decades, function(dec){decTab<-rcp45Tab[rcp45Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays);
+  return(decSumm)})
+  
+  ##Loop to calculate values for each decade and RCP 8.5
+  county.rcp85.avg <- sapply(decades, function(dec){decTab<-rcp85Tab[rcp85Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays);
+  return(decSumm)})
+  
+  ## "2050-2079"
+  rcp45Tab_ind = which(rcp45Tab$decade %in% future.decades)
+  rcp85Tab_ind = which(rcp85Tab$decade %in% future.decades)
+  
+  rcp45_20502079 = mean(rcp45Tab$wetDays[rcp45Tab_ind])
+  rcp85_20502079 = mean(rcp85Tab$wetDays[rcp85Tab_ind])
+  
+  ##Assembling into a data frame for plotting
+  graphing.data <- data.frame(rbind(county.rcp45.avg, county.rcp85.avg, 
+                                    c(county.rcp45.avg[1:5], 
+                                      mean(c(county.rcp45.avg[6], 
+                                             county.rcp85.avg[6])), 
+                                      rep(NA, times = 8))))
+  graphing.data[1, 1:6] <- rep(NA, times= 6)
+  graphing.data[2, 1:6] <- rep(NA, times= 6)
+  colnames(graphing.data) <- as.character(decades)
+  rownames(graphing.data) <- c("rcp45", "rcp85", "hindcast")
+  
+  graphing.data <- as.matrix(graphing.data)
+  graphing.data <- graphing.data[,which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2070)]
+  
+  # Export values -----------------------------------------------------------
+  
+  # Calculate the linear regression to find the rate of change over the historic period
+  # That is 1979 to 2019
+  rcp45.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
+                 graphing.data['rcp45', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)]) - baseline
+  rcp85.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
+                 graphing.data['rcp85', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])- baseline
+  
+  linreg45 = lm(rcp45.time~c(1:length(rcp45.time)))
+  trend45 = linreg45$coefficients['c(1:length(rcp45.time))']
+  
+  linreg85 = lm(rcp85.time~c(1:length(rcp85.time)))
+  trend85 = linreg85$coefficients['c(1:length(rcp85.time))']
+  
+  # Calculate # of days increase over baseline
+  time.ind = which(names(rcp85.time)=="2070")
+  increase45 = trend45*time.ind + linreg45$coefficients['(Intercept)']
+  increase85 = trend85*time.ind + linreg85$coefficients['(Intercept)']
+  
+  # What is the change between vals in 2050-2070 vs 30-year hindcast mean
+  val.hind.increase45 = rcp45Tab$wetDays[rcp45Tab_ind] - baseline
+  val.hind.increase85 = rcp85Tab$wetDays[rcp85Tab_ind] - baseline
+  
+  # What is the percent with values above zero?
+  likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
+  likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
+  
+  #To calculate percent-increase by 2070 and insert in Outlook text. 
+  #We'll estimate conservatively, using RCP 4.5 and rounding down to
+  #nearest multiple of 5
+  exptval = data.frame(trend45 = trend45,
+                       trend85 = trend85, 
+                       increase45 = increase45,
+                       increase85 = increase85,
+                       chngercp45 = graphing.data['rcp45','2070'],
+                       chngercp85 = graphing.data['rcp85','2070'],
+                       realrcp45 = graphing.data['rcp45','2070']+baseline,
+                       realrcp85 = graphing.data['rcp85','2070']+baseline,
+                       baseline = baseline,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       hindcast2070incease45 = rcp45_20502079 - baseline, 
+                       hindcast2070incease85 = rcp85_20502079 - baseline, 
+                       percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
+                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100,
+                       likl.hind.increase45 = likl.hind.increase45,
+                       likl.hind.increase85 = likl.hind.increase85)
+  # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
+  #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
+  #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
+  #                      realrcp85 = round(graphing.data['rcp85','2070']*baseline))
+  
+  # Plot --------------------------------------------------------------------
+  if(create.plot){
+    ##Setting some graphical information
+    colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    decades <- paste0(colnames(graphing.data), " ")
+    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    
+    countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
+    ##Plotting
+    if(is.null(season)){
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-precipBargraph1.eps"), 
+               width=5.72, height=4.04)
+    } else {
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-", season, "-precipBargraph1.eps"), 
+               width=5.72, height=4.04)
+    }
+    if(!leg.inside){
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+    }
+    
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, -1)
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
+    # minVal <- round(min(graphing.data[3, ], na.rm=T)*100, 1)
+    allvals = round(graphing.data[1:3, ], 1)
+    
+    ##make the bar plot
+    #Might need to adjust y axis here and below, as needed
+    pretty_axis = pretty(c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
+    barplot(graphing.data[1:2, ], beside = T, col = colors, 
+            ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
+            space = c(0, 0.4), xpd=FALSE)
+    par(new = T)
+    barplot(graphing.data[3, ], ylim = range(pretty_axis),
+            col = "gray60", width = c(rep(0.8, times = 7)), 
+            xlab = "", xaxt = "n", axes = F, xpd=FALSE)
+    abline(h = baseline, lty = 2)
+    # abline(linreg45)
+    # abline(linreg85)
+    box()
+    
+    #Adding x and y axes text
+    axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, " "))
+    mtext(side=2, line=2.7, at=mean(pretty_axis), ylabel, font=1, las=0)
+    mtext(side=1, at=c(0.55, 1.5, 2.45, 3.4, 4.35, 5.35,
+                       6.3, 7.3, 8.3, 9.2, 10.2, 11.2), las = 2, decades)
+    
+    if(add.legend){
+      # Plot legend inside the graph or in the outer margin
+      if(leg.inside){
+        legend("topleft", legend = scenarios,fill = c(colors, "gray60"), bty="n")
+        legend("topleft", legend = c(rep("", 3),"1990-2019 average"),
+               lty=c(NA,NA,NA,2), bty="n")
+      } else{
+        legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
+        add_legend("topright", legend = scenarios,
+                   fill = c(colors, "gray60"),
+                   bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
+      }
+    }
+    dev.off()
+  }
+  
+  return(exptval)
+}
 
 ##########################################################################
 # Precipitation Change Bar Graph
 ##########################################################################
 calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, ylabel, 
+                                     create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
+  #################
+  # fips <- wet2indays$FIPS[1]
+  # dataTab <- wet2indays
+  # ylabel = "Percent Change in days with\nprecipitation ≥ 2in"
+  # outDir <- precipDir
+  # season = NULL
+  # var = "2in"
+  # create.plot = TRUE
+  # leg.inside = FALSE
+  #################
+  
+  ##Loop to class each observation by decade, then appending as an extra column
+  dataTab$decade <- round_any(dataTab$year, 10, floor)
+  decades <- unique(dataTab$decade)
+  
+  ##Calculations to determine baseline precip levels from 1950-1980
+  ## Do most recent decade 1990 - 2019
+  # tar.decades <- c(1960, 1970, 1980) ###CODE TO SET CHRONOLOGICAL BASELINE
+  tar.decades <- c(1990, 2000, 2010) ###CODE TO SET CHRONOLOGICAL BASELINE
+  future.decades <- c(2050, 2060, 2070)
+  baseSelect <- dataTab[which((dataTab$decade %in% tar.decades) & dataTab$FIPS==fips),]
+  
+  ##Baseline calculation of wet days per model-year
+  baseline <- sum(baseSelect$wetDays) / nrow(baseSelect)
+  rcp45Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp45",]
+  rcp85Tab <- dataTab[dataTab$FIPS==fips & dataTab$rcp=="rcp85",]
+  
+  ##Loop to calculate relative change for each decade and RCP 4.5, compared to baseline
+  county.rcp45.avg <- sapply(decades, function(dec){decTab<-rcp45Tab[rcp45Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays - baseline);
+  return(decSumm)})
+  
+  ##Loop to calculate relative change for each decade and RCP 8.5, compared to baseline
+  county.rcp85.avg <- sapply(decades, function(dec){decTab<-rcp85Tab[rcp85Tab$decade==dec,];
+  decSumm<-mean(decTab$wetDays - baseline);
+  return(decSumm)})
+  
+  ## "2050-2079"
+  rcp45Tab_ind = which(rcp45Tab$decade %in% future.decades)
+  rcp85Tab_ind = which(rcp85Tab$decade %in% future.decades)
+  
+  rcp45_20502079 = mean(rcp45Tab$wetDays[rcp45Tab_ind])
+  rcp85_20502079 = mean(rcp85Tab$wetDays[rcp85Tab_ind])
+  
+  ##Assembling into a data frame for plotting
+  graphing.data <- data.frame(rbind(county.rcp45.avg, county.rcp85.avg, 
+                                    c(county.rcp45.avg[1:5], 
+                                      mean(c(county.rcp45.avg[6], 
+                                             county.rcp85.avg[6])), 
+                                      rep(NA, times = 8))))
+  graphing.data[1, 1:6] <- rep(NA, times= 6)
+  graphing.data[2, 1:6] <- rep(NA, times= 6)
+  colnames(graphing.data) <- as.character(decades)
+  rownames(graphing.data) <- c("rcp45", "rcp85", "hindcast")
+  
+  graphing.data <- as.matrix(graphing.data)
+  graphing.data <- graphing.data[,which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2070)]
+  
+  # Export values -----------------------------------------------------------
+  
+  # Calculate the linear regression to find the rate of change over the historic period
+  # That is 1979 to 2019
+  rcp45.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
+  graphing.data['rcp45', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])
+  rcp85.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
+    graphing.data['rcp85', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])
+  
+  linreg45 = lm(rcp45.time~c(1:length(rcp45.time)))
+  trend45 = linreg45$coefficients['c(1:length(rcp45.time))']
+  
+  linreg85 = lm(rcp85.time~c(1:length(rcp85.time)))
+  trend85 = linreg85$coefficients['c(1:length(rcp85.time))']
+  
+  # Calculate # of days increase over baseline
+  time.ind = which(names(rcp85.time)=="2070")
+  increase45 = trend45*time.ind + linreg45$coefficients['(Intercept)']
+  increase85 = trend85*time.ind + linreg85$coefficients['(Intercept)']
+  
+  # What is the change between vals in 2050-2070 vs 30-year hindcast mean
+  val.hind.increase45 = rcp45Tab$wetDays[rcp45Tab_ind] - baseline
+  val.hind.increase85 = rcp85Tab$wetDays[rcp85Tab_ind] - baseline
+
+  # What is the percent with values above zero?
+  likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
+  likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
+  
+  #To calculate percent-increase by 2070 and insert in Outlook text. 
+  #We'll estimate conservatively, using RCP 4.5 and rounding down to
+  #nearest multiple of 5
+  exptval = data.frame(trend45 = trend45,
+                       trend85 = trend85, 
+                       increase45 = increase45,
+                       increase85 = increase85,
+                       chngercp45 = graphing.data['rcp45','2070'],
+                       chngercp85 = graphing.data['rcp85','2070'],
+                       realrcp45 = graphing.data['rcp45','2070']+baseline,
+                       realrcp85 = graphing.data['rcp85','2070']+baseline,
+                       baseline = baseline,
+                       rcp45_20502079 = rcp45_20502079,
+                       rcp85_20502079 = rcp85_20502079,
+                       hindcast2070incease45 = rcp45_20502079 - baseline, 
+                       hindcast2070incease85 = rcp85_20502079 - baseline, 
+                       percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
+                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100,
+                       likl.hind.increase45 = likl.hind.increase45,
+                       likl.hind.increase85 = likl.hind.increase85)
+  # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
+  #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
+  #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
+  #                      realrcp85 = round(graphing.data['rcp85','2070']*baseline))
+  
+  # Plot --------------------------------------------------------------------
+  if(create.plot){
+    ##Setting some graphical information
+    colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    decades <- paste0(colnames(graphing.data), " ")
+    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    
+    countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
+    ##Plotting
+    if(is.null(season)){
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-precipchangeBargraph1.eps"), 
+               width=5.72, height=4.04)
+    } else {
+      cairo_ps(paste0(outDir, countynme, 
+                      "-", fips, "-", var, "-", season, "-precipchangeBargraph1.eps"), 
+               width=5.72, height=4.04)
+    }
+    if(!leg.inside){
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
+    } else {
+      par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+    }
+    
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, -1)
+    # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
+    # minVal <- round(min(graphing.data[3, ], na.rm=T)*100, 1)
+    allvals = round(graphing.data[1:3, ], 1)
+    
+    ##make the bar plot
+    #Might need to adjust y axis here and below, as needed
+    pretty_axis = pretty(c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)))
+    barplot(graphing.data[1:2, ], beside = T, col = colors, 
+            ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
+            space = c(0, 0.4))
+    par(new = T)
+    barplot(graphing.data[3, ], ylim = range(pretty_axis),
+            col = "gray60", width = c(rep(0.8, times = 7)), 
+            xlab = "", xaxt = "n", axes = F)
+    abline(h = 0, lty = 3, lwd = 1, col = "black")
+    # abline(linreg45)
+    # abline(linreg85)
+    box()
+    
+    #Adding x and y axes text
+    axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, " "))
+    mtext(side=2, line=2.7, at=mean(pretty_axis), ylabel, font=1, las=0)
+    mtext(side=1, at=c(0.55, 1.5, 2.45, 3.4, 4.35, 5.35,
+                       6.3, 7.3, 8.3, 9.2, 10.2, 11.2), las = 2, decades)
+    
+    if(add.legend){
+    # Plot legend inside the graph or in the outer margin
+    if(leg.inside){
+      legend("topleft", legend = scenarios,
+             fill = c(colors, "gray60"), bty="n")
+    } else{
+      add_legend("topright", legend = scenarios,
+                 fill = c(colors, "gray60"),
+                 bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
+    }
+    }
+    dev.off()
+  }
+  
+  return(exptval)
+}
+
+##########################################################################
+# Precipitation Percent Change Bar Graph
+##########################################################################
+calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, ylabel, 
                                      create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
   #################
   # fips <- wet2indays$FIPS[1]
@@ -676,9 +1325,9 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
   # Calculate the linear regression to find the rate of change over the historic period
   # That is 1979 to 2019
   rcp45.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
-  graphing.data['rcp45', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])*100
+                 graphing.data['rcp45', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])*100
   rcp85.time = c(graphing.data['hindcast', which(colnames(graphing.data)==1960):which(colnames(graphing.data)==2000)],
-    graphing.data['rcp85', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])*100
+                 graphing.data['rcp85', which(colnames(graphing.data)==2010):which(colnames(graphing.data)==2070)])*100
   
   linreg45 = lm(rcp45.time~c(1:length(rcp45.time)))
   trend45 = linreg45$coefficients['c(1:length(rcp45.time))']
@@ -690,6 +1339,14 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
   time.ind = which(names(rcp85.time)=="2070")
   increase45 = trend45*time.ind + linreg45$coefficients['(Intercept)']
   increase85 = trend85*time.ind + linreg85$coefficients['(Intercept)']
+  
+  # What is the change between vals in 2050-2070 vs 30-year hindcast mean
+  val.hind.increase45 = rcp45Tab$wetDays[rcp45Tab_ind] - baseline
+  val.hind.increase85 = rcp85Tab$wetDays[rcp85Tab_ind] - baseline
+  
+  # What is the percent with values above zero?
+  likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
+  likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
   
   #To calculate percent-increase by 2070 and insert in Outlook text. 
   #We'll estimate conservatively, using RCP 4.5 and rounding down to
@@ -708,7 +1365,9 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
                        hindcast2070incease45 = rcp45_20502079 - baseline, 
                        hindcast2070incease85 = rcp85_20502079 - baseline, 
                        percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
-                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100)
+                       percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100,
+                       likl.hind.increase45 = likl.hind.increase45,
+                       likl.hind.increase85 = likl.hind.increase85)
   # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
   #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
   #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
@@ -725,11 +1384,11 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
     ##Plotting
     if(is.null(season)){
       cairo_ps(paste0(outDir, countynme, 
-                      "-", fips, "-", var, "-precipchangeBargraph1.eps"), 
+                      "-", fips, "-", var, "-precipPercentchangeBargraph1.eps"), 
                width=5.72, height=4.04)
     } else {
       cairo_ps(paste0(outDir, countynme, 
-                      "-", fips, "-", var, "-", season, "-precipnochangeBargraph1.eps"), 
+                      "-", fips, "-", var, "-", season, "-precipPercentchangeBargraph1.eps"), 
                width=5.72, height=4.04)
     }
     if(!leg.inside){
@@ -765,15 +1424,15 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
                        6.3, 7.3, 8.3, 9.2, 10.2, 11.2), las = 2, decades)
     
     if(add.legend){
-    # Plot legend inside the graph or in the outer margin
-    if(leg.inside){
-      legend("topleft", legend = scenarios,
-             fill = c(colors, "gray60"), bty="n")
-    } else{
-      add_legend("topright", legend = scenarios,
-                 fill = c(colors, "gray60"),
-                 bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
-    }
+      # Plot legend inside the graph or in the outer margin
+      if(leg.inside){
+        legend("topleft", legend = scenarios,
+               fill = c(colors, "gray60"), bty="n")
+      } else{
+        add_legend("topright", legend = scenarios,
+                   fill = c(colors, "gray60"),
+                   bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
+      }
     }
     dev.off()
   }
@@ -886,6 +1545,10 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
   names(wetDay85Tabs) <- model
   rcp85 <- do.call(cbind.data.frame, wetDay85Tabs)
   
+  # Extract the values between 2050 and 2070
+  fut.wetDays45 <- county45Tabs$wetDays[which(county45Tabs$decade %in% c(2050, 2060, 2070))]
+  fut.wetDays85 <- county85Tabs$wetDays[which(county85Tabs$decade %in% c(2050, 2060, 2070))]
+  
   #annual means
   statMeans45 <- rowMeans(rcp45)
   statMeans85 <- rowMeans(rcp85)
@@ -921,6 +1584,8 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
     rcp45 = rcp45/25.4
     rcp85 = rcp85/25.4
     baseline=baseline/25.4
+    fut.wetDays45 <- fut.wetDays45/25.4
+    fut.wetDays85 <- fut.wetDays85/25.4
   }
   
   # Export values -----------------------------------------------------------
@@ -972,6 +1637,22 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
   
   rcp45_20502079 = mean(tsData$rcp45.means[tsr2050:tsr2079])
   rcp85_20502079 = mean(tsData$rcp85.means[tsr2050:tsr2079])
+  
+  # What is the change between vals in 2050-2070 vs 30-year observation mean
+  val.increase45 = fut.wetDays45 - obsmean
+  val.increase85 = fut.wetDays85 - obsmean
+  
+  # What is the percent with values above zero?
+  likl.increase45 = (length(which(val.increase45 > 0))/length(val.increase45))*100
+  likl.increase85 = (length(which(val.increase85 > 0))/length(val.increase85))*100
+  
+  # # What is the change between vals in 2050-2070 vs 30-year observation mean
+  # val.increase45 = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - obsmean
+  # val.increase85 = rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")] - obsmean
+  # 
+  # # What is the percent with values above zero?
+  # likl.increase45 = (length(which(val.increase45 > 0))/length(val.increase45))*100
+  # likl.increase85 = (length(which(val.increase85 > 0))/length(val.increase85))*100
 
   # Create dataframe of values to export
   exptval = data.frame(obsmean = obsmean,
@@ -999,7 +1680,9 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
                        obs2070incease45 = rcp45_20502079 - obsmean, 
                        obs2070incease85 = rcp85_20502079 - obsmean, 
                        percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
-                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100)
+                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100,
+                       likl.increase45 = likl.increase45,
+                       likl.increase85 = likl.increase85)
                        # mean452070 = round(tsData$rcp45.means[tsr2070],0),
                        # mean852070 = round(tsData$rcp85.means[tsr2070],0))
   
@@ -1040,8 +1723,8 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
     plot(0, type="n",xlab="", ylab=ylabel, xaxs="i", yaxt="n", xaxt="n",
          ylim=c(ymintick,ymaxtick), xlim=c(1978.25,2079))
     
-    polygon(y = c(predPoltly$rcp45.mins, rev(predPoltly$rcp45.maxs)), x = c(predPoltly$year, rev(predPoltly$year)), col = trans_colors[3], border = NA)
     polygon(y = c(predPoltly$rcp85.mins, rev(predPoltly$rcp85.maxs)), x = c(predPoltly$year, rev(predPoltly$year)), col = trans_colors[4], border = NA)
+    polygon(y = c(predPoltly$rcp45.mins, rev(predPoltly$rcp45.maxs)), x = c(predPoltly$year, rev(predPoltly$year)), col = trans_colors[3], border = NA)
     
     polygon(y = c(histPoltly$mins, rev(histPoltly$maxs)), 
             x = c(histPoltly$year, rev(histPoltly$year)), 
@@ -1140,6 +1823,18 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
   obs2070incease45 = (rcp45df$mean[3] - county.obs$inches)
   obs2070incease85 = (rcp85df$mean[3] - county.obs$inches)
   
+  # What is the change between vals in 2050-2070 vs 30-year observation mean
+  val.increase45 = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - county.obs$inches
+  val.increase85 = rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")] - county.obs$inches
+  val.hind.increase45 = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - baseline
+  val.hind.increase85 = rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")] - baseline
+  
+  # What is the percent with values above zero?
+  likl.increase45 = (length(which(val.increase45 > 0))/length(val.increase45))*100
+  likl.increase85 = (length(which(val.increase85 > 0))/length(val.increase85))*100
+  likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
+  likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
+  
   exptval = data.frame(obsmean = county.obs$inches,
                        hindcastmean = baseline,
                        obs2070incease45 = obs2070incease45,
@@ -1151,7 +1846,11 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                        percenthindincrease45 = (hindcastincrease45/baseline)*100,
                        percenthindincrease85 = (hindcastincrease85/baseline)*100,
                        rcp45_20502079 = rcp45df$mean[3],
-                       rcp85_20502079 = rcp85df$mean[3])
+                       rcp85_20502079 = rcp85df$mean[3],
+                       likl.increase45 = likl.increase45, 
+                       likl.increase85 = likl.increase85,
+                       likl.hind.increase45 = likl.hind.increase45, 
+                       likl.hind.increase85 = likl.hind.increase85)
   
   # Plot --------------------------------------------------------------------
   if(create.plot){
@@ -1209,12 +1908,16 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
         }
       }
       dev.off()
-    } else if(plot_type == "bar"){
+    } else if(plot_type == "percbar"){
     cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
-                    "-", fips, "-", var, "-bargraph1.eps"), 
+                    "-", fips, "-", var, "-percbargraph1.eps"), 
              width=5.72, height=4.04)
     
-    par(mar=c(3, 4, 2, 1), las=1)
+    if(leg.inside){
+      par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+    } else{
+      par(mar=c(3, 4, 2, 1), las=1)
+    }
     
     graphing.data = mat.or.vec(3,3)
     graphing.data[1,] = c((baseline - baseline), rep(NA, 2))
@@ -1258,6 +1961,70 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     }
     dev.off()
     
+    } else if(plot_type == "bar"){
+      cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
+                      "-", fips, "-", var, "-obsbargraph1.eps"), 
+               width=5.72, height=4.04)
+      
+      if(leg.inside){
+        # par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
+        par(mgp=c(1.5,.5,0), mar=c(2, 4.5, 0.5, 3), las=1)
+      } else{
+        par(mar=c(3, 4, 2, 1), las=1)
+      }
+      
+      graphing.data = mat.or.vec(3,3)
+      graphing.data[1,] = c(baseline, rep(NA, 2))
+      graphing.data[2,] = c(NA, rcp45df$mean[2:3])
+      graphing.data[3,] = c(NA, rcp85df$mean[2:3])
+      # graphing.data = (graphing.data/baseline)*100
+      
+      colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+      ##make the bar plot
+      #Might need to adjust y axis here and below, as needed
+      pretty_axis = pretty(range(c(graphing.data, county.obs$inches), na.rm=TRUE))
+      barplot(graphing.data[2:3, ], beside = T, col = colors_bar, 
+              ylim = range(pretty_axis), xlab = "", xaxt = "n", axes = F, 
+              space = c(0, 0.4), xpd=FALSE)
+      par(new = T)
+      barplot(graphing.data[1, ], ylim = range(pretty_axis),
+              col = "gray60", width = c(rep(0.8, times = 7)), 
+              xlab = "", xaxt = "n", axes = F, xpd=FALSE)
+      # abline(h = 0, lty = 3, lwd = 1, col = "black")
+      # abline(linreg45)
+      # abline(linreg85)
+      box()
+      points(0.55, county.obs$inches, pch=20)
+      
+      # Find percent change at roughly the same axis values
+      # perchange = round(((pretty_axis - county.obs$inches)/county.obs$inches)*100)
+      perchange = seq(-9, 18, by=3)
+      atchange = ((perchange/100)*county.obs$inches)+county.obs$inches
+      
+      #Adding x and y axes text
+      axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, " "))
+      axis(side = 4, at = atchange, labels = paste0(" ", perchange, "%"))
+      mtext(side=2, line=2.5, at=mean(pretty_axis), ylabel, font=1, las=0)
+      mtext(side=4, line=1.9, at=mean(pretty_axis), "Percent change from observed 1990-2019", 
+            font=1, las=0)
+      # mtext(side=1, at=c(0.55, 1.5, 2.45), las = 1, clim.decades)
+      axis(side=1, at=c(0.55, 1.5, 2.45), las = 1, label=rownames(rcp45df), tick=FALSE)
+      
+      scenarios <- c("Low Emissions Average", "High Emissions Average", 
+                     "Hindcast Average", "Observation Average")
+      
+      # Plot legend inside the graph or in the outer margin
+      if(leg.inside){
+        legend("topleft", legend = scenarios, pch=c(rep(22,3), 20),
+               pt.bg = c(colors_bar, "gray60", NA), col="black", 
+               pt.cex = c(2,2,2,1), bty="n")
+      } else{
+        add_legend("topright", legend = scenarios,
+                   fill = c(colors_bar, "gray60"),
+                   bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
+      }
+      dev.off()
+      
     } else if(plot_type == "box"){
       
       ##Assembling into a data frame for plotting
@@ -1285,14 +2052,21 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       for(dind in decadeind){
         county.obs$int[which(county.obs$period == clim.decades[dind])] <- dind
       }
-      county.obs$shape = "Observations" # for legend
+      county.obs$shape = "Observation Average" # for legend
       
       # compute lower and upper whiskers limits
       ylim1 = boxplot.stats(df2$inches)$stats[c(1, 5)]
       
       ylim2 = c(min(c(ylim1[1], county.obs$inches)), 
                 max(c(county.obs$inches, ylim1[2])))
-      
+        
+        transf = function(x){
+          ((x-county.obs$inches)/county.obs$inches)
+        }
+        
+        #Our transformation function
+        scaleFUN <- function(x){x=x*100; sprintf("%f", x); paste0(x, "%")}
+      #legend.margin=margin(0,0,0,-6), legend.spacing.x = unit(0.1, "cm"),
       if(add.legend){
         bpl <- ggplot(data = df2, aes(x=period,y=inches, color=type)) +
           stat_boxplot(geom = "errorbar")+
@@ -1303,12 +2077,23 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                        panel.grid.minor = element_blank(),
                        strip.background = element_blank()) +
           theme(legend.position="top", legend.box.spacing = unit(0, "pt"),
-                legend.margin=margin(0,0,0,-6), legend.spacing.x = unit(0.1, "cm"),
+                legend.margin=margin(0,0,0,-5), legend.spacing.x = unit(0.1, "cm"),
                 legend.text=element_text(size=9),
                 axis.title = element_text(size = 12, colour="black"), 
-                axis.text = element_text(size = 12, colour="black")) +
+                axis.text = element_text(size = 12, colour="black"),
+                axis.title.y.right = element_text(angle = 90)) +
           geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), color="black") +
           labs(x="", y=ylabel, color="", fill="", shape="") + 
+          scale_y_continuous(
+            # Add a second axis and specify its features
+            sec.axis = sec_axis(transf,
+                                name="Percent change from observed 1990-2019",
+                                breaks = seq(-.09,.18,.03),
+                                labels=scaleFUN)) +
+          # scale_y_continuous(
+          #   # Add a second axis and specify its features
+          #   sec.axis = sec_axis(name="Percent change from observed 1990-2019 (%)", 
+          #                       breaks = atchange, labels = labchange)) +
           guides(color="none") + 
           scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
                             labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
@@ -1322,8 +2107,8 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           theme_update(panel.grid.major = element_blank(),
                        panel.grid.minor = element_blank(),
                        strip.background = element_blank()) +
-          theme(axis.title = element_text(size = 12, colour="black"), 
-                axis.text = element_text(size = 12, colour="black")) +
+          theme(axis.title = element_text(size = 14, colour="black"), 
+                axis.text = element_text(size = 14, colour="black")) +
           geom_point(data=county.obs, aes(x=int, y=inches, shape = shape), 
                      color="black", show.legend = FALSE) +
           labs(x="", y=ylabel, color="", fill="", shape="") + 
@@ -1339,10 +2124,13 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     
   } else if(plot_type == "poly"){
     cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
-                    "-", fips, "-", var, "-polygraph1.eps"), 
+                    "-", fips, "-", var, "-percpolygraph1.eps"), 
              width=5.72, height=4.04)
     
-    par(mar=c(3, 4, 2, 1), las=1)
+    # par(mar=c(3, 5, 2.5, 1), las=1)
+    par(mgp=c(1.8,.5,0), mar=c(2, 4, 2.5, 3.75), las=1)
+    # par(mar=c(2.5, 4.5, 2.5, 1), las=1)
+    #par(mar=c(3, 4, 2, 1), las=1)
     
     plot(0, type="n", xlab="", ylab=ylabel, xaxt="n", 
          ylim=c(min(allvals, na.rm=TRUE), max(allvals, na.rm=TRUE)), 
@@ -1365,8 +2153,21 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     # mtext(side=1, at=1:3, las = 1, clim.decades)
     axis(side=1, at=1:3, las = 1, label=rownames(rcp45df), tick=FALSE)
     
+    # Find percent change at roughly the same axis values
+    # perchange = round(((axTicks(2) - county.obs$inches)/county.obs$inches)*100)
+    # if(!any(perchange == 0)){perchange = c(perchange, 0)}
+    perchange = seq(-9, 18, by=3)
+    atchange = ((perchange/100)*county.obs$inches)+county.obs$inches
+    
+    #Adding x and y axes text
+    # axis(side = 2, at = pretty_axis, labels = paste0(pretty_axis, " "))
+    axis(side = 4, at = atchange, labels = paste0(" ", perchange, "%"))
+    # mtext(side=2, line=2.5, at=mean(pretty_axis), ylabel, font=1, las=0)
+    mtext(side=4, line=2.5, at=mean(axTicks(2)), "Percent change from observed 1990-2019", 
+          font=1, las=0)
+    
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Hindcast Range", "Observations", 
+    scenarios <- c("Hindcast Range", "Observation Average", 
                    "Low Emissions Average", "High Emissions Average",
                    "Low Emissions Range", "High Emissions Range")
     
@@ -1378,11 +2179,16 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
       } else{
         # For Average
+        # add_legend("topright", legend = scenarios,
+        #            pch = c(15, 20, NA, NA, 15, 15), pt.cex = c(2, 1, NA, NA, 2, 2),
+        #            lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
+        #            col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
+        #            bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
         add_legend("topright", legend = scenarios,
                    pch = c(15, 20, NA, NA, 15, 15), pt.cex = c(2, 1, NA, NA, 2, 2),
                    lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
                    col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
-                   bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
+                   bty='n', cex=0.8, ncol=3, text.width=c(0.53, 0.53, 0.54, 0.54, 0.53, 0.53))
       }
     }
     dev.off()
@@ -2554,6 +3360,168 @@ calcIDF_depth <- function(fips, changeFactor, idf, rp, depth, timeframe, outDir)
   
   dev.off()
 }
+##########################################################################
+# Likelihood Definitions
+# https://www.ipcc.ch/site/assets/uploads/2018/05/uncertainty-guidance-note.pdf 
+# Virtually certain (99-100% probability)
+# Very likely (90-100% probability)
+# Likely (66-100% probability)
+# About as likely as not (33 to 66% probability)
+# Unlikely (0-33% probability)
+# Very unlikely (0-10% probability)
+# Exceptionally unlikely (0-1% probability)
+##########################################################################
+define.likl = function(likl){
+  if(likl >= 99){
+    def = 'is virtually certain to'
+  } else if(likl >= 90 & likl < 99){
+    def = 'will very likely'
+  } else if(likl >= 66 & likl < 90) {
+    def = 'will likely'
+  } else if(likl >= 33 & likl < 66) {
+    def = 'is about as likely as not to'
+  } else if(likl > 10 & likl < 33) {
+    def = 'is unlikely to'
+  } else if(likl > 1 & likl <= 10) {
+    def = 'is very unlikely to'
+  } else if(likl >= 0 & likl <= 1) {
+    def = 'is exceptionally unlikely to'
+  } else {
+    stop("Check likl value")
+  }
+  return(def)
+}
+
+double.likl = function(likl.45, likl.85, var.word){
+  val.45 = define.likl(likl.45)
+  val.85 = define.likl(likl.85)
+  p45 = round(likl.45)
+  p85 = round(likl.85)
+  if(val.45 == val.85){
+    if(p45 == p85){
+      output = paste0(val.45, " ", var.word, " (", p45, "% chance of increasing)")
+    } else {
+      output = paste0(val.45, " ", var.word, " (between a ", p45, " and ", p85, "% chance of increasing)")
+    }
+  } else {
+    output = paste0(val.45, ", to ", val.85, " ", var.word, " (between a ", 
+                    p45, " and ", p85, "% chance of increasing)")
+  }
+  return(output)
+}
+
+# per45 = NHpoly99thres$percentobsincrease45
+# per85 = NHpoly99thres$percentobsincrease85
+
+define.change = function(percent){
+  if(percent >= 5){
+    def = "increase by"
+  } else if(percent > -5 & percent < 5){
+    def = "have little to no change"
+  } else if(percent <= -5) {
+    def = "decrease by"
+  } else {
+    stop("Check percent value")
+  }
+  return(def)
+}
+
+double.change = function(percent.45, percent.85, amount.45, amount.85, units){
+  p45 = round(percent.45)
+  p85 = round(percent.85)
+  val.45 = define.change(p45)
+  val.85 = define.change(p85)
+
+  if(val.45 == val.85){
+    if(val.45 == "have little to no change"){
+      output = paste0("will ", val.45)
+     } else {
+        if(p45 == p85){
+          output = paste0("will ", val.45, " ", p45, "%")
+         } else {
+          output = paste0("will ", val.45, " ", p45, " and ", p85, "%")
+         }
+     }
+      } else {
+      output = paste0("will ", val.45, ", to ", val.85, " ", 
+                    p45, " and ", p85, "%")
+    }
+  
+  amt45 = round(amount.45, 1)
+  amt85 = round(amount.85, 1)
+  
+  if(amt45 == amt85){
+    amount = paste(amt45, units)
+  } else {
+    amount = paste(amt45, "and", amt85, units)
+  }
+  
+  if(val.45 == "have little to no change"){
+    output = paste(output, "remaining at roughly", amount)
+   } else {
+      output = paste(output, "to", amount)
+    }
+    
+  return(output)
+  }
+
+# double.change(NHpoly99thres$percentobsincrease45, NHpoly99thres$percentobsincrease85)
+# double.change(CApoly99thres$percentobsincrease45, CApoly99thres$percentobsincrease85,
+#               CApoly99thres$rcp45_20502079, CApoly99thres$rcp85_20502079, "inches")
+
+# -5% ≥ percent: Decreasing
+# -5% < percent < 5%: Little to no change
+# 5% ≤ percent: Increasing
+# 
+# 
+# will increase by 6 and 10% to 1.8 and 1.9 inches
+# The 1% event will likely have little to no change in the amount of precipitation that falls in 24 hours (2050-2079 average).
+# 
+# paste(round(NHpoly99thres$rcp45_20502079,1), "to", round(NHpoly99thres$rcp85_20502079,1))
+# paste(round(NHpoly99thres$percentobsincrease45), "to", round(NHpoly99thres$percentobsincrease85))
+# 
+# double.likl(NHpoly99thres$likl.increase45, NHpoly99thres$likl.increase85)
+# double.likl(NHpoly99th$likl.increase45, NHpoly99th$likl.increase85)
+# 
+# define.likl(NHpoly99th$likl.increase45)
+# define.likl(NHpoly99th$likl.increase85)
+# 
+# define.likl(CApoly99thres$likl.increase45)
+# define.likl(CApoly99thres$likl.increase85)
+# 
+# define.likl(CApoly99th$likl.increase45)
+# define.likl(CApoly99th$likl.increase85)
+# 
+# define.likl(NHbar99thres$likl.hind.increase45)
+# define.likl(NHbar99thres$likl.hind.increase85)
+# 
+# define.likl(NHbar99th$likl.hind.increase45)
+# define.likl(NHbar99th$likl.hind.increase85)
+# 
+# define.likl(CAbar99thres$likl.hind.increase45)
+# define.likl(CAbar99thres$likl.hind.increase85)
+# 
+# define.likl(CAbar99th$likl.hind.increase45)
+# define.likl(CAbar99th$likl.hind.increase85)
+# 
+# define.likl(NHbox99thres$likl.increase45)
+# define.likl(NHbox99thres$likl.increase85)
+# 
+# define.likl(NHbox99th$likl.increase45)
+# define.likl(NHbox99th$likl.increase85)
+# 
+# define.likl(CAbox99thres$likl.increase45)
+# define.likl(CAbox99thres$likl.increase85)
+# 
+# define.likl(CAbox99th$likl.increase45)
+# define.likl(CAbox99th$likl.increase85)
+# 
+# The 1% heavy precipitation event 
+# 
+# The 1% heavy precipitation event will likely intensify by 2070 (67% probability). 
+# The average 1% event will increase by 6 to 10%, increasing from 1.7 inches to 1.8 - 1.9 inches in 24 hours. (maybe try bolding the trend and moving the parentheses to the end so it breaks the flow less)
+
+
 
 ##########################################################################
 # END

@@ -141,7 +141,7 @@ print(paste("Average number of days per year ≥ 1% event is", CAcurrent_99th_pr
 ##########################################################################
 # Precipitation - as Polygon graph
 ##########################################################################
-
+# NEW HAMPSHIRE
 # 0.5 mm --------------------------------------------------------------------
 NHpoly0p5 = calcPrecipRunAveGraph("shp", dataAveTab = NHwet0p5Ave, dataTab=NHwet0p5days,
                                 obsTab = NHwet0p5Obs, ylabel = "Number of days with precipitation",
@@ -149,9 +149,9 @@ NHpoly0p5 = calcPrecipRunAveGraph("shp", dataAveTab = NHwet0p5Ave, dataTab=NHwet
 
 # 99th wet days --------------------------------------------------------------------
 NHpoly99th = calcPrecipRunAveGraph("shp", dataAveTab = NHwet99thAve, dataTab=NHwet99thdays,
-                                obsTab = NHwet99thObs, ylabel = "Number of 1% precipitation days",
+                                obsTab = NHwet99thObs, ylabel = "Number of days with\n1% precipitation event (days/year)",
                                 var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
-                                add.legend = FALSE)
+                                add.legend = TRUE)
 
 NHpolytot = calcPrecipRunAveGraph("shp", dataAveTab = NHwettotAve, dataTab=NHwettotdays,
                                 obsTab = NHwettotObs, ylabel = "Annual total precipitation (in)",
@@ -159,9 +159,9 @@ NHpolytot = calcPrecipRunAveGraph("shp", dataAveTab = NHwettotAve, dataTab=NHwet
 
 NHpoly99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres, 
                                 outDir = NHprecipDir, 
-                var = "99th", ylabel="1% precipitation event (in)", plot_type = "poly", 
+                var = "99th", ylabel="Amount of precipitation during\n1% event (inches)", plot_type = "poly", 
                 create.plot=TRUE, leg.inside = FALSE, add.legend = TRUE)
-
+# CALIFORNIA
 # 0.5 mm --------------------------------------------------------------------
 CApoly0p5 = calcPrecipRunAveGraph("shp", dataAveTab = CAwet0p5Ave, dataTab=CAwet0p5days,
                                       obsTab = CAwet0p5Obs, ylabel = "Number of days with precipitation",
@@ -169,8 +169,8 @@ CApoly0p5 = calcPrecipRunAveGraph("shp", dataAveTab = CAwet0p5Ave, dataTab=CAwet
 
 # 99th wet days --------------------------------------------------------------------
 CApoly99th = calcPrecipRunAveGraph("shp", dataAveTab = CAwet99thAve, dataTab=CAwet99thdays,
-                                       obsTab = CAwet99thObs, ylabel = "Number of 1% precipitation days",
-                                       var="99thdays", outDir=CAprecipDir, create.plot=create.plot, add.legend = FALSE)
+                                       obsTab = CAwet99thObs, ylabel = "Number of days with\n1% precipitation event (days/year)",
+                                       var="99thdays", outDir=CAprecipDir, create.plot=create.plot, add.legend = TRUE)
 
 CApolytot = calcPrecipRunAveGraph("shp", dataAveTab = CAwettotAve, dataTab=CAwettotdays,
                                       obsTab = CAwettotObs, ylabel = "Annual total precipitation (in)",
@@ -178,38 +178,59 @@ CApolytot = calcPrecipRunAveGraph("shp", dataAveTab = CAwettotAve, dataTab=CAwet
 
 CApoly99thres = calcPrecipThres("shp", dataTab = CAwet99thThres, obsTab = CAwet99thObsThres, 
                                 outDir = CAprecipDir, 
-                                    var = "99th", ylabel="1% precipitation event (in)", plot_type = "poly", 
+                                    var = "99th", ylabel="Amount of precipitation during\n1% event (inches)", plot_type = "poly", 
                                     create.plot=TRUE, leg.inside = FALSE, add.legend = TRUE)
 
 ##########################################################################
 # Precipitation Change Bar Graph
 ##########################################################################
-
+# NEW HAMPSHIRE
 NHbar0p5 = calcPrecipChangeBarGraph("shp", dataTab=NHwet0p5days,  
                                   ylabel = "Percent change in days with precipitation", 
                                   var="0p5",outDir=NHprecipDir, create.plot=create.plot)
 
-NHbar99th = calcPrecipChangeBarGraph("shp", dataTab=NHwet99thdays,
-                                 ylabel = "Percent change in the number\nof 1% precipitation days",
-                                 var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
-                                 add.legend = FALSE)
+# NHbar99th = calcPrecipPercentChangeBarGraph("shp", dataTab=NHwet99thdays,
+#                                  ylabel = "Percent change in the average number\nof days with 1% precipitation event",
+#                                  var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
+#                                  add.legend = TRUE)
+# 
+# NHbar99th = calcPrecipChangeBarGraph("shp", dataTab=NHwet99thdays,
+#                                             ylabel = "Change in the average number\nof days with 1% precipitation event",
+#                                             var="99thdaysChange", outDir=NHprecipDir, create.plot=create.plot, 
+#                                             add.legend = TRUE)
+
+NHbar99th = calcPrecipObsBarGraph("shp", dataTab=NHwet99thdays,obsTab = NHwet99thObs,
+                               ylabel = "Average number of days with\n1% precipitation event (days/year)",
+                               var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
+                               add.legend = TRUE, leg.inside=FALSE)
+
+# NHbar99th = calcPrecipBarGraph("shp", dataTab=NHwet99thdays,
+#                                      ylabel = "Average number of days with\n1% precipitation event (days/year)",
+#                                      var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
+#                                      add.legend = TRUE)
 
 NHbartot = calcPrecipChangeBarGraph("shp", dataTab=NHwettotdays,  
                                   ylabel = "Percent change in annual total precipitation", 
                                   var="tot",outDir=NHprecipDir, create.plot=create.plot)
 
+# NHbar99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres, 
+#                                outDir = NHprecipDir, 
+#                 var = "99th", ylabel="Percent change in the average amount\nof precipitation during 1% event", plot_type = "bar", 
+#                 create.plot=TRUE, leg.inside = TRUE, add.legend = TRUE)
+
 NHbar99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres, 
                                outDir = NHprecipDir, 
-                var = "99th", ylabel="Percent change in 1% precipitation event", plot_type = "bar", 
-                create.plot=TRUE, leg.inside = TRUE, add.legend = TRUE)
+                               var = "99th", ylabel="Average amount of precipitation\nduring 1% event (inches)", plot_type = "bar", 
+                               create.plot=TRUE, leg.inside = TRUE, add.legend = TRUE)
 
+# CALIFORNIA
 CAbar0p5 = calcPrecipChangeBarGraph("shp", dataTab=CAwet0p5days, leg.inside = FALSE,
                                         ylabel = "Percent change in days with precipitation", 
                                         var="0p5",outDir=CAprecipDir, create.plot=create.plot)
 
 CAbar99th = calcPrecipChangeBarGraph("shp", dataTab=CAwet99thdays,
-                                         ylabel = "Percent change in the number\nof 1% precipitation days",
-                                         var="99thdays", outDir=CAprecipDir, create.plot=create.plot, add.legend = FALSE)
+                                         ylabel = "Percent change in the average number\nof days with 1% precipitation event",
+                                         var="99thdays", outDir=CAprecipDir, create.plot=create.plot, add.legend = TRUE)
 
 CAbartot = calcPrecipChangeBarGraph("shp", dataTab=CAwettotdays,  
                                         ylabel = "Percent change in annual total precipitation", 
@@ -217,22 +238,23 @@ CAbartot = calcPrecipChangeBarGraph("shp", dataTab=CAwettotdays,
 
 CAbar99thres = calcPrecipThres("shp", dataTab = CAwet99thThres, obsTab = CAwet99thObsThres, 
                                outDir = CAprecipDir, 
-                                   var = "99th", ylabel="Percent change in 1% precipitation event", plot_type = "bar", 
+                                   var = "99th", ylabel="Percent change in the average amount\nof precipitation during 1% event", plot_type = "bar", 
                                    create.plot=TRUE, leg.inside = TRUE, add.legend = TRUE)
 
 ##########################################################################
 # Precipitation Box Graph
+theme_set(theme_bw())
 ##########################################################################
-
+# NEW HAMPSHIRE
 NHbox0p5 = calcPrecipBox("shp", dataTab=NHwet0p5days, obsTab = NHwet0p5Obs,
               var="0p5", outDir=NHprecipDir, 
               ylabel = "Number of days with precipitation",
               create.plot=TRUE, add.legend = TRUE)
 
 NHbox99th = calcPrecipBox("shp", dataTab=NHwet99thdays, obsTab = NHwet99thObs, 
-                                ylabel = "Number of 1% precipitation days",
+                                ylabel = "Number of days with\n1% precipitation event (days/year)",
                                 var="99thdays", outDir=NHprecipDir, 
-                                create.plot=create.plot, add.legend = FALSE)
+                                create.plot=create.plot, add.legend = TRUE)
 
 NHboxtot = calcPrecipBox("shp", dataTab=NHwettotdays, obsTab = NHwettotObs,
                                ylabel = "Annual total precipitation (in)",
@@ -240,7 +262,8 @@ NHboxtot = calcPrecipBox("shp", dataTab=NHwettotdays, obsTab = NHwettotObs,
                                create.plot=TRUE)
 
 NHbox99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres,
-                                  outDir = NHprecipDir, var = "99th", ylabel="1% precipitation event (in)",
+                                  outDir = NHprecipDir, var = "99th", 
+                               ylabel="Amount of precipitation during\n1% event (inches)",
                                   plot_type = "box", create.plot=TRUE, leg.inside = FALSE,
                                   add.legend = TRUE)
 
@@ -250,9 +273,9 @@ CAbox0p5 = calcPrecipBox("shp", dataTab=CAwet0p5days, obsTab = CAwet0p5Obs,
                                create.plot=TRUE)
 
 CAbox99th = calcPrecipBox("shp", dataTab=CAwet99thdays, obsTab = CAwet99thObs, 
-                                ylabel = "Number of 1% precipitation days",
+                                ylabel = "Number of days with\n1% precipitation event (days/year)",
                                 var="99thdays", outDir=CAprecipDir, 
-                                create.plot=create.plot, add.legend = FALSE)
+                                create.plot=create.plot, add.legend = TRUE)
 
 CAboxtot = calcPrecipBox("shp", dataTab=CAwettotdays, obsTab = CAwettotObs,
                                ylabel = "Annual total precipitation (in)",
@@ -260,7 +283,8 @@ CAboxtot = calcPrecipBox("shp", dataTab=CAwettotdays, obsTab = CAwettotObs,
                                create.plot=TRUE)
 
 CAbox99thres = calcPrecipThres("shp", dataTab = CAwet99thThres, obsTab = CAwet99thObsThres,
-                                  outDir = CAprecipDir, var = "99th", ylabel="1% precipitation event (in)",
+                                  outDir = CAprecipDir, var = "99th", 
+                               ylabel="Amount of precipitation during\n1% event (inches)",
                                   plot_type = "box", create.plot=TRUE, leg.inside = FALSE,
                                   add.legend = TRUE)
 
@@ -311,51 +335,87 @@ CAbox99thres = calcPrecipThres("shp", dataTab = CAwet99thThres, obsTab = CAwet99
 ##########################################################################
 # Outlooks
 ##########################################################################
-cnames = c("location", "annual-rainfall", "annual-days", "heavy-event", 
-           "heavy-days", "fut-event", "fut-days", "percent-increase", 
-           "percent-days", "@fig", "@daysfig", "caption")
+# cnames = c("location", "annual-rainfall", "annual-days", "heavy-event", 
+#            "heavy-days", "fut-event", "fut-days", "percent-increase", 
+#            "percent-days", "@fig", "@daysfig", "caption")
 
-barcap = paste("The graphs show the change in the 1% precipitation event (top) and the number of days the 1%", 
-               "precipitation event occurs (bottom) compared to the average between 1990 and 2019.",  
+barcapEvent = paste("The graph shows the average change in the amount of precipitation received during",
+                    "a 1% precipitation event compared to the average between 1990 and 2019.",  
                "The gray bars show the hindcast, (historic model results). Two scenarios of the future are shown",
                "as a high emissions scenario (RCP 8.5) in red and a low emissions scenario",
                "(RCP 4.5) in blue. Data retrieved from Multivariate Adaptive Constructed Analogs (MACA).")
 
-polyviocap = paste0("The graphs show the 1% precipitation event (top) and the number of days the 1% precipitation", 
-                    " event occurs (bottom). Black dots represent observations and",
+polyviocapEvent = paste0("The graph shows the amount of precipitation received during", 
+                    " a 1% precipitation event. Black dots represent observations and",
                     " the gray shading shows the hindcast (historic model results).",
                     " Two scenarios of the future are shown as a high emissions scenario (RCP 8.5) in red",
                     " and a low emissions scenario (RCP 4.5) in blue. Data",
                     " retrieved from Multivariate Adaptive Constructed Analogs (MACA) and",
                     " Gridded Surface Meteorological Dataset (gridMET).")
 
+barcapDay = paste("The graph shows the average number of days in a year with a 1% precipitation event",
+                  "compared to the average between 1990 and 2019. The gray bars show the",  
+               "hindcast, (historic model results). Two scenarios of the future are shown",
+               "as a high emissions scenario (RCP 8.5) in red and a low emissions scenario",
+               "(RCP 4.5) in blue. Data retrieved from Multivariate Adaptive Constructed Analogs (MACA).")
+
+polyviocapDay = paste0("The graph shows the number of days in a year with a 1% precipitation event", 
+                    " . Black dots represent observations and",
+                    " the gray shading shows the hindcast (historic model results).",
+                    " Two scenarios of the future are shown as a high emissions scenario (RCP 8.5) in red",
+                    " and a low emissions scenario (RCP 4.5) in blue. Data",
+                    " retrieved from Multivariate Adaptive Constructed Analogs (MACA) and",
+                    " Gridded Surface Meteorological Dataset (gridMET).")
 
 # Polygon graphs ----------------------------------------------------------
-locationApoly = data.frame(location = NHlocation, obs=round(NHcurrent_total_precip,1),
-                           dayobs = round(NHcurrent_day_precip), eventpoly = round(NHpoly99thres$obsmean,1),
-                           daypoly = round(NHpoly99th$obsmean,1), 
-                           futpoly = paste(round(NHpoly99thres$rcp45_20502079,1), "to", round(NHpoly99thres$rcp85_20502079,1)),
-                           futdayspoly = paste(round(NHpoly99th$rcp45_20502079,1), "to", round(NHpoly99th$rcp85_20502079,1)),
-                           perpoly = paste(round(NHpoly99thres$percentobsincrease45), "to", round(NHpoly99thres$percentobsincrease85)),
-                           perdayspoly = paste(round(NHpoly99th$percentobsincrease45), "to", round(NHpoly99th$percentobsincrease)),
+# cnames = c("location", "annual-rainfall", "annual-days", "heavy-event", 
+#            "heavy-days", "value", "likelihood", "fut-vals", "@fig", "caption")
+
+cnames = c("var", "heavy-event", "heavy-days", "value", "high-likelihood", 
+           "high-ave-change", "high-fut-vals", "low-likelihood", 
+           "low-ave-change", "low-fut-vals", "@fig")
+
+locationAEventpoly = data.frame(location = NHlocation, obs=round(NHcurrent_total_precip,1),
+                           dayobs = round(NHcurrent_day_precip), eventpoly = round(NHpoly99thres$obsmean,1), 
+                           daypoly = round(NHpoly99th$obsmean,1), val = "1% event",
+                           likelihood = double.likl(NHpoly99thres$likl.increase45, NHpoly99thres$likl.increase85, "intensify"),
+                           futpoly = double.change(NHpoly99thres$percentobsincrease45, NHpoly99thres$percentobsincrease85,
+                                                   NHpoly99thres$rcp45_20502079, NHpoly99thres$rcp85_20502079, "inches"),
                            polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-polygraph1.eps"),
+                           polycaption = polyviocapEvent)
+colnames(locationAEventpoly) <- cnames
+
+locationADaypoly = data.frame(location = NHlocation, obs=round(NHcurrent_total_precip,1),
+                           dayobs = round(NHcurrent_day_precip), eventpoly = round(NHpoly99thres$obsmean,1),
+                           daypoly = round(NHpoly99th$obsmean,1), val = "number of days with a 1% event", 
+                           likelihood = double.likl(NHpoly99th$likl.increase45, NHpoly99th$likl.increase85, "increase"),
+                           futpoly = double.change(NHpoly99th$percentobsincrease45, NHpoly99th$percentobsincrease, 
+                                                   NHpoly99th$rcp45_20502079, NHpoly99th$rcp85_20502079, "days per year"),
                            polydaysfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99thdays-precipgraph1Proj.eps"),
-                           polycaption = polyviocap)
-colnames(locationApoly) <- cnames
+                           polycaption = polyviocapDay)
+colnames(locationADaypoly) <- cnames
 
-locationBpoly = data.frame(location = CAlocation, obs=round(CAcurrent_total_precip,1),
-                           dayobs = round(CAcurrent_day_precip), eventpoly = round(CApoly99thres$obsmean,1),
-                           daypoly = round(CApoly99th$obsmean,1), 
-                           futpoly = paste(round(CApoly99thres$rcp45_20502079,1), "to", round(CApoly99thres$rcp85_20502079,1)),
-                           futdayspoly = paste(round(CApoly99th$rcp45_20502079,1), "to", round(CApoly99th$rcp85_20502079,1)),
-                           perpoly = paste(round(CApoly99thres$percentobsincrease45), "to", round(CApoly99thres$percentobsincrease85)),
-                           perdayspoly = paste(round(CApoly99th$percentobsincrease45), "to", round(CApoly99th$percentobsincrease)),
-                           polyfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99th-polygraph1.eps"),
-                           polydaysfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99thdays-precipgraph1Proj.eps"),
-                           polycaption = polyviocap)
-colnames(locationBpoly) <- cnames
+locationBEventpoly = data.frame(location = CAlocation, obs=round(CAcurrent_total_precip,1),
+                                dayobs = round(CAcurrent_day_precip), eventpoly = round(CApoly99thres$obsmean,1), 
+                                daypoly = round(CApoly99th$obsmean,1), val = "1% event",
+                                likelihood = double.likl(CApoly99thres$likl.increase45, CApoly99thres$likl.increase85, "intensify"),
+                                futpoly = double.change(CApoly99thres$percentobsincrease45, CApoly99thres$percentobsincrease85,
+                                                        CApoly99thres$rcp45_20502079, CApoly99thres$rcp85_20502079, "inches"),
+                                polyfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99th-polygraph1.eps"),
+                                polycaption = polyviocapEvent)
+colnames(locationBEventpoly) <- cnames
 
-outlookspoly = rbind(locationApoly, locationBpoly)
+locationBDaypoly = data.frame(location = CAlocation, obs=round(CAcurrent_total_precip,1),
+                              dayobs = round(CAcurrent_day_precip), eventpoly = round(CApoly99thres$obsmean,1),
+                              daypoly = round(CApoly99th$obsmean,1), val = "number of days with a 1% event", 
+                              likelihood = double.likl(CApoly99th$likl.increase45, CApoly99th$likl.increase85, "increase"),
+                              futpoly = double.change(CApoly99th$percentobsincrease45, CApoly99th$percentobsincrease, 
+                                                      CApoly99th$rcp45_20502079, CApoly99th$rcp85_20502079, "days per year"),
+                              polydaysfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99thdays-precipgraph1Proj.eps"),
+                              polycaption = polyviocapDay)
+colnames(locationBDaypoly) <- cnames
+
+outlookspoly = rbind(locationAEventpoly, locationADaypoly, locationBEventpoly, locationBDaypoly)
 encodeConnection <- file("outlooks/outlooks_merge_poly.txt",encoding = "UTF-16")
 write.table(outlookspoly, file=encodeConnection, row.names=FALSE, sep = "\t")
 
@@ -449,3 +509,10 @@ write.table(outlooksbox, file=encodeConnection, row.names=FALSE, sep = "\t")
 ##########################################################################
 # END
 ##########################################################################
+
+increase = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - obsmean
+plot(density(increase))
+
+# What is the percent with values above zero?
+(length(which(increase > 0))/length(increase))*100
+

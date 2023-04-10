@@ -104,13 +104,16 @@ ggplot_box_legend_simple <- function(family = "serif"){
                      y = ggplot_output[["75th percentile"]],
                      yend = ggplot_output[["75th percentile"]])) +
     geom_text(aes(x = 2.4, y = ggplot_output[["50th percentile\n(median)"]]),
-              label = "Interquartile\nrange\n(middle 50%\nof the data)", fontface = "bold",
+              label = "Interquartile range\n(IQR = 75th - 25th\npercentile)", fontface = "bold",
+              # label = "Interquartile\nrange\n(middle 50%\nof the data)", fontface = "bold",
               vjust = 0.4) +
     geom_text(aes(x = c(1.17,1.17),
                   y = c(ggplot_output[["upper_whisker"]],
                         ggplot_output[["lower_whisker"]]),
-                  label = c("Largest value (1.5 times\nthe interquartile range above\n75th percentile)",
-                            "Smallest value (1.5 times\nthe interquartile range below\n25th percentile)")),
+                  label = c("Largest value within\n75th percentile + 1.5 x IQR",
+                            "Smallest value within\n25th percentile - 1.5 x IQR")),
+                  # label = c("Largest value (1.5 times\nthe interquartile range above\n75th percentile)",
+                  #           "Smallest value (1.5 times\nthe interquartile range below\n25th percentile)")),
               fontface = "bold", vjust = 0.9) +
   geom_label(aes(x = 1.17, y = ggplot_output[["quartiles"]],
                  label = names(ggplot_output[["quartiles"]])),
@@ -157,7 +160,7 @@ min_res = function(p){
 
 # Create explanation plots ------------------------------------------------
 ############################# Box plot #########################################
-cairo_ps("plots/boxexplanation.eps", width=3, height=4)
+cairo_ps("plots/boxexplanation2.eps", width=3, height=4)
 par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
 ggplot_box_legend_simple()
 dev.off()
@@ -172,6 +175,19 @@ text(0.7, -1, labels="Below normal", pos=3, cex=0.8, font=2)
 text(1.9, 0, labels="Average over a\n30+ year period\n(what is considered normal)", 
      pos=3, cex=0.8, font=2)
 text(3.1, 1, labels="Above normal", pos=1, cex=0.8, font=2)
+dev.off()
+
+############################# Bar plot #########################################
+cairo_ps("plots/barexplanation2.eps", width=5.72, height=4.04, family = "serif")
+par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(1, 3, 1, 1))
+barplot(1:3, yaxt="n", xlim=c(0,5))
+lines(c(0,3.5), rep(0,2))
+
+lines(c(3.7,4.2), rep(3,2))
+lines(c(3.7,4.2), rep(0,2))
+lines(rep(4.2,2), c(0,3))
+
+text(4.35, 1.5, labels="Average", pos=4, offset=0, cex=0.8, font=2)
 dev.off()
 
 ########################### Polygon plot #######################################
@@ -401,7 +417,7 @@ lines(c(95,100), rep(boot_nf[80],2))
 lines(c(95,100), rep(boot_f[80],2))
 lines(rep(100,2), c(boot_f[80],boot_nf[80]))
 text(101, mean(c(boot_f[80],boot_nf[80]))-0.5, 
-     labels="Max-Min\nRange\n(100% of\nthe model\nsimulation)", pos=4, offset=0, 
+     labels="Max-Min\nrange\n(100% of\nthe model\nsimulation)", pos=4, offset=0, 
      cex=0.8, font=2)
 dev.off()
 
