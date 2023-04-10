@@ -6,9 +6,9 @@
 *.pbs.o*
 
 # Hide Outlook design files
-outlooks/*.pdf
-outlooks/*.indd
-outlooks/*.png
+#outlooks/*.pdf
+#outlooks/*.indd
+#outlooks/*.png
 
 # Temp files
 temp/GridMetintermeds
