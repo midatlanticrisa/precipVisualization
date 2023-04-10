@@ -3392,6 +3392,13 @@ define.likl = function(likl){
   return(def)
 }
 
+single.likl = function(likl, var.word){
+  val = define.likl(likl)
+  pval = round(likl)
+  output = paste0(val, " ", var.word, " increase (", pval, "% chance)")
+  return(output)
+}
+
 double.likl = function(likl.45, likl.85, var.word){
   val.45 = define.likl(likl.45)
   val.85 = define.likl(likl.85)
@@ -3425,6 +3432,20 @@ define.change = function(percent){
   }
   return(def)
 }
+
+single.change = function(percent, amount, units){
+  pval = round(percent)
+  val = define.change(pval)
+  amt = round(amount, 1)
+  
+  if(val == "have little to no change"){
+    output = paste0("will ", val, "remaining at roughly", amt, " ", units)
+  } else {
+    output = paste0("will ", val, " ", pval, "% to ", amt, " ", units)
+  }
+  return(output)
+}
+
 
 double.change = function(percent.45, percent.85, amount.45, amount.85, units){
   p45 = round(percent.45)
@@ -3463,7 +3484,7 @@ double.change = function(percent.45, percent.85, amount.45, amount.85, units){
     }
     
   return(output)
-  }
+}
 
 # double.change(NHpoly99thres$percentobsincrease45, NHpoly99thres$percentobsincrease85)
 # double.change(CApoly99thres$percentobsincrease45, CApoly99thres$percentobsincrease85,
