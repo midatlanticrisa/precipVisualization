@@ -478,7 +478,7 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
                        obs2070incease45 = rcp45_20502079 - obsmean, 
                        obs2070incease85 = rcp85_20502079 - obsmean, 
                        percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
-                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100,
+                       percentobsincrease85 = ((rcp85_20502079 - obsmean)/obsmean)*100,
                        likl.increase45 = likl.increase45, 
                        likl.increase85 = likl.increase85)
   
@@ -730,6 +730,8 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
   obs.avg = obs.avg[which(obs.avg$decade==1980):which(obs.avg$decade==2010), ]
   
   # Export values -----------------------------------------------------------
+  # Find 1990 to 2019 mean (i.e., 30 year average) of the observations
+  obsmean = mean(county.obs$inches[match(1990, county.obs$year): match(2019, county.obs$year)])
   
   # Calculate the linear regression to find the rate of change over the historic period
   # That is 1979 to 2019
@@ -757,6 +759,14 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
   likl.hind.increase45 = (length(which(val.hind.increase45 > 0))/length(val.hind.increase45))*100
   likl.hind.increase85 = (length(which(val.hind.increase85 > 0))/length(val.hind.increase85))*100
   
+  # What is the change between vals in 2050-2070 vs 30-year observation mean
+  val.increase45 = rcp45Tab$wetDays[rcp45Tab_ind] - obsmean
+  val.increase85 = rcp85Tab$wetDays[rcp85Tab_ind] - obsmean
+  
+  # What is the percent with values above zero?
+  likl.increase45 = (length(which(val.increase45 > 0))/length(val.increase45))*100
+  likl.increase85 = (length(which(val.increase85 > 0))/length(val.increase85))*100
+  
   #To calculate percent-increase by 2070 and insert in Outlook text. 
   #We'll estimate conservatively, using RCP 4.5 and rounding down to
   #nearest multiple of 5
@@ -775,8 +785,13 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
                        hindcast2070incease85 = rcp85_20502079 - baseline, 
                        percenthindincrease45 = ((rcp45_20502079 - baseline)/baseline)*100, 
                        percenthindincrease = ((rcp85_20502079 - baseline)/baseline)*100,
+                       obsmean = obsmean,
                        likl.hind.increase45 = likl.hind.increase45,
-                       likl.hind.increase85 = likl.hind.increase85)
+                       likl.hind.increase85 = likl.hind.increase85,
+                       percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
+                       percentobsincrease85 = ((rcp85_20502079 - obsmean)/obsmean)*100,
+                       likl.increase45 = likl.increase45, 
+                       likl.increase85 = likl.increase85)
   # exptval = data.frame(chngercp45 = round_any(graphing.data['rcp45','2070']*100, 5, floor),
   #                      chngercp85 = round_any(graphing.data['rcp85','2070']*100, 5, floor),
   #                      realrcp45 = round(graphing.data['rcp45','2070']*baseline),
@@ -1680,7 +1695,7 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
                        obs2070incease45 = rcp45_20502079 - obsmean, 
                        obs2070incease85 = rcp85_20502079 - obsmean, 
                        percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
-                       percentobsincrease = ((rcp85_20502079 - obsmean)/obsmean)*100,
+                       percentobsincrease85 = ((rcp85_20502079 - obsmean)/obsmean)*100,
                        likl.increase45 = likl.increase45,
                        likl.increase85 = likl.increase85)
                        # mean452070 = round(tsData$rcp45.means[tsr2070],0),
@@ -3395,7 +3410,7 @@ define.likl = function(likl){
 single.likl = function(likl, var.word){
   val = define.likl(likl)
   pval = round(likl)
-  output = paste0(val, " ", var.word, " increase (", pval, "% chance)")
+  output = paste0(val, " ", var.word, " (", pval, "% chance)")
   return(output)
 }
 

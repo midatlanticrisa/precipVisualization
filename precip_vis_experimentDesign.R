@@ -26,7 +26,7 @@ library(reshape2)
 library(ggplot2)
 library(ggthemes)
 library(measurements)
-library(stringr)
+# library(stringr)
 # install.packages("vioplot")
 # library("vioplot")
 library(RColorBrewer)
@@ -54,9 +54,6 @@ NHprecipDir <- paste0("plots/", NHstabv, "/")
 # script will error out otherwise
 if(!dir.exists(NHprecipDir)){
   dir.create(NHprecipDir, recursive=TRUE)
-}
-if(!dir.exists(CAprecipDir)){
-  dir.create(CAprecipDir, recursive=TRUE)
 }
 
 ##########################################################################
@@ -162,7 +159,7 @@ NHbox99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99
 # Outlooks
 ##########################################################################
 cnames = c("var", "heavy-event", "heavy-days", "value", "high-likelihood", 
-           "high-fut-vals", "low-likelihood", "low-fut-vals", "@fig")
+           "low-likelihood", "high-fut-vals", "low-fut-vals", "@fig")
 
 # Polygon graphs ----------------------------------------------------------
 locationAEventpoly = data.frame(var = "Intensity", heavyevent = round(NHpoly99thres$obsmean,1), 
@@ -171,20 +168,20 @@ locationAEventpoly = data.frame(var = "Intensity", heavyevent = round(NHpoly99th
                            likelihood45 = single.likl(NHpoly99thres$likl.increase45, "intensify"),
                            futpoly85 = single.change(NHpoly99thres$percentobsincrease85, NHpoly99thres$rcp85_20502079, "inches"),
                            futpoly45 = single.change(NHpoly99thres$percentobsincrease45, NHpoly99thres$rcp45_20502079, "inches"),
-                           polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-perpolygraph1.eps"))
+                           polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-percpolygraph1.eps"))
 colnames(locationAEventpoly) <- cnames
 
 locationADaypoly = data.frame(var = "Frequency", heavyevent = round(NHpoly99thres$obsmean,1),
                               heavyday = round(NHpoly99th$obsmean,1), val = "number of days with a 1% event", 
                            likelihood85 = single.likl(NHpoly99th$likl.increase85, "increase"),
                            likelihood45 = single.likl(NHpoly99th$likl.increase45, "increase"),
-                           futpoly85 = single.change(NHpoly99th$percentobsincrease, NHpoly99th$rcp85_20502079, "days per year"),
+                           futpoly85 = single.change(NHpoly99th$percentobsincrease85, NHpoly99th$rcp85_20502079, "days per year"),
                            futpoly45 = single.change(NHpoly99th$percentobsincrease45, NHpoly99th$rcp45_20502079, "days per year"),
                            polydaysfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99thdays-precipgraph1Proj.eps"))
 colnames(locationADaypoly) <- cnames
 
 # Bar graphs ----------------------------------------------------------
-locationAEventbar = data.frame(var = "Intensify", eventpoly = round(NHbar99thres$hindcastmean,1),
+locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres$hindcastmean,1),
                           daypoly = round(NHbar99th$baseline,1), val = "1% event",
                           likelihood85 = single.likl(NHbar99thres$likl.increase85, "intensify"),
                           likelihood45 = single.likl(NHbar99thres$likl.increase45, "intensify"),
@@ -193,17 +190,17 @@ locationAEventbar = data.frame(var = "Intensify", eventpoly = round(NHbar99thres
                           polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-obsbargraph1.eps"))
 colnames(locationAEventbar) <- cnames
 
-locationADaybar = data.frame(var = "Frequency", eventpoly = round(CAbar99thres$hindcastmean,1),
-                          daypoly = round(CAbar99th$baseline,1), val = "number of days with a 1% event",
+locationADaybar = data.frame(var = "Frequency", eventpoly = round(NHbar99thres$hindcastmean,1),
+                          daypoly = round(NHbar99th$baseline,1), val = "number of days with a 1% event",
                           likelihood85 = single.likl(NHbar99th$likl.increase85, "increase"),
                           likelihood45 = single.likl(NHbar99th$likl.increase45, "increase"),
-                          futpoly85 = single.change(NHbar99th$percentobsincrease, NHbar99th$rcp85_20502079, "days per year"),
+                          futpoly85 = single.change(NHbar99th$percentobsincrease85, NHbar99th$rcp85_20502079, "days per year"),
                           futpoly45 = single.change(NHbar99th$percentobsincrease45, NHbar99th$rcp45_20502079, "days per year"),
-                          polydaysfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99thdays-ObsprecipBargraph1.eps"))
+                          polydaysfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99thdays-ObsprecipBargraph1.eps"))
 colnames(locationADaybar) <- cnames
 
 # Box graphs ----------------------------------------------------------
-locationAEventbox = data.frame(var = "Intensify", eventpoly = round(NHbox99thres$obsmean,1),
+locationAEventbox = data.frame(var = "Intensity", eventpoly = round(NHbox99thres$obsmean,1),
                           daypoly = round(NHbox99th$obsmean,1), val = "1% event",
                           likelihood85 = single.likl(NHbox99thres$likl.increase85, "intensify"),
                           likelihood45 = single.likl(NHbox99thres$likl.increase45, "intensify"),
@@ -212,13 +209,13 @@ locationAEventbox = data.frame(var = "Intensify", eventpoly = round(NHbox99thres
                           polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-Boxgraph1.eps"))
 colnames(locationAEventbox) <- cnames
 
-locationADaybox = data.frame(var = "Frequency", eventpoly = round(CAbox99thres$obsmean,1),
-                          daypoly = round(CAbox99th$obsmean,1), val = "number of days with a 1% event",
+locationADaybox = data.frame(var = "Frequency", eventpoly = round(NHbox99thres$obsmean,1),
+                          daypoly = round(NHbox99th$obsmean,1), val = "number of days with a 1% event",
                           likelihood85 = single.likl(NHbox99th$likl.increase85, "increase"),
                           likelihood45 = single.likl(NHbox99th$likl.increase45, "increase"),
-                          futpoly85 = single.change(NHbox99th$percentobsincrease, NHbox99th$rcp85_20502079, "days per year"),
+                          futpoly85 = single.change(NHbox99th$percentobsincrease85, NHbox99th$rcp85_20502079, "days per year"),
                           futpoly45 = single.change(NHbox99th$percentobsincrease45, NHbox99th$rcp45_20502079, "days per year"),
-                          polydaysfig=paste0(CAplotDir, sub("_.*", "", CAstabv),"-shp-99thdays-precipBoxgraph1.eps"))
+                          polydaysfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99thdays-precipBoxgraph1.eps"))
 colnames(locationADaybox) <- cnames
 
 outlooks = rbind(locationAEventpoly, locationADaypoly, locationAEventbar, 
