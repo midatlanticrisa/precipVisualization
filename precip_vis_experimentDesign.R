@@ -120,7 +120,7 @@ NHpoly99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet9
 # Precipitation Change Bar Graph
 ##########################################################################
 # NEW HAMPSHIRE
-NHbar0p5 = calcPrecipChangeBarGraph("shp", dataTab=NHwet0p5days,  
+NHbar0p5 = calcPrecipPercentChangeBarGraph("shp", dataTab=NHwet0p5days,  
                                   ylabel = "Percent change in days with precipitation", 
                                   var="0p5",outDir=NHprecipDir, create.plot=create.plot)
 
