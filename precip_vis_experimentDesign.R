@@ -190,8 +190,8 @@ locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres
                           polyfig=paste0(NHplotDir, sub("_.*", "", NHstabv),"-shp-99th-obsbargraph1.eps"))
 colnames(locationAEventbar) <- cnames
 
-locationADaybar = data.frame(var = "Frequency", eventpoly = round(NHbar99thres$hindcastmean,1),
-                          daypoly = round(NHbar99th$baseline,1), val = "number of days with a 1% event",
+locationADaybar = data.frame(var = "Frequency", eventpoly = round(NHbar99thres$obsmean,1),
+                          daypoly = round(NHbar99th$obsmean,1), val = "number of days with a 1% event",
                           likelihood85 = single.likl(NHbar99th$likl.increase85, "increase"),
                           likelihood45 = single.likl(NHbar99th$likl.increase45, "increase"),
                           futpoly85 = single.change(NHbar99th$percentobsincrease85, NHbar99th$rcp85_20502079, "days per year"),
