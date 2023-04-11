@@ -258,9 +258,9 @@ calcPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir, var
     points(ind, rcp85df$means[ind], pch = 19, col = colors[2])
     
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Hindcast Range", "Observations", 
-                   "Low Emissions Average", "High Emissions Average",
-                   "Low Emissions Range", "High Emissions Range")
+    scenarios <- c("Hindcast range", "Observations", 
+                   "Low emissions average", "High emissions average",
+                   "Low emissions range", "High emissions range")
     
     # Plot legend inside the graph or in the outer margin
     if(add.legend){
@@ -545,7 +545,7 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
     # county.obs$int = county.obs$int -1 # Chart starts at 1960 not 1950
     # county.obs$shape = "Observations" # for legend
     
-    obs.avg$shape = "Observation Average" # for legend
+    obs.avg$shape = "Observation average" # for legend
     
     # Show full decades (10 years of data) only 
     
@@ -600,7 +600,7 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
         labs(x="", y=ylabel, color="", fill="", shape="") + 
         guides(color="none") + 
         scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
-                          labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
+                          labels=c('Hindcast', 'Low Eeissions range', 'High emissions range')) +
         annotation_custom(grob) + annotation_custom(grob2) + 
         geom_point(data=obs.avg, aes(x=int, y=obs, shape = shape), color="black") +
         coord_cartesian(ylim = ylim2)
@@ -802,7 +802,7 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
     ##Setting some graphical information
     colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
     decades <- paste0(colnames(graphing.data), " ")
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
     ##Plotting
@@ -860,11 +860,11 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
       # Plot legend inside the graph or in the outer margin
       if(leg.inside){
         legend("topright", legend = scenarios,fill = c(colors, "gray60"), bty="n")
-        legend("topright", legend = c(rep("", 3),"Observation Average", "1990-2019 average"),
+        legend("topright", legend = c(rep("", 3),"Observation average", "1990-2019 average"),
                pch=c(NA,NA,NA,20,NA), lty=c(NA,NA,NA,NA,2), bty="n")
       } else{
         legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
-        add_legend("topright", legend = c(scenarios, "Observation Average"),
+        add_legend("topright", legend = c(scenarios, "Observation average"),
                    pch = c(15, 15, 15, 20), pt.cex = c(2, 2, 2, 1),
                    col = c(colors, "gray60", "black"),
                    bty='n', cex=0.8, ncol=2, text.width=c(0.55, 0.55, 0.5, 0.5))
@@ -1002,7 +1002,7 @@ calcPrecipBarGraph <- function(fips, dataTab, outDir, var, season = NULL, ylabel
     ##Setting some graphical information
     colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
     decades <- paste0(colnames(graphing.data), " ")
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
     ##Plotting
@@ -1187,7 +1187,7 @@ calcPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NULL, 
     ##Setting some graphical information
     colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
     decades <- paste0(colnames(graphing.data), " ")
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
     ##Plotting
@@ -1393,7 +1393,7 @@ calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season =
     ##Setting some graphical information
     colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
     decades <- paste0(colnames(graphing.data), " ")
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
     ##Plotting
@@ -1755,9 +1755,9 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
     axis(1, at=seq(1990,2070, by=20))
     
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Observations", "Hindcast Range", "Low Emissions Average", 
-                   "High Emissions Average", "Low Emissions Range", 
-                   "High Emissions Range")
+    scenarios <- c("Observations", "Hindcast range", "Low emissions average", 
+                   "High emissions average", "Low emissions range", 
+                   "High emissions range")
     if(add.legend){
     # Plot legend inside the graph or in the outer margin
     if(leg.inside){
@@ -1904,9 +1904,9 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       points(2:3, rcp85df$mean[2:3], pch = 19, col = colors[2])
       
       # Constructing Legend -----------------------------------------------------
-      scenarios <- c("Hindcast Range", "Observations", 
-                     "Low Emissions Average", "High Emissions Average",
-                     "Low Emissions Range", "High Emissions Range")
+      scenarios <- c("Hindcast range", "Observations", 
+                     "Low emissions average", "High emissions average",
+                     "Low emissions range", "High emissions range")
       
       # Plot legend inside the graph or in the outer margin
       if(add.legend){
@@ -1963,7 +1963,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     # mtext(side=1, at=c(0.55, 1.5, 2.45), las = 1, clim.decades)
     axis(side=1, at=c(0.55, 1.5, 2.45), las = 1, label=rownames(rcp45df), tick=FALSE)
     
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     # Plot legend inside the graph or in the outer margin
     if(leg.inside){
@@ -2025,8 +2025,8 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       # mtext(side=1, at=c(0.55, 1.5, 2.45), las = 1, clim.decades)
       axis(side=1, at=c(0.55, 1.5, 2.45), las = 1, label=rownames(rcp45df), tick=FALSE)
       
-      scenarios <- c("Low Emissions Average", "High Emissions Average", 
-                     "Hindcast Average", "Observation Average")
+      scenarios <- c("Low emissions average", "High emissions average", 
+                     "Hindcast average", "Observation average")
       
       # Plot legend inside the graph or in the outer margin
       if(leg.inside){
@@ -2067,7 +2067,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       for(dind in decadeind){
         county.obs$int[which(county.obs$period == clim.decades[dind])] <- dind
       }
-      county.obs$shape = "Observation Average" # for legend
+      county.obs$shape = "Observation average" # for legend
       
       # compute lower and upper whiskers limits
       ylim1 = boxplot.stats(df2$inches)$stats[c(1, 5)]
@@ -2111,7 +2111,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           #                       breaks = atchange, labels = labchange)) +
           guides(color="none") + 
           scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
-                            labels=c('Hindcast', 'Low Emissions Range', 'High Emissions Range')) +
+                            labels=c('Hindcast', 'Low emissions range', 'High emissions range')) +
           coord_cartesian(ylim = ylim2)
       } else {
         bpl <- ggplot(data = df2, aes(x=period,y=inches, color=type)) +
@@ -2182,9 +2182,9 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           font=1, las=0)
     
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Hindcast Range", "Observation Average", 
-                   "Low Emissions Average", "High Emissions Average",
-                   "Low Emissions Range", "High Emissions Range")
+    scenarios <- c("Hindcast range", "Observation average", 
+                   "Low emissions average", "High emissions average",
+                   "Low emissions range", "High emissions range")
     
     # Plot legend inside the graph or in the outer margin
     if(add.legend){
@@ -2439,9 +2439,9 @@ calcSeasPrecipViolin <- function(fips, dataTab, dataAveTab=NULL, obsTab, outDir,
   legend("topleft", "Fall", bty="n")
   
   # Constructing Legend -----------------------------------------------------
-  scenarios <- c("Hindcast Range", "Observations", 
-                 "Low Emissions Average", "High Emissions Average",
-                 "Low Emissions Range", "High Emissions Range")
+  scenarios <- c("Hindcast range", "Observations", 
+                 "Low emissions average", "High emissions average",
+                 "Low emissions range", "High emissions range")
   
   # Plot legend inside the graph or in the outer margin
   if(leg.inside){
@@ -2562,7 +2562,7 @@ calcSeasPrecipChangeBarGraph <- function(fips, dataTab, outDir, var, season = NU
     ##Setting some graphical information
     colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
     decades <- paste0(colnames(winter$graphing.data), " ")
-    scenarios <- c("Low Emissions Average", "High Emissions Average", "Hindcast Average")
+    scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
     countynme <- unique(sapply(strsplit(winter$rcp45Tab$county,"_"),"[[",1))
     ##Plotting
@@ -2975,9 +2975,9 @@ lines(1:12, monthly$rcp45_1950, col=colors[6], lwd=2)
 axis(side = 1, at = 1:12, labels = month.abb, cex=0.8)
 
 # Constructing Legend -----------------------------------------------------
-scenarios <- c("Hindcast Average", "Hindcast Range", "Low Emissions Average", 
-               "High Emissions Average", "Low Emissions Range", 
-               "High Emissions Range")
+scenarios <- c("Hindcast average", "Hindcast range", "Low emissions average", 
+               "High emissions average", "Low emissions range", 
+               "High emissions range")
 
 # For Average
 add_legend("topright", legend = scenarios,
@@ -3073,7 +3073,7 @@ calcIDF <- function(fips, changeFactor, idf, rp, outDir){
     grid(nx=NA, ny=NULL)
     legend("topleft", namerp[i], bty="n")
     if(i == 1){
-      scenarios <- c("", "Low Emissions Average", "High Emissions Average", "Hindcast Average")
+      scenarios <- c("", "Low emissions average", "High emissions average", "Hindcast average")
       legend("topleft", legend = scenarios, pch=c(NA, 15,15,15), pt.cex=2,
              col = c(NA, colors, "gray60"), bty="n")
     }
@@ -3213,9 +3213,9 @@ calcIDF_range <- function(fips, changeFactor, idf, rp, timeframe, outDir){
     abline(h=2, col = "black", lty = "dashed", lwd=1.5)
     legend("topleft", namerp, bty="n")
     # if(i == 1){
-    scenarios <- c("", "Atlas 14", "Low Emissions Average", 
-                   "High Emissions Average", "Low Emissions Range", 
-                   "High Emissions Range")
+    scenarios <- c("", "Atlas 14", "Low Emissions average", 
+                   "High emissions average", "Low emissions range", 
+                   "High emissions range")
     legend("topleft", legend = scenarios, pch=c(NA,NA,NA,NA,15,15), 
            lty=c(NA,1,1,1,NA,NA), pt.cex=c(NA,NA,NA,NA,2,2),
            lwd=c(NA,2,2,2,NA,NA),
@@ -3362,9 +3362,9 @@ calcIDF_depth <- function(fips, changeFactor, idf, rp, depth, timeframe, outDir)
   # scenarios <- c("Hindcast Average", "Hindcast Range", "Low Emissions Average", 
   #                "High Emissions Average", "Low Emissions Range", 
   #                "High Emissions Range")
-  scenarios <- c("Low Emissions Average", 
-  "High Emissions Average", "Low Emissions Range", 
-  "High Emissions Range", "Atlas 14")
+  scenarios <- c("Low emissions average", 
+  "High emissions average", "Low emissions range", 
+  "High emissions range", "Atlas 14")
   
   # For Average
   add_legend("topright", legend = scenarios,
