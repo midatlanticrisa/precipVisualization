@@ -1641,8 +1641,12 @@ double.likl = function(likl.45, likl.85, var.word){
   return(output)
 }
 
-# per45 = NHpoly99thres$percentobsincrease45
-# per85 = NHpoly99thres$percentobsincrease85
+##########################################################################
+# Change Definitions
+# -5% ≥ percent: Decreasing
+# -5% < percent < 5%: Little to no change
+# 5% ≤ percent: Increasing
+##########################################################################
 
 define.change = function(percent){
   if(percent >= 5){
@@ -1669,7 +1673,6 @@ single.change = function(percent, amount, units){
   }
   return(output)
 }
-
 
 double.change = function(percent.45, percent.85, amount.45, amount.85, units){
   p45 = round(percent.45)
@@ -1709,64 +1712,6 @@ double.change = function(percent.45, percent.85, amount.45, amount.85, units){
     
   return(output)
 }
-
-# double.change(NHpoly99thres$percentobsincrease45, NHpoly99thres$percentobsincrease85)
-# double.change(CApoly99thres$percentobsincrease45, CApoly99thres$percentobsincrease85,
-#               CApoly99thres$rcp45_20502079, CApoly99thres$rcp85_20502079, "inches")
-
-# -5% ≥ percent: Decreasing
-# -5% < percent < 5%: Little to no change
-# 5% ≤ percent: Increasing
-# 
-# 
-# will increase by 6 and 10% to 1.8 and 1.9 inches
-# The 1% event will likely have little to no change in the amount of precipitation that falls in 24 hours (2050-2079 average).
-# 
-# paste(round(NHpoly99thres$rcp45_20502079,1), "to", round(NHpoly99thres$rcp85_20502079,1))
-# paste(round(NHpoly99thres$percentobsincrease45), "to", round(NHpoly99thres$percentobsincrease85))
-# 
-# double.likl(NHpoly99thres$likl.increase45, NHpoly99thres$likl.increase85)
-# double.likl(NHpoly99th$likl.increase45, NHpoly99th$likl.increase85)
-# 
-# define.likl(NHpoly99th$likl.increase45)
-# define.likl(NHpoly99th$likl.increase85)
-# 
-# define.likl(CApoly99thres$likl.increase45)
-# define.likl(CApoly99thres$likl.increase85)
-# 
-# define.likl(CApoly99th$likl.increase45)
-# define.likl(CApoly99th$likl.increase85)
-# 
-# define.likl(NHbar99thres$likl.hind.increase45)
-# define.likl(NHbar99thres$likl.hind.increase85)
-# 
-# define.likl(NHbar99th$likl.hind.increase45)
-# define.likl(NHbar99th$likl.hind.increase85)
-# 
-# define.likl(CAbar99thres$likl.hind.increase45)
-# define.likl(CAbar99thres$likl.hind.increase85)
-# 
-# define.likl(CAbar99th$likl.hind.increase45)
-# define.likl(CAbar99th$likl.hind.increase85)
-# 
-# define.likl(NHbox99thres$likl.increase45)
-# define.likl(NHbox99thres$likl.increase85)
-# 
-# define.likl(NHbox99th$likl.increase45)
-# define.likl(NHbox99th$likl.increase85)
-# 
-# define.likl(CAbox99thres$likl.increase45)
-# define.likl(CAbox99thres$likl.increase85)
-# 
-# define.likl(CAbox99th$likl.increase45)
-# define.likl(CAbox99th$likl.increase85)
-# 
-# The 1% heavy precipitation event 
-# 
-# The 1% heavy precipitation event will likely intensify by 2070 (67% probability). 
-# The average 1% event will increase by 6 to 10%, increasing from 1.7 inches to 1.8 - 1.9 inches in 24 hours. (maybe try bolding the trend and moving the parentheses to the end so it breaks the flow less)
-
-
 
 ##########################################################################
 # END
