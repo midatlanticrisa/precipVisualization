@@ -181,8 +181,8 @@ locationADaypoly = data.frame(var = "Frequency", heavyevent = round(NHpoly99thre
 colnames(locationADaypoly) <- cnames
 
 # Bar graphs ----------------------------------------------------------
-locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres$hindcastmean,1),
-                          daypoly = round(NHbar99th$baseline,1), val = "1% event",
+locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres$obsmean,1),
+                          daypoly = round(NHbar99th$obsmean,1), val = "1% event",
                           likelihood85 = single.likl(NHbar99thres$likl.increase85, "intensify"),
                           likelihood45 = single.likl(NHbar99thres$likl.increase45, "intensify"),
                           futpoly85 = single.change(NHbar99thres$percentobsincrease85, NHbar99thres$rcp85_20502079, "inches"),
