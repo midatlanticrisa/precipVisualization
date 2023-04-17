@@ -340,13 +340,13 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
         geom_hline(yintercept=obsmean, linetype="dashed") +
         labs(x="", y=ylabel, color="", fill="", shape="") + 
         guides(color="none") + 
-        scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
-                          labels=c('Hindcast', 'Low Eeissions range', 'High emissions range')) +
+        scale_fill_manual(values=c("#CCCCCC", "#9BC3D7", "#FFB0C3"), 
+                          labels=c('Hindcast', 'Low emissions range', 'High emissions range')) +
         annotation_custom(grob) + annotation_custom(grob2) + 
         geom_point(data=obs.avg, aes(x=int, y=obs, shape = shape), color="black") +
         coord_cartesian(ylim = ylim2)
       # show(bpl)
-
+# scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
     } else {
       bpl <- ggplot(data = df2, aes(x=decade,y=inches, color=type)) +
         stat_boxplot(geom = "errorbar")+
@@ -365,7 +365,7 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
                    color="black", show.legend = FALSE) +
         labs(x="", y=ylabel, color="", fill="", shape="") + 
         guides(color="none") +
-        scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1")) +
+        scale_fill_manual(values=c("#CCCCCC", "#9BC3D7", "#FFB0C3")) +
         coord_cartesian(ylim = ylim2)
       # print(bp)
     }
@@ -541,7 +541,8 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
   # Plot --------------------------------------------------------------------
   if(create.plot){
     ##Setting some graphical information
-    colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    # colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    colors = c("#9BC3D7", "#FFB0C3")
     decades <- paste0(colnames(graphing.data), " ")
     scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
@@ -582,7 +583,7 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
             space = c(0, 0.4), xpd=FALSE)
     par(new = T)
     barplot(graphing.data[3, ], ylim = range(pretty_axis),
-            col = "gray60", width = c(rep(0.8, times = 7)), 
+            col = "#CCCCCC", width = c(rep(0.8, times = 7)), 
             xlab = "", xaxt = "n", axes = F, xpd=FALSE)
     abline(h = baseline, lty = 2)
     # abline(linreg45)
@@ -600,14 +601,14 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
     if(add.legend){
       # Plot legend inside the graph or in the outer margin
       if(leg.inside){
-        legend("topright", legend = scenarios,fill = c(colors, "gray60"), bty="n")
+        legend("topright", legend = scenarios,fill = c(colors, "#CCCCCC"), bty="n")
         legend("topright", legend = c(rep("", 3),"Observation average", "1990-2019 average"),
                pch=c(NA,NA,NA,20,NA), lty=c(NA,NA,NA,NA,2), bty="n")
       } else{
         legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
         add_legend("topright", legend = c(scenarios, "Observation average"),
                    pch = c(15, 15, 15, 20), pt.cex = c(2, 2, 2, 1),
-                   col = c(colors, "gray60", "black"),
+                   col = c(colors, "#CCCCCC", "black"),
                    bty='n', cex=0.8, ncol=2, text.width=c(0.55, 0.55, 0.5, 0.5))
         
         # pch = c(20, 15, NA, NA, 15, 15), lty=c(NA, NA, 1, 1, NA, NA),
@@ -763,7 +764,8 @@ calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season =
   # Plot --------------------------------------------------------------------
   if(create.plot){
     ##Setting some graphical information
-    colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    # colors = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    colors = c("#9BC3D7", "#FFB0C3")
     decades <- paste0(colnames(graphing.data), " ")
     scenarios <- c("Low emissions average", "High emissions average", "Hindcast average")
     
@@ -797,7 +799,7 @@ calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season =
             space = c(0, 0.4))
     par(new = T)
     barplot(graphing.data[3, ]*100, ylim = range(pretty_axis),
-            col = "gray60", width = c(rep(0.8, times = 7)), 
+            col = "#CCCCCC", width = c(rep(0.8, times = 7)), 
             xlab = "", xaxt = "n", axes = F)
     abline(h = 0, lty = 3, lwd = 1, col = "black")
     # abline(linreg45)
@@ -814,10 +816,10 @@ calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season =
       # Plot legend inside the graph or in the outer margin
       if(leg.inside){
         legend("topleft", legend = scenarios,
-               fill = c(colors, "gray60"), bty="n")
+               fill = c(colors, "#CCCCCC"), bty="n")
       } else{
         add_legend("topright", legend = scenarios,
-                   fill = c(colors, "gray60"),
+                   fill = c(colors, "#CCCCCC"),
                    bty='n', cex=0.8, ncol=3, text.width=c(0.5, 0.48, 0.43))
       }
     }
@@ -1250,6 +1252,8 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     trans_colors150 = makeTransparent(colors, 150)
     trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
     
+    colorsbar = c("#9BC3D7", "#FFB0C3")
+    
     allvals = c(county.obs$inches, rcp45Tab$inches, rcp85Tab$inches)
     
     # Constructing graph ------------------------------------------------------
@@ -1312,7 +1316,8 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     graphing.data[3,] = c(NA, (rcp85df$mean[2:3] - baseline))
     graphing.data = (graphing.data/baseline)*100
     
-    colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    #colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+    colors_bar = colorsbar
     ##make the bar plot
     #Might need to adjust y axis here and below, as needed
     pretty_axis = pretty(range(graphing.data, na.rm=TRUE))
@@ -1322,7 +1327,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     box()
     par(new = T)
     barplot(graphing.data[1, ], ylim = range(pretty_axis),
-            col = "gray60", width = c(rep(0.8, times = 7)), 
+            col = "#CCCCCC", width = c(rep(0.8, times = 7)), 
             xlab = "", xaxt = "n", axes = F)
     abline(h = 0, lty = 3, lwd = 1, col = "black")
     # abline(linreg45)
@@ -1340,10 +1345,10 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     # Plot legend inside the graph or in the outer margin
     if(leg.inside){
       legend("topleft", legend = scenarios,
-             fill = c(colors_bar, "gray60"), bty="n")
+             fill = c(colors_bar, "#CCCCCC"), bty="n")
     } else{
       add_legend("topright", legend = scenarios,
-                 fill = c(colors_bar, "gray60"),
+                 fill = c(colors_bar, "#CCCCCC"),
                  bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
     }
     dev.off()
@@ -1366,7 +1371,9 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       graphing.data[3,] = c(NA, rcp85df$mean[2:3])
       # graphing.data = (graphing.data/baseline)*100
       
-      colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+      #colors_bar = c(rgb(0, 0.4, 0.6, 0.6), rgb(1, 0.2, 0.4, 0.6))
+      colors_bar = colorsbar
+      
       ##make the bar plot
       #Might need to adjust y axis here and below, as needed
       pretty_axis = pretty(range(c(graphing.data, county.obs$inches), na.rm=TRUE))
@@ -1375,7 +1382,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
               space = c(0, 0.4), xpd=FALSE)
       par(new = T)
       barplot(graphing.data[1, ], ylim = range(pretty_axis),
-              col = "gray60", width = c(rep(0.8, times = 7)), 
+              col = "#CCCCCC", width = c(rep(0.8, times = 7)), 
               xlab = "", xaxt = "n", axes = F, xpd=FALSE)
       # abline(h = 0, lty = 3, lwd = 1, col = "black")
       # abline(linreg45)
@@ -1403,11 +1410,11 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
       # Plot legend inside the graph or in the outer margin
       if(leg.inside){
         legend("topleft", legend = scenarios, pch=c(rep(22,3), 20),
-               pt.bg = c(colors_bar, "gray60", NA), col="black", 
+               pt.bg = c(colors_bar, "#CCCCCC", NA), col="black", 
                pt.cex = c(2,2,2,1), bty="n")
       } else{
         add_legend("topright", legend = scenarios,
-                   fill = c(colors_bar, "gray60"),
+                   fill = c(colors_bar, "#CCCCCC"),
                    bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
       }
       dev.off()
@@ -1482,7 +1489,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           #   sec.axis = sec_axis(name="Percent change from observed 1990-2019 (%)", 
           #                       breaks = atchange, labels = labchange)) +
           guides(color="none") + 
-          scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1"), 
+          scale_fill_manual(values=c("#CCCCCC", "#9BC3D7", "#FFB0C3"), 
                             labels=c('Hindcast', 'Low emissions range', 'High emissions range')) +
           coord_cartesian(ylim = ylim2)
       } else {
@@ -1500,7 +1507,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                      color="black", show.legend = FALSE) +
           labs(x="", y=ylabel, color="", fill="", shape="") + 
           guides(color="none") +
-          scale_fill_manual(values=c("#CCCCCC", "#99c1d6", "#ffadc1")) +
+          scale_fill_manual(values=c("#CCCCCC", "#9BC3D7", "#FFB0C3")) +
           coord_cartesian(ylim = ylim2)
         # print(bp)
       }
@@ -1532,10 +1539,10 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     rect(2.5, rcp45df$min[3], 3.5, rcp45df$max[3], col=trans_colors[3], border=NA)
     
     points(1, county.obs$inches, pch = 20, col="black")
-    lines(c(1.5, 2.5), rep(rcp85df$mean[2], 2), col=colors[4], lwd=3)
-    lines(c(2.5, 3.5), rep(rcp85df$mean[3], 2), col=colors[4], lwd=3)
-    lines(c(1.5, 2.5), rep(rcp45df$mean[2], 2), col=colors[3], lwd=3)
-    lines(c(2.5, 3.5), rep(rcp45df$mean[3], 2), col=colors[3], lwd=3)
+    lines(c(1.5, 2.5), rep(rcp85df$mean[2], 2), col=colors[2], lwd=3)
+    lines(c(2.5, 3.5), rep(rcp85df$mean[3], 2), col=colors[2], lwd=3)
+    lines(c(1.5, 2.5), rep(rcp45df$mean[2], 2), col=colors[1], lwd=3)
+    lines(c(2.5, 3.5), rep(rcp45df$mean[3], 2), col=colors[1], lwd=3)
     
     # mtext(side=1, at=1:3, las = 1, clim.decades)
     axis(side=1, at=1:3, las = 1, label=rownames(rcp45df), tick=FALSE)
