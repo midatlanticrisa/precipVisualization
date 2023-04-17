@@ -954,6 +954,8 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
                         rcp45.mins = statMins45, rcp85.mins = statMins85, 
                         rcp45.maxs = statMaxs45, rcp85.maxs = statMaxs85)
   
+  hindave_5yr = unlist(lapply(X=1:length(tsData$rcp45.means), function(X){mean(c(tsData$rcp45.means[X], tsData$rcp85.means[X]))}))
+  
   pltYr2019 <- which(tsYrData$year==2019)
   pltYr2070 <- which(tsYrData$year==2079)
   
@@ -1120,6 +1122,8 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
             col = trans_colors[5], border = NA)
     
     yrind = match(2019, tsData$year)
+    
+    lines(tsData$year[1:yrind], hindave_5yr[1:yrind], col="gray60", lwd=2)
     lines(tsData$year[yrind:nrow(tsData)], tsData$rcp45.means[yrind:nrow(tsData)], col=colors[1], lwd=2)
     lines(tsData$year[yrind:nrow(tsData)], tsData$rcp85.means[yrind:nrow(tsData)], col=colors[2], lwd=2)
     
@@ -1129,7 +1133,10 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
     axis(1, at=seq(1990,2070, by=20))
     
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Observations", "Hindcast range", "Low emissions average", 
+    # scenarios <- c("Observations", "Hindcast range", "Low emissions average", 
+    #                "High emissions average", "Low emissions range", 
+    #                "High emissions range")
+    scenarios <- c("Hindcast average", "Hindcast range", "Low emissions average", 
                    "High emissions average", "Low emissions range", 
                    "High emissions range")
     if(add.legend){
@@ -1141,11 +1148,19 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
              col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
     } else{
       # For Average
-      legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
+      # legend("topleft", legend="1990-2019 average", lty=2, bty="n", cex=0.8)
+      # add_legend("topright", legend = scenarios,
+      #            pch = c(20, 15, NA, NA, 15, 15), lty=c(NA, NA, 1, 1, NA, NA),
+      #            lwd=c(NA, NA, 2, 2, NA, NA), pt.cex = c(1, 2, NA, NA, 2, 2),
+      #            col = c("black", trans_colors[5], colors[1:2], trans_colors[3:4]),
+      #            bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
+      # 
+      legend("topleft", legend=c("1990-2019 average", "Observations"), lty=c(2,NA),
+             pch=c(NA, 20), bty="n", cex=0.8)
       add_legend("topright", legend = scenarios,
-                 pch = c(20, 15, NA, NA, 15, 15), lty=c(NA, NA, 1, 1, NA, NA),
-                 lwd=c(NA, NA, 2, 2, NA, NA), pt.cex = c(1, 2, NA, NA, 2, 2),
-                 col = c("black", trans_colors[5], colors[1:2], trans_colors[3:4]),
+                 pch = c(NA, 15, NA, NA, 15, 15), lty=c(1, NA, 1, 1, NA, NA),
+                 lwd=c(2, NA, 2, 2, NA, NA), pt.cex = c(NA, 2, NA, NA, 2, 2),
+                 col = c("gray60", trans_colors[5], colors[1:2], trans_colors[3:4]),
                  bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))#c(0.47, 0.47, 0.43, 0.43, 0.35, 0.35))
       
     }
@@ -1539,6 +1554,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     rect(2.5, rcp45df$min[3], 3.5, rcp45df$max[3], col=trans_colors[3], border=NA)
     
     points(1, county.obs$inches, pch = 20, col="black")
+    lines(c(0.5, 1.5), rep(baseline, 2), col="gray60", lwd=3)
     lines(c(1.5, 2.5), rep(rcp85df$mean[2], 2), col=colors[2], lwd=3)
     lines(c(2.5, 3.5), rep(rcp85df$mean[3], 2), col=colors[2], lwd=3)
     lines(c(1.5, 2.5), rep(rcp45df$mean[2], 2), col=colors[1], lwd=3)
@@ -1561,7 +1577,10 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           font=1, las=0)
     
     # Constructing Legend -----------------------------------------------------
-    scenarios <- c("Hindcast range", "Observation average", 
+    # scenarios <- c("Hindcast range", "Observation average", 
+    #                "Low emissions average", "High emissions average",
+    #                "Low emissions range", "High emissions range")
+    scenarios <- c("Hindcast range", "Hindcast average", 
                    "Low emissions average", "High emissions average",
                    "Low emissions range", "High emissions range")
     
@@ -1571,6 +1590,7 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
         legend("topleft", legend = scenarios,
                pch = c(19, 19, 15, 15, 15, 20), pt.cex = c(1, 1, 2, 2, 2, 1),
                col = c(colors[1:2], trans_colors[3:5], "black"), bty="n")
+
       } else{
         # For Average
         # add_legend("topright", legend = scenarios,
@@ -1578,10 +1598,17 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
         #            lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
         #            col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
         #            bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
+        # add_legend("topright", legend = scenarios,
+        #            pch = c(15, 20, NA, NA, 15, 15), pt.cex = c(2, 1, NA, NA, 2, 2),
+        #            lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
+        #            col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
+        #            bty='n', cex=0.8, ncol=3, text.width=c(0.53, 0.53, 0.54, 0.54, 0.53, 0.53))
+        legend("topleft", legend = "Observation average", pch = 20, col = "black", cex=0.8, bty="n")
+        
         add_legend("topright", legend = scenarios,
-                   pch = c(15, 20, NA, NA, 15, 15), pt.cex = c(2, 1, NA, NA, 2, 2),
-                   lty = c(NA, NA, 1, 1, NA, NA), lwd = c(NA, NA, 2, 2, NA, NA), 
-                   col = c(trans_colors[5], "black", colors[1:2], trans_colors[3:4]),
+                   pch = c(15, NA, NA, NA, 15, 15), pt.cex = c(2, NA, NA, NA, 2, 2),
+                   lty = c(NA, 1, 1, 1, NA, NA), lwd = c(NA, 2, 2, 2, NA, NA), 
+                   col = c(trans_colors[5], "gray60", colors[1:2], trans_colors[3:4]),
                    bty='n', cex=0.8, ncol=3, text.width=c(0.53, 0.53, 0.54, 0.54, 0.53, 0.53))
       }
     }
