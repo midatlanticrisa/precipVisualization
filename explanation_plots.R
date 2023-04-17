@@ -160,25 +160,13 @@ min_res = function(p){
 
 # Create explanation plots ------------------------------------------------
 ############################# Box plot #########################################
-cairo_ps("plots/boxexplanation2.eps", width=3, height=4)
+cairo_ps("plots/boxexplanation.eps", width=3, height=4)
 par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
 ggplot_box_legend_simple()
 dev.off()
 
 ############################# Bar plot #########################################
 cairo_ps("plots/barexplanation.eps", width=5.72, height=4.04, family = "serif")
-par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(1, 3, 1, 1))
-barplot(c(-1,0,1), yaxt="n")
-axis(2, at=0, las=2)
-abline(h=0, lty=3)
-text(0.7, -1, labels="Below normal", pos=3, cex=0.8, font=2)
-text(1.9, 0, labels="Average over a\n30+ year period\n(what is considered normal)", 
-     pos=3, cex=0.8, font=2)
-text(3.1, 1, labels="Above normal", pos=1, cex=0.8, font=2)
-dev.off()
-
-############################# Bar plot #########################################
-cairo_ps("plots/barexplanation2.eps", width=5.72, height=4.04, family = "serif")
 par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(1, 3, 1, 1))
 barplot(1:3, yaxt="n", xlim=c(0,5))
 lines(c(0,3.5), rep(0,2))
@@ -232,14 +220,6 @@ plength = 300
 project = 1:plength
 p.obs = model(parms,project)
 
-#Plot the observations and the best fit
-# pdf(file="../ToyFigures/plot1.pdf")
-# par(mfrow=c(1,1))
-# plot(x, obs, pch=20, xlab="x", ylab="Observations")
-# lines(x, y.obs$mod.obs, lwd=2, col="blue")
-# legend("topleft", c("Observations","Best fit"), pch=c(20,NA), lty=c(NA,1),
-#        col=c("black","blue"))
-# dev.off()
 #---------- Calculate the Residuals ------------------
 ### Calculate Residuals during observed time series (data - polynomial fit)  ###
 res <- obs - y.obs$mod.obs
@@ -281,19 +261,6 @@ for(i in 1:N) {
   lin.boot[i,]=y.obs$mod.obs+res.boot[i,]
 }
 
-#Plot the best hindcast with fits (N bootstrap samples)
-# pdf(file="../ToyFigures/plot2.pdf")  # write to pdf, define a pdf file to write to
-# plot(x, lin.boot[1,], type="l",main="Hindcast Fit + Noise",
-#      xlab="x",ylab="observations",col="black",lwd=1,ylim=c(0,40))
-# for(i in 1:N) {
-#   lines(x, lin.boot[i,], col="gold", lwd=1)
-# }
-# lines(x, y.obs$mod.obs, col="black", lwd=1)
-# points(x,obs, pch=20, col="black", lwd=2)
-# legend("topleft", c("Observations","Best fit + Noise","Best fit"), lwd=2, 
-#        lty=c(NA,1,1), pch=c(20,NA,NA), col=c("black","gold","black"))
-# dev.off()
-
 ###IMPORTANT: calculate polynomial coefficients for the bootstrapped samples###
 ########## NOTE: THIS MAY TAKE A FEW MINUTES! ###
 boot.fit_coef=mat.or.vec(N, 2)
@@ -331,22 +298,8 @@ for(n in 1:N) {
     boot.fit_proj[n,i]=boot.fit_coef[n,1] + boot.fit_coef[n,2]*project[i]
   }
 }
-#----------------------------------------------------------------
-#Plot the smoothed projected fits
-#Some observations should be outside the range of the fits
-# pdf(file="../ToyFigures/plot3.pdf")  # write to pdf, define a pdf file to write to
-# plot(project, boot.fit_proj[1,], type="l",main="Projected Smooth Fits",
-#      xlab="x",ylab="observations",col="black",lwd=1,ylim=c(0,60))
-# for(i in 1:N) {
-#   lines(project, boot.fit_proj[i,], col="red", lwd=1)
-# }
-# lines(project, p.obs$mod.obs, col="black", lwd=1)
-# points(x,obs, pch=20, col="black", lwd=2)
-# legend("topleft", c("Observations","Boot smoothed fits","Best fit"), lwd=2, 
-#        lty=c(NA,1,1), pch=c(20,NA,NA), col=c("black","red","black"))
-# dev.off()
-#---------------------------------------------------------------------------
 
+#---------------------------------------------------------------------------
 ### calculate projected AR(1) residual noise ###
 res.boot_proj=mat.or.vec(N, plength) #(nr,nc)
 boot_proj=res.boot_proj
@@ -364,19 +317,6 @@ for(i in 1:N) {
 }
 #------------------------ Analyze the Results ------------------------------------
 #Plot the projected fits with the added noise
-# The range should encompass all of the observations
-# pdf(file="../ToyFigures/plot4.pdf")  # write to pdf, define a pdf file to write to
-plot(project, boot.proj[1,], type="l",main="Projected Fits + Noise",
-     xlab="x",ylab="observations",col="black",lwd=1,ylim=c(0,60))
-for(i in 1:N) {
-  lines(project, boot.proj[i,], col="red", lwd=1)
-}
-lines(project, p.obs$mod.obs, col="black", lwd=1)
-points(x,obs, pch=20, col="black", lwd=2)
-legend("topleft", c("Observations","Boot fits + noise","Best fit"), lwd=2, 
-       lty=c(NA,1,1), pch=c(20,NA,NA), col=c("black","red","black"))
-# dev.off()
-
 ### Plot the Min-Max hindcast ###
 # Calculate the Min-Max confidence interval
 boot_f <-
@@ -404,8 +344,6 @@ polygon(boot_y, boot_x, col="gray", border=NA)
 points(x[1:80], obs[1:80], pch=20, cex=0.8, col="black")
 points(42, 6.7, pch=20, cex=0.8, col="black")
 lines(project[1:80], boot_mean[1:80], col="black", lwd=1.5)
-# legend("topleft", c("90% CI Boot Fits + noise", "Observations"), 
-#        pch=c(15,20),bty="n", col=c("red","black"))
 
 text(81, boot_nf[80], labels="Maximum", pos=4, offset=0, cex=0.8)
 text(81, boot_f[80], labels="Minimum", pos=4, offset=0, cex=0.8)
