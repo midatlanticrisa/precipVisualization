@@ -1,0 +1,21 @@
+﻿ID,Answer,Answer2
+EMP1,100% (minimum to maximum) of the range in model results,
+EMP2,a range of values based on model results of a high emissions scenario,
+EMP3,Model results over the historical period,
+EMP4,a range of values based on model results over the historical period,
+EMP5,where the high and low emissions scenario ranges overlap,
+EMP6,A representation of the future based on how much carbon dioxide is released into the air,
+ACC1,Increase compared to the 1990-2019 observation average (greater than or equal to a 5% change),
+ACC2,Likely (66-100% probability),
+ACC3,One scenario average is less than a quarter of the size of the other,There is little to no difference between the scenarios
+ACC4,There is no way to know based on the information conveyed in this graph,
+ACC5,Increase compared to the 1990-2019 observation average (greater than or equal to a 5% change),
+ACC6,Likely (66-100% probability),
+ACC7,One scenario average is less than a quarter of the size of the other,There is little to no difference between the scenarios.
+EXP1,Changes in the number of days per year with heavy rainfall events.,
+EXP2,To highlight patterns and trends in how heavy rainfall events change over time,To compare how two future emissions scenarios of heavy rainfall events differ
+EXP3,Changes in the amount of rain received during a heavy rainfall event.,
+EXP4,To highlight patterns and trends in how heavy rainfall events change over time,To compare how two future emissions scenarios of heavy rainfall events differ
+KM1,Increase compared to the 1990-2019 observation average (greater than or equal to a 5% change),
+KM2,Likely (66-100% probability),
+KM3,One scenario average is less than a quarter of the size of the other,There is little to no difference between the scenarios.

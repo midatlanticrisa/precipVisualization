@@ -27,7 +27,7 @@ add_legend <- function(...) {
 # Precipitation Box plot Graph
 ##########################################################################
 calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var, 
-                          season = NULL, ylabel, 
+                          season = NULL, ylabel, save.plot=TRUE,
                              create.plot=TRUE, add.legend = TRUE){
   #################
   # fips <- "shp"
@@ -163,6 +163,8 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
   
   rcp45_20502079 = mean(rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")])
   rcp85_20502079 = mean(rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")])
+  medrcp45_20502079 = median(rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")])
+  medrcp85_20502079 = median(rcp85Tab$inches[which(rcp85Tab$period == "2050-2079")])
   
   # Export values ----------------------------------------------------------- 
   # round to nearest inch
@@ -221,7 +223,13 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
                        percentobsincrease45 = ((rcp45_20502079 - obsmean)/obsmean)*100, 
                        percentobsincrease85 = ((rcp85_20502079 - obsmean)/obsmean)*100,
                        likl.increase45 = likl.increase45, 
-                       likl.increase85 = likl.increase85)
+                       likl.increase85 = likl.increase85,
+                       medrcp45_20502079 = medrcp45_20502079,
+                       medrcp85_20502079 = medrcp85_20502079,
+                       medobs2070incease45 = medrcp45_20502079 - obsmean, 
+                       medobs2070incease85 = medrcp85_20502079 - obsmean, 
+                       medpercentobsincrease45 = ((medrcp45_20502079 - obsmean)/obsmean)*100, 
+                       medpercentobsincrease85 = ((medrcp85_20502079 - obsmean)/obsmean)*100)
   
   # Plot --------------------------------------------------------------------
   if(create.plot){
@@ -370,19 +378,25 @@ calcPrecipBox <- function(fips, dataTab, obsTab, outDir, var,
       # print(bp)
     }
     # dev.off()
+    if(save.plot){
     psname = paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)),
                     "-", fips, "-", var, "-precipBoxgraph1.eps")
     ggsave(filename=psname, plot=bpl, width=5.72, height=4.04, units="in")
+    }
   }
   
-  return(exptval)
-  # return(bpl)
+  if(!save.plot){
+    return(bpl)
+  } else {
+    return(exptval)
+  }
 }
 ##########################################################################
 # Precipitation Obs Bar Graph
 ##########################################################################
 calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = NULL, ylabel, 
-                               create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE){
+                               create.plot=TRUE, leg.inside = TRUE, add.legend=TRUE,
+                               save.plot=TRUE){
   #################
   # fips <- wet2indays$FIPS[1]
   # dataTab <- wet2indays
@@ -548,6 +562,7 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
     
     countynme <- unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1))
     ##Plotting
+    if(save.plot){
     if(is.null(season)){
       cairo_ps(paste0(outDir, countynme, 
                       "-", fips, "-", var, "-ObsprecipBargraph1.eps"), 
@@ -557,11 +572,13 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
                       "-", fips, "-", var, "-", season, "-ObsprecipBargraph1.eps"), 
                width=5.72, height=4.04)
     }
+    }
     if(!leg.inside){
       par(mgp=c(1.5,.5,0), mar=c(3, 4, 2, 1), las=1)
     } else {
       par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
     }
+    
     
     # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, -1)
     # maxVal <- round(max(graphing.data[1, ], graphing.data[2, ], na.rm=T)*100, 0)
@@ -617,7 +634,9 @@ calcPrecipObsBarGraph <- function(fips, dataTab, obsTab, outDir, var, season = N
         # bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53)
       }
     }
+    if(save.plot){
     dev.off()
+    }
   }
   
   return(exptval)
@@ -834,7 +853,7 @@ calcPrecipPercentChangeBarGraph <- function(fips, dataTab, outDir, var, season =
 ##########################################################################
 calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir, 
                                   ylabel = NULL, season = NULL, var, create.plot=TRUE,
-                                  leg.inside = FALSE, add.legend = TRUE){
+                                  save.plot = TRUE, leg.inside = FALSE, add.legend = TRUE){
   #################
   # fips <- "shp"
   # dataAveTab = wet2inAve
@@ -1097,6 +1116,7 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
                       histPoltly$rcp85.mins, histPoltly$rcp45.mins, county.obs[ ,obs.ind]), na.rm=TRUE)
     
     # Constructing graph ------------------------------------------------------
+    if(save.plot){
     if(is.null(season)){
       cairo_ps(paste0(outDir, unique(sapply(strsplit(county45Tabs$county,"_"),"[[",1)), 
                       "-", fips, "-", var,"-precipgraph1Proj.eps"), width=5.72, height=4.04)
@@ -1104,12 +1124,14 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
       cairo_ps(paste0(outDir, unique(sapply(strsplit(county45Tabs$county,"_"),"[[",1)), 
                       "-", fips, "-", var,"-", season, "-precipgraph1Proj.eps"), width=5.72, height=4.04)
     }
-    
+    }
     if(add.legend){
-      par(mar=c(3, 5, 2.5, 1))
+      par(mgp=c(1.5,.5,0), mar=c(3, 4, 2.5, 1))
+      #par(mar=c(3, 5, 2.5, 1))
     } else {
       par(mgp=c(1.5,.5,0), mar=c(3, 4, 0.5, 1), las=1)
     }
+    
     
     plot(0, type="n",xlab="", ylab=ylabel, xaxs="i", yaxt="n", xaxt="n",
          ylim=c(ymintick,ymaxtick), xlim=c(1978.25,2079))
@@ -1165,8 +1187,9 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
       
     }
     }
-    
+    if(save.plot){
     dev.off()
+    }
   }
   return(exptval)
 }
@@ -1176,7 +1199,7 @@ calcPrecipRunAveGraph <- function(fips, dataAveTab, dataTab, obsTab, outDir,
 ##########################################################################
 calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var, 
                              ylabel, plot_type = "poly", create.plot=TRUE, leg.inside = TRUE, 
-                             add.legend = TRUE){
+                             add.legend = TRUE, save.plot=TRUE){
   #################
   # fips <- "shp"
   # dataTab <- NHwet99thThres
@@ -1216,6 +1239,8 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
   rcp85Min <- sapply(clim.decades, function(dec_yr){min(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
   rcp45Max <- sapply(clim.decades, function(dec_yr){max(rcp45Tab$inches[which(rcp45Tab$period %in% dec_yr)])})
   rcp85Max <- sapply(clim.decades, function(dec_yr){max(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
+  rcp45Medians <- sapply(clim.decades, function(dec_yr){median(rcp45Tab$inches[which(rcp45Tab$period %in% dec_yr)])})
+  rcp85Medians <- sapply(clim.decades, function(dec_yr){median(rcp85Tab$inches[which(rcp85Tab$period %in% dec_yr)])})
 
   rcp45df <- data.frame(min = rcp45Min, mean = rcp45Means, max = rcp45Max)
   rcp85df <- data.frame(min = rcp85Min, mean = rcp85Means, max = rcp85Max)
@@ -1226,6 +1251,9 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
   hindcastincrease85 = rcp85df$mean[3] - baseline
   obs2070incease45 = (rcp45df$mean[3] - county.obs$inches)
   obs2070incease85 = (rcp85df$mean[3] - county.obs$inches)
+  
+  medobs2070incease45 = rcp45Medians[3] - county.obs$inches
+  medobs2070incease85 = rcp85Medians[3] - county.obs$inches
   
   # What is the change between vals in 2050-2070 vs 30-year observation mean
   val.increase45 = rcp45Tab$inches[which(rcp45Tab$period == "2050-2079")] - county.obs$inches
@@ -1254,7 +1282,13 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                        likl.increase45 = likl.increase45, 
                        likl.increase85 = likl.increase85,
                        likl.hind.increase45 = likl.hind.increase45, 
-                       likl.hind.increase85 = likl.hind.increase85)
+                       likl.hind.increase85 = likl.hind.increase85,
+                       medrcp45_20502079 = rcp45Medians[3],
+                       medrcp85_20502079 = rcp85Medians[3],
+                       medobs2070incease45 = medobs2070incease45,
+                       medobs2070incease85 = medobs2070incease85,
+                       medpercentobsincrease45 = (medobs2070incease45/county.obs$inches)*100,
+                       medpercentobsincrease85 = (medobs2070incease85/county.obs$inches)*100)
   
   # Plot --------------------------------------------------------------------
   if(create.plot){
@@ -1273,11 +1307,13 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
     
     # Constructing graph ------------------------------------------------------
     if(plot_type == "vio"){
+      if(save.plot){
       cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
                       "-", fips, "-", var, "-viograph1.eps"), 
                width=5.72, height=4.04)
-      
+      }
       par(mar=c(3, 4, 2, 1), las=1)
+      
       
       vioplot(inches~period, data=rcp45Tab, col = c(trans_colors[5], rep(trans_colors[3], 2)),
               plotCentre = "line", side="left", xlab="", ylab=ylabel, xaxt="n", 
@@ -1313,17 +1349,21 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                      bty='n', cex=0.8, ncol=3, text.width=c(0.49, 0.49, 0.54, 0.54, 0.53, 0.53))
         }
       }
+      if(save.plot){
       dev.off()
+      }
     } else if(plot_type == "percbar"){
+      if(save.plot){
     cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
                     "-", fips, "-", var, "-percbargraph1.eps"), 
              width=5.72, height=4.04)
-    
+      }
     if(leg.inside){
       par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
     } else{
       par(mar=c(3, 4, 2, 1), las=1)
     }
+      
     
     graphing.data = mat.or.vec(3,3)
     graphing.data[1,] = c((baseline - baseline), rep(NA, 2))
@@ -1366,19 +1406,22 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                  fill = c(colors_bar, "#CCCCCC"),
                  bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
     }
+    if(save.plot){
     dev.off()
-    
+    }
     } else if(plot_type == "bar"){
+      if(save.plot){
       cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
                       "-", fips, "-", var, "-obsbargraph1.eps"), 
                width=5.72, height=4.04)
-      
+      }
       if(leg.inside){
         # par(mgp=c(1.5,.5,0), mar=c(3, 5, 0.5, 1), las=1)
         par(mgp=c(1.5,.5,0), mar=c(2, 4.5, 0.5, 3), las=1)
       } else{
         par(mar=c(3, 4, 2, 1), las=1)
       }
+      
       
       graphing.data = mat.or.vec(3,3)
       graphing.data[1,] = c(baseline, rep(NA, 2))
@@ -1432,8 +1475,9 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                    fill = c(colors_bar, "#CCCCCC"),
                    bty='n', cex=0.8, ncol=3, text.width=c(0.45, 0.43, 0.35))
       }
+      if(save.plot){
       dev.off()
-      
+      }
     } else if(plot_type == "box"){
       
       ##Assembling into a data frame for plotting
@@ -1526,16 +1570,18 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
           coord_cartesian(ylim = ylim2)
         # print(bp)
       }
+        if(save.plot){
       psname = paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)),
                       "-", fips, "-", var, "-Boxgraph1.eps")
       ggsave(filename=psname, plot=bpl, width=5.72, height=4.04, units="in")
-      
+        }
     
   } else if(plot_type == "poly"){
+    if(save.plot){
     cairo_ps(paste0(outDir, unique(sapply(strsplit(rcp45Tab$county,"_"),"[[",1)), 
                     "-", fips, "-", var, "-percpolygraph1.eps"), 
              width=5.72, height=4.04)
-    
+    }
     # par(mar=c(3, 5, 2.5, 1), las=1)
     par(mgp=c(1.8,.5,0), mar=c(2, 4, 2.5, 3.75), las=1)
     # par(mar=c(2.5, 4.5, 2.5, 1), las=1)
@@ -1612,10 +1658,16 @@ calcPrecipThres <- function(fips, dataTab, obsTab, outDir, var,
                    bty='n', cex=0.8, ncol=3, text.width=c(0.53, 0.53, 0.54, 0.54, 0.53, 0.53))
       }
     }
+    if(save.plot){
     dev.off()
+    }
   }
   }
-  return(exptval)
+  if(!save.plot & plot_type == "box"){
+    return(bpl)
+  } else {
+    return(exptval)
+  }
 }
 
 ##########################################################################

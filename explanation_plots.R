@@ -178,6 +178,92 @@ lines(rep(4.2,2), c(0,3))
 text(4.35, 1.5, labels="Average", pos=4, offset=0, cex=0.8, font=2)
 dev.off()
 
+
+par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(1, 3, 1, 1))
+barplot(1:3, yaxt="n", xlim=c(0,5))
+lines(c(0,3.5), rep(0,2))
+
+lines(c(3.7,4.2), rep(3,2))
+lines(c(3.7,4.2), rep(0,2))
+lines(rep(4.2,2), c(0,3))
+
+text(4.35, 1.5, labels="Average", pos=4, offset=0, cex=0.8, font=2)
+
+png("plots/barexplanation.png", width=5.72, height=4.04, family = "serif", units="in", 
+    res=300)
+par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(3, 3, 1, 2))
+colors = c("#9BC3D7", "#FFB0C3")
+scen = matrix(c(NA,NA,NA,NA,2.5, 3, 3.5, 4.0, NA, NA, NA, NA), nrow=2)
+barplot(scen, beside = T, col = colors,
+        ylim = c(0,6.5), xlab = "Time", xaxt = "n", axes = F, 
+        space = c(0, 0.4), xpd=FALSE)
+par(new = T)
+barplot(c(1,2, NA, NA, NA, NA), ylim = c(0,6.5),ylab="Heavy rainfall measurement",
+        col = "#CCCCCC", width = c(rep(0.8, times = 7)),
+        xlab = "", xaxt = "n", axes = F, xpd=FALSE)
+points(c(0.5, 1.5), c(1.1, 1.9), pch=20, col = "black")
+
+axis(1, at=0.5:3.5, labels = seq(2000, 2030, by=10))
+
+lines(c(3.7,4.2), rep(4,2))
+lines(c(3.7,4.2), rep(0,2))
+lines(rep(4.2,2), c(0,4))
+
+text(4.35, 1.5, 
+     labels="Mean\n(average): a\ncalculated\n'central'\nvalue of a\nlist of\nnumbers", 
+     pos=4, offset=0, cex=0.8)
+
+obs_def = 'Observation (historical\nmeasurement): a\nmeasurement made\nto gather information'
+hind_def = "Hindcast: model results for a historical period that are used for\ncomparing observations with model estimates"
+low_def = "Low emissions scenario: society implements ways to reduce global\nfossil fuel emissions by 2050"
+high_def = "High emissions scenario: fossil fuel emissions continue to rise\nwithout any actions to reduce emissions"
+
+legend("topleft", legend = c(high_def, low_def, hind_def), 
+       pch=c(15, 15, 15), pt.cex=c(2,2, 2), cex=0.8, 
+       col=c(colors[2:1], "#CCCCCC"), bty='n', y.intersp=1.5)
+
+legend("left", legend = obs_def,
+       pch=20, cex=0.8, "black", bty='n')
+dev.off()
+
+###########################################
+png("plots/barexplanation.png", width=5.72, height=4.04, family = "serif", units="in", 
+    res=300)
+par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(3, 3, 1, 2))
+colors = c("#9BC3D7", "#FFB0C3")
+scen = matrix(c(NA,NA,NA,NA,2.5, 3, 3.5, 4.0, NA, NA, NA, NA), nrow=2)
+barplot(scen, beside = T, col = colors,
+        ylim = c(0,6.5), xlab = "Time", xaxt = "n", axes = F, 
+        space = c(0, 0.4), xpd=FALSE)
+par(new = T)
+barplot(c(1,2, NA, NA, NA, NA), ylim = c(0,6.5),ylab="Heavy rainfall measurement",
+        col = "#CCCCCC", width = c(rep(0.8, times = 7)),
+        xlab = "", xaxt = "n", axes = F, xpd=FALSE)
+points(c(0.5, 1.5), c(1.1, 1.9), pch=20, col = "black")
+
+axis(1, at=0.5:3.5, labels = seq(2000, 2030, by=10))
+
+lines(c(3.7,4.2), rep(4,2))
+lines(c(3.7,4.2), rep(0,2))
+lines(rep(4.2,2), c(0,4))
+
+# text(4.35, 1.5, 
+#      labels="Mean\n(average): a\ncalculated\n'central'\nvalue of a\nlist of\nnumbers", 
+#      pos=4, offset=0, cex=0.8)
+# 
+# obs_def = 'Observation (historical\nmeasurement): a\nmeasurement made\nto gather information'
+# hind_def = "Hindcast: model results for a historical period that are used for\ncomparing observations with model estimates"
+# low_def = "Low emissions scenario: society implements ways to reduce global\nfossil fuel emissions by 2050"
+# high_def = "High emissions scenario: fossil fuel emissions continue to rise\nwithout any actions to reduce emissions"
+
+legend("topleft", legend = c(NA, NA, NA), 
+       pch=c(15, 15, 15), pt.cex=c(2,2, 2), cex=0.8, 
+       col=c(colors[2:1], "#CCCCCC"), bty='n', y.intersp=1.5)
+
+legend("left", legend = NA,
+       pch=20, cex=0.8, "black", bty='n')
+dev.off()
+
 ########################### Polygon plot #######################################
 # The bootstrap method is applied to a linear model as described in the appendix of Ruckert et al.
 # (2016). For further description and references, please read the paper and appendix.
@@ -327,7 +413,12 @@ for(i in 1:plength){
   boot_nf[i] = max(boot.proj[,i])
   boot_mean[i] = mean(boot.proj[,i])
 }
-boot_x=c(boot_f[1:80], rev(boot_nf[1:80])); boot_y=c(project[1:80], rev(project[1:80]))
+boot_x=c(boot_f[1:40], rev(boot_nf[1:40])); boot_y=c(project[1:40], rev(project[1:40]))
+low_x=c(boot_f[40:80], rev(boot_nf[40:80])); low_y=c(project[40:80], rev(project[40:80]))
+
+highf = boot_f[40:80] * seq(1, 1.3, length.out=length(40:80))
+highnf = boot_nf[40:80] * seq(1, 1.3, length.out=length(40:80))
+high_y=c(highf, rev(highnf))
 
 #Calculate the Surprise index by observation the ratio of outliers to the expected # of outliers
 # The confidence intervals in the paper are:
@@ -335,28 +426,66 @@ boot_x=c(boot_f[1:80], rev(boot_nf[1:80])); boot_y=c(project[1:80], rev(project[
 # low numbers: 0.45,0.40,0.35,0.30,0.25,0.20,0.15,0.10,0.05,0.04,0.025,0.02,0.015,0.01,0.005,0
 # high numbers:0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,0.96,0.975,0.98,0.985,0.99,0.995,100
 
-cairo_ps("plots/polyexplanation.eps", width=5.72, height=4.04, family = "serif")
-par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(1, 1, 1, 1))
-plot(0, type="n",xlab="",ylab="", xaxt="n", yaxt="n",frame.plot = FALSE,
-     ylim=c(0,20), xlim=c(5,120))
+# cairo_ps("plots/polyexplanation.eps", width=5.72, height=4.04, family = "serif")
+png("plots/polyexplanationtest.png", width=5.72, height=4.04, family = "serif", units="in", 
+    res=300)
+par(mfrow=c(1, 1), mgp=c(1.5,.5,0), mar=c(3, 3,1, 1))
+plot(0, type="n",xlab="Time",ylab="Heavy rainfall measurement", 
+     xaxt="n", yaxt="n",frame.plot = FALSE,
+     ylim=c(0,30), xlim=c(5,120))
 #Plot the 90% confidence interval envelope
 polygon(boot_y, boot_x, col="gray", border=NA)
-points(x[1:80], obs[1:80], pch=20, cex=0.8, col="black")
+polygon(low_y, high_y, col=trans_colors[4], border=NA)
+polygon(low_y, low_x, col=trans_colors[3], border=NA)
+points(x[1:40], obs[1:40], pch=20, cex=0.8, col="black")
 points(42, 6.7, pch=20, cex=0.8, col="black")
-lines(project[1:80], boot_mean[1:80], col="black", lwd=1.5)
+lines(project[1:40], boot_mean[1:40], col="black", lwd=1.5)
+lines(project[40:80], boot_mean[40:80], col=colors[1], lwd=1.5)
+lines(project[40:80], boot_mean[40:80]* seq(1, 1.3, length.out=length(40:80)), 
+                                            col=colors[2], lwd=1.5)
+axis(1, at=seq(1, 90, by=10), labels=seq(1980, 2060, by=10))
 
-text(81, boot_nf[80], labels="Maximum", pos=4, offset=0, cex=0.8)
-text(81, boot_f[80], labels="Minimum", pos=4, offset=0, cex=0.8)
-text(81, boot_mean[80], labels="Average", pos=4, offset=0, cex=0.8)
-text(45, 6, labels="Historical measurement\n(observation)", pos=4, offset=0, 
-     cex=0.8, font=2)
+legend("topleft", legend = c(NA, NA, NA), 
+       pch=c(15, 15, 15), pt.cex=c(2,2, 2), cex=0.8, 
+       col=c(trans_colors[4:3], "#CCCCCC"), bty='n', y.intersp=1.5)
 
-lines(c(95,100), rep(boot_nf[80],2))
-lines(c(95,100), rep(boot_f[80],2))
-lines(rep(100,2), c(boot_f[80],boot_nf[80]))
-text(101, mean(c(boot_f[80],boot_nf[80]))-0.5, 
-     labels="Max-Min\nrange\n(100% of\nthe model\nsimulation)", pos=4, offset=0, 
-     cex=0.8, font=2)
+legend("bottom", legend = NA, pch=20, cex=0.8, "black", bty='n')
+legend("left", legend = NA, lty=1, cex=0.8, "black", bty='n')
+
+# text(81, boot_nf[80], labels="Maximum", pos=4, offset=0, cex=0.8)
+# text(81, boot_f[80], labels="Minimum", pos=4, offset=0, cex=0.8)
+# text(81, boot_mean[80], labels="Average", pos=4, offset=0, cex=0.8)
+# text(45, 6, labels="Historical measurement\n(observation)", pos=4, offset=0, 
+#      cex=0.8, font=2)
+# 
+# lines(c(95,100), rep(boot_nf[80],2))
+# lines(c(95,100), rep(boot_f[80],2))
+# lines(rep(100,2), c(boot_f[80],boot_nf[80]))
+# text(101, mean(c(boot_f[80],boot_nf[80]))-0.5, 
+#      labels="Max-Min\nrange\n(100% of\nthe model\nsimulation)", pos=4, offset=0, 
+#      cex=0.8, font=2)
 dev.off()
 
+
+makeTransparent<- function(someColor, alpha=100){
+  newColor<-col2rgb(someColor)
+  apply(newColor,2 ,
+        function(curcoldata)
+        {rgb(red=curcoldata[1],
+             green=curcoldata[2],
+             blue=curcoldata[3], alpha=alpha,
+             maxColorValue=255)})
+}
+
+colors <- c(rgb(0, 0.4, 0.6, 1), rgb(1, 0.2, 0.4, 1), rgb(0, 0.4, 0.6, 0.4), 
+            rgb(1, 0.2, 0.4, 0.4), rgb(0.8, 0.8, 0.8, 0.8), "#999999")
+
+# Transparent colors with transparent color function
+trans_colors100 = makeTransparent(colors, 100)
+trans_colors150 = makeTransparent(colors, 150)
+trans_colors = c(trans_colors100[1:4], trans_colors150[5], trans_colors100[6])
+
+
+col = trans_colors[4], border = NA)
+polygon(y = c(predPoltly$rcp45.mins, rev(predPoltly$rcp45.maxs)), x = c(predPoltly$year, rev(predPoltly$year)), col = trans_colors[3]
 #################### END ####################################

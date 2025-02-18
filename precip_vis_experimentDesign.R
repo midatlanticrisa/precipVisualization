@@ -40,7 +40,7 @@ source("precip_functions.R")
 # Setup directories
 ##########################################################################
 ## Set to create figures or just create the csv file
-create.plot = TRUE
+create.plot = FALSE
 # What location, size?
 NHstabv = "mtsunapeeNH_100km"
 
@@ -102,18 +102,18 @@ print(paste("Average number of days per year ≥ 1% event is", NHcurrent_99th_pr
 # NEW HAMPSHIRE
 # 0.5 mm --------------------------------------------------------------------
 NHpoly0p5 = calcPrecipRunAveGraph("shp", dataAveTab = NHwet0p5Ave, dataTab=NHwet0p5days,
-                                obsTab = NHwet0p5Obs, ylabel = "Number of days with precipitation",
+                                obsTab = NHwet0p5Obs, ylabel = "Number of days with rainfall",
                                 var="0p5", outDir=NHprecipDir, create.plot=create.plot)
 
 # 99th wet days --------------------------------------------------------------------
 NHpoly99th = calcPrecipRunAveGraph("shp", dataAveTab = NHwet99thAve, dataTab=NHwet99thdays,
-                                obsTab = NHwet99thObs, ylabel = "Number of days with\n1% precipitation event (days/year)",
+                                obsTab = NHwet99thObs, ylabel = "Number of days with a\n1% rainfall event (days/year)",
                                 var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
                                 add.legend = TRUE)
 
 NHpoly99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres, 
                                 outDir = NHprecipDir, 
-                var = "99th", ylabel="Amount of precipitation during\n1% event (inches)", plot_type = "poly", 
+                var = "99th", ylabel="Amount of rainfall during a\n1% rainfall event (inches)", plot_type = "poly", 
                 create.plot=TRUE, leg.inside = FALSE, add.legend = TRUE)
 
 ##########################################################################
@@ -121,17 +121,17 @@ NHpoly99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet9
 ##########################################################################
 # NEW HAMPSHIRE
 NHbar0p5 = calcPrecipPercentChangeBarGraph("shp", dataTab=NHwet0p5days,  
-                                  ylabel = "Percent change in days with precipitation", 
+                                  ylabel = "Percent change in days with rainfall", 
                                   var="0p5",outDir=NHprecipDir, create.plot=create.plot)
 
 NHbar99th = calcPrecipObsBarGraph("shp", dataTab=NHwet99thdays,obsTab = NHwet99thObs,
-                               ylabel = "Average number of days with\n1% precipitation event (days/year)",
+                               ylabel = "Average number of days with a\n1% rainfall event (days/year)",
                                var="99thdays", outDir=NHprecipDir, create.plot=create.plot, 
                                add.legend = TRUE, leg.inside=FALSE)
 
 NHbar99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres, 
                                outDir = NHprecipDir, 
-                               var = "99th", ylabel="Average amount of precipitation\nduring 1% event (inches)", plot_type = "bar", 
+                               var = "99th", ylabel="Average amount of rainfall\nduring a 1% rainfall event (inches)", plot_type = "bar", 
                                create.plot=TRUE, leg.inside = TRUE, add.legend = TRUE)
 
 ##########################################################################
@@ -141,17 +141,17 @@ theme_set(theme_bw())
 # NEW HAMPSHIRE
 NHbox0p5 = calcPrecipBox("shp", dataTab=NHwet0p5days, obsTab = NHwet0p5Obs,
               var="0p5", outDir=NHprecipDir, 
-              ylabel = "Number of days with precipitation",
+              ylabel = "Number of days with rainfall",
               create.plot=TRUE, add.legend = TRUE)
 
 NHbox99th = calcPrecipBox("shp", dataTab=NHwet99thdays, obsTab = NHwet99thObs, 
-                                ylabel = "Number of days with\n1% precipitation event (days/year)",
+                                ylabel = "Number of days with a\n1% rainfall event (days/year)",
                                 var="99thdays", outDir=NHprecipDir, 
                                 create.plot=create.plot, add.legend = TRUE)
 
 NHbox99thres = calcPrecipThres("shp", dataTab = NHwet99thThres, obsTab = NHwet99thObsThres,
                                   outDir = NHprecipDir, var = "99th", 
-                               ylabel="Amount of precipitation during\n1% event (inches)",
+                               ylabel="Amount of rainfall during a\n1% rainfall event (inches)",
                                   plot_type = "box", create.plot=TRUE, leg.inside = FALSE,
                                   add.legend = TRUE)
 
@@ -163,7 +163,7 @@ cnames = c("var", "heavy-event", "heavy-days", "value", "high-likelihood",
 
 # Polygon graphs ----------------------------------------------------------
 locationAEventpoly = data.frame(var = "Intensity", heavyevent = round(NHpoly99thres$obsmean,1), 
-                           heavyday = round(NHpoly99th$obsmean,1), val = "1% event",
+                           heavyday = round(NHpoly99th$obsmean,1), val = "heavy rainfall event",
                            likelihood85 = single.likl(NHpoly99thres$likl.increase85, "intensify"),
                            likelihood45 = single.likl(NHpoly99thres$likl.increase45, "intensify"),
                            futpoly85 = single.change(NHpoly99thres$percentobsincrease85, NHpoly99thres$rcp85_20502079, "inches"),
@@ -172,7 +172,7 @@ locationAEventpoly = data.frame(var = "Intensity", heavyevent = round(NHpoly99th
 colnames(locationAEventpoly) <- cnames
 
 locationADaypoly = data.frame(var = "Frequency", heavyevent = round(NHpoly99thres$obsmean,1),
-                              heavyday = round(NHpoly99th$obsmean,1), val = "number of days with a 1% event", 
+                              heavyday = round(NHpoly99th$obsmean,1), val = "number of days with a heavy rainfall event", 
                            likelihood85 = single.likl(NHpoly99th$likl.increase85, "increase"),
                            likelihood45 = single.likl(NHpoly99th$likl.increase45, "increase"),
                            futpoly85 = single.change(NHpoly99th$percentobsincrease85, NHpoly99th$rcp85_20502079, "days per year"),
@@ -182,7 +182,7 @@ colnames(locationADaypoly) <- cnames
 
 # Bar graphs ----------------------------------------------------------
 locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres$obsmean,1),
-                          daypoly = round(NHbar99th$obsmean,1), val = "1% event",
+                          daypoly = round(NHbar99th$obsmean,1), val = "heavy rainfall event",
                           likelihood85 = single.likl(NHbar99thres$likl.increase85, "intensify"),
                           likelihood45 = single.likl(NHbar99thres$likl.increase45, "intensify"),
                           futpoly85 = single.change(NHbar99thres$percentobsincrease85, NHbar99thres$rcp85_20502079, "inches"),
@@ -191,7 +191,7 @@ locationAEventbar = data.frame(var = "Intensity", eventpoly = round(NHbar99thres
 colnames(locationAEventbar) <- cnames
 
 locationADaybar = data.frame(var = "Frequency", eventpoly = round(NHbar99thres$obsmean,1),
-                          daypoly = round(NHbar99th$obsmean,1), val = "number of days with a 1% event",
+                          daypoly = round(NHbar99th$obsmean,1), val = "number of days with a heavy rainfall event",
                           likelihood85 = single.likl(NHbar99th$likl.increase85, "increase"),
                           likelihood45 = single.likl(NHbar99th$likl.increase45, "increase"),
                           futpoly85 = single.change(NHbar99th$percentobsincrease85, NHbar99th$rcp85_20502079, "days per year"),
@@ -201,7 +201,7 @@ colnames(locationADaybar) <- cnames
 
 # Box graphs ----------------------------------------------------------
 locationAEventbox = data.frame(var = "Intensity", eventpoly = round(NHbox99thres$obsmean,1),
-                          daypoly = round(NHbox99th$obsmean,1), val = "1% event",
+                          daypoly = round(NHbox99th$obsmean,1), val = "heavy rainfall event",
                           likelihood85 = single.likl(NHbox99thres$likl.increase85, "intensify"),
                           likelihood45 = single.likl(NHbox99thres$likl.increase45, "intensify"),
                           futpoly85 = single.change(NHbox99thres$percentobsincrease85, NHbox99thres$rcp85_20502079, "inches"),
@@ -210,7 +210,7 @@ locationAEventbox = data.frame(var = "Intensity", eventpoly = round(NHbox99thres
 colnames(locationAEventbox) <- cnames
 
 locationADaybox = data.frame(var = "Frequency", eventpoly = round(NHbox99thres$obsmean,1),
-                          daypoly = round(NHbox99th$obsmean,1), val = "number of days with a 1% event",
+                          daypoly = round(NHbox99th$obsmean,1), val = "number of days with a heavy rainfall event",
                           likelihood85 = single.likl(NHbox99th$likl.increase85, "increase"),
                           likelihood45 = single.likl(NHbox99th$likl.increase45, "increase"),
                           futpoly85 = single.change(NHbox99th$percentobsincrease85, NHbox99th$rcp85_20502079, "days per year"),
