@@ -1,0 +1,15 @@
+﻿# https://about.gitlab.com/handbook/product/ux/performance-indicators/system-usability-scale/,,,,,,,
+# https://measuringu.com/interpret-sus-score/,,,,,,,
+Grade,SUS_low,SUS_high,Perc_low,Perc_high,Adjective,Acceptable,NPS
+A+,84.1,100,96,100,Best Imaginable,Acceptable,Promoter
+A,80.8,84,90,95,Excellent,Acceptable,Promoter
+A-,78.9,80.7,85,89,Excellent,Acceptable,Promoter
+B+,77.2,78.8,80,84,Excellent,Acceptable,Passive
+B,74.1,77.1,70,79,Excellent,Acceptable,Passive
+B-,72.6,74,65,69,Excellent,Acceptable,Passive
+C+,71.1,72.5,60,64,Good,Acceptable,Passive
+C,65,71,41,59,Good,Marginal,Passive
+C-,62.7,64.9,35,40,Good,Marginal,Passive
+D,51.7,62.6,15,34,OK,Marginal,Detractor
+F,25.1,51.6,2,14,Poor,Not Acceptable,Detractor
+F,0,25,0,1.9,Worst Imaginable,Not Acceptable,Detractor

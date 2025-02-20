@@ -1,0 +1,103 @@
+﻿VAR,ID,Question,Answer
+AF,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+AF,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+AF,EMP1,"What do the gray, blue, and red shaded areas represent?",the full range of model results
+AF,EMP2,The red shaded area illustrates __________ .,a range of values based on model results of a high emissions scenario
+AF,EMP3,What is the hindcast?,model results over the historical period
+AF,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+AF,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",likely (66-100% probability)
+AF,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
+AF,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+AF,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+AF,EMP4,The gray shaded area illustrates __________ .,a range of values based on model results over the historical period
+AF,EMP5,The purple shaded area illustrates __________ .,where the high and low emissions scenario ranges overlap
+AF,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+AF,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+AF,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+AF,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",likely (66-100% probability)
+AF,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+AI,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+AI,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+AI,EMP4,The gray shaded area illustrates __________ .,a range of values based on model results over the historical period
+AI,EMP5,The purple shaded area illustrates __________ .,where the high and low emissions scenario ranges overlap
+AI,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+AI,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+AI,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+AI,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",likely (66-100% probability)
+AI,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+AI,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+AI,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+AI,EMP1,"What do the gray, blue, and red shaded areas represent?",the full range of model results
+AI,EMP2,The red shaded area illustrates __________ .,a range of values based on model results of a high emissions scenario
+AI,EMP3,What is the hindcast?,model results over the historical period
+AI,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+AI,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",likely (66-100% probability)
+AI,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
+BF,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+BF,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+BF,EMP1,"What do the gray, blue, and red shaded areas represent?",the average value from model results
+BF,EMP2,The red shaded area illustrates __________ .,the average value based on model results of a high emissions scenario
+BF,EMP3,What is the hindcast?,model results over the historical period
+BF,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+BF,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",impossible to know based on the information in this graph
+BF,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
+BF,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+BF,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+BF,EMP4,The gray shaded area illustrates __________ .,the average value based on model results over the historical period
+BF,EMP5,The purple shaded area illustrates __________ .,There is no purple shading.
+BF,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+BF,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+BF,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+BF,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",impossible to know based on the information in this graph
+BF,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+BI,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+BI,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+BI,EMP4,The gray shaded area illustrates __________ .,the average value based on model results over the historical period
+BI,EMP5,The purple shaded area illustrates __________ .,There is no purple shading.
+BI,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+BI,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+BI,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+BI,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",impossible to know based on the information in this graph
+BI,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+BI,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+BI,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+BI,EMP1,"What do the gray, blue, and red shaded areas represent?",the average value from model results
+BI,EMP2,The red shaded area illustrates __________ .,the average value based on model results of a high emissions scenario
+BI,EMP3,What is the hindcast?,model results over the historical period
+BI,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+BI,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",impossible to know based on the information in this graph
+BI,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
+XF,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+XF,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+XF,EMP1,"What do the gray, blue, and red shaded areas represent?",the difference between the 25th to 75th percentiles of the model results
+XF,EMP2,The red shaded area illustrates __________ .,a range of values based on model results of a high emissions scenario
+XF,EMP3,What is the hindcast?,model results over the historical period
+XF,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+XF,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",likely (66-100% probability)
+XF,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
+XF,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+XF,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+XF,EMP4,The gray shaded area illustrates __________ .,a range of values based on model results over the historical period
+XF,EMP5,The purple shaded area illustrates __________ .,There is no purple shading.
+XF,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+XF,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+XF,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+XF,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",likely (66-100% probability)
+XF,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+XI,EXP3,What information does the graph show?,changes in the amount of rain received during a heavy rainfall event
+XI,EXP4,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+XI,EMP4,The gray shaded area illustrates __________ .,a range of values based on model results over the historical period
+XI,EMP5,The purple shaded area illustrates __________ .,There is no purple shading.
+XI,EMP6,What is an emissions scenario?,a representation of the future based on how much carbon dioxide might be released into the atmosphere
+XI,ACC4,The average annual total rainfall for the 2020-2049 period will be closest to __________ .,It is impossible to know based on the information in this graph.
+XI,ACC5,The low emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+XI,ACC6,"Based on the full range of model results from the low emissions scenario, it is__________ that the amount of rain received in a heavy rainfall event will increase from1990-2019 to 2050-2079.",likely (66-100% probability)
+XI,ACC7,What is the difference between the averages from high and low emissions scenarios during the 2050-2079 period?,there is little to no difference
+XI,EXP1,What information does the graph show?,changes in the number of days per year with heavy rainfall events
+XI,EXP2,A graph can be used for a variety of purposes. The primary purpose of this graph is to,highlight heavy rainfall trends and patterns over time
+XI,EMP1,"What do the gray, blue, and red shaded areas represent?",the difference between the 25th to 75th percentiles of the model results
+XI,EMP2,The red shaded area illustrates __________ .,a range of values based on model results of a high emissions scenario
+XI,EMP3,What is the hindcast?,model results over the historical period
+XI,ACC1,The high emissions average for the 2050-2079 period will __________ .,increase compared to the 1990-2019 observation average (greater than or equal to a 5% change)
+XI,ACC2,"Based on the full range of model results from the high emissions scenario, it is__________ that the number of heavy rainfall days will increase from 1990-2019 to 2050-2079.",likely (66-100% probability)
+XI,ACC3,What is the difference between the averages from high and low emissions scenariosduring the 2050-2079 period?,"one is larger, but less than double the other"
