@@ -26,7 +26,7 @@
 ##########################################################################
 
 # Read in the results -----------------------------------------------------
-responses = read.csv("../data/HeavyPrecip_June+5,+2024_11.24.csv")
+responses = read.csv("data/HeavyPrecip_June+5,+2024_11.24.csv")
 questions = responses[1,]
 responses = responses[2:nrow(responses), ]
 
@@ -34,7 +34,7 @@ responses = responses[2:nrow(responses), ]
 responses = responses[which(responses$gc == 1), ]
 
 # Remove low quality responses
-remove = read.csv("../data/responses2remove_5June2024.csv")
+remove = read.csv("data/responses2remove_5June2024.csv")
 remove_ind = match(remove$responses, responses$ResponseId)
 responses = responses[-remove_ind, ]
 

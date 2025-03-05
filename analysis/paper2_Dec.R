@@ -25,10 +25,6 @@
 # THE SOFTWARE.
 ##########################################################################
 
-# install.packages("coin", type = "binary")
-# install.packages("rcompanion", type = "binary")
-# install.packages("gridGraphics")
-# install.packages("gt")
 library(report)
 library(ggplot2)
 library(car)
@@ -52,20 +48,20 @@ library(wordcloud)
 library(ggpubr)
 
 # Read in the survey data
-source("~/Documents/oldklr324/readSurvey.R")
+source("scripts/readSurvey.R")
 
 # Source the functions
-source("~/Documents/Downloads/power_ analysis done/surveyFunctions.R")
-source("~/Documents/oldklr324/put_fig_letter.R")
+source("scripts/surveyFunctions.R")
+source("scripts/put_fig_letter.R")
 
 # Read in the answers/ our interpretations to the questions
-ans = read.csv("~/Documents/oldklr324/power_ analysis done/answers.csv")
+ans = read.csv("data/answer_sheet.csv")
 
 # Read in climate scoring
-clim = read.csv("~/Documents/oldklr324/power_ analysis done/climateTable copy.csv")
+clim = read.csv("data/climate_scoring.csv")
 
 # Read in SUS table scoring
-susTab = read.csv("~/Documents/Documents/Github/precipVisualization/susTable.csv", skip=2, header=TRUE)
+susTab = read.csv("data/susTable.csv", skip=2, header=TRUE)
 
 # Create some color palettes
 graphcol = brewer.pal(3, "YlGnBu")
@@ -85,10 +81,6 @@ double_column = mm_TO_inches(174)
 maximum_width = mm_TO_inches(234)
 column_height = 2.7
 double_height = column_height * 2
-
-##########################################################################
-# Overall accuracy
-##########################################################################
 
 ##########################################################################
 # Overall accuracy
@@ -218,10 +210,10 @@ protab$age = factor(protab$age, levels = c("18-34", "35-54", "55+"))
 
 # Read in notes with primary and secondary codes ----------------------------------------
 # Primary coding
-prochoices = read.csv("~/Documents/oldklr324/protectiveTable_5june2024.csv")
+prochoices = read.csv("data/protectiveTable_5june2024.csv")
 
 # secondary coding
-topics = read.csv("~/Documents/oldklr324/codebook.csv")
+topics = read.csv("data/codebook.csv")
 
 # Add groupings
 prochoices$graph = prochoices$name
@@ -302,7 +294,7 @@ scen_conflood = as.data.frame((scen_conflood/sum(scen_conflood))*100)
 colnames(scen_conflood) = colnames(scen_con)[1:2]
 scen_conflood$name = "Confidence"
 
-# http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r#:~:text=R%20functions,-Correlation%20coefficient%20can&text=cor()%20computes%20the%20correlation,%2Dvalue)%20of%20the%20correlation%20.
+# # http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r#:~:text=R%20functions,-Correlation%20coefficient%20can&text=cor()%20computes%20the%20correlation,%2Dvalue)%20of%20the%20correlation%20.
 cor.test(ptab$CHAL2_conVal, protab$CHAL2, method = "pearson")
 cor.test(ptab$CHAL2_likVal, protab$CHAL2, method = "pearson")
 cor.test(ptab$CHAL2_conVal, ptab$CHAL2_likVal, method = "pearson")
@@ -317,10 +309,6 @@ cor.test(concerned, overAcc$val, method = "pearson") # climate and accuracy
 cor.test(political, age, method = "pearson") # politics and age
 cor.test(concerned, age, method = "pearson") # climate and age
 cor.test(age, overAcc$val, method = "pearson") # age and accuracy
-
-# cor.test(overAcc$val, protab$CHAL1, method = "pearson")
-# cor.test(overAcc$val, ptab$CHAL1_likVal, method = "pearson")
-# cor.test(overAcc$val, ptab$CHAL1_conVal, method = "pearson")
 
 condf = data.frame(val = protab$CHAL1, con = ptab$CHAL1_con)
 dec_con <- condf %>%
@@ -423,11 +411,11 @@ color_codes = data.frame(code = unique(topics$AI.Analysis.of.Scenario.Justificat
                                              "Paired"))
 
 par(mar = c(0, 0, 0, 0))
-drive_theme = word_freq(prochoices$Primary.cycle.code, color_codes, "primary_coding_driveway.csv", 
-                        "secondary_coding_driveway.csv")
+drive_theme = word_freq(prochoices$Primary.cycle.code, color_codes, "paper2/primary_coding_driveway.csv", 
+                        "paper2/secondary_coding_driveway.csv")
 drive_theme$Perc = (drive_theme$count/sum(drive_theme$count))*100
-flood_theme = word_freq(prochoices$Primary.cycle.code.1, color_codes, "primary_coding_flood.csv", 
-                        "secondary_coding_flood.csv")
+flood_theme = word_freq(prochoices$Primary.cycle.code.1, color_codes, "paper2/primary_coding_flood.csv", 
+                        "paper2/secondary_coding_flood.csv")
 f_tab = d_tab = data.frame(topic = unique(topics$AI.Analysis.of.Scenario.Justification..ChatGPT.))
 for(i in 1:length(d_tab$topic)){
   d_tab$count[i] = sum(drive_theme$count[which(drive_theme$topic == d_tab$topic[i])])
@@ -792,72 +780,30 @@ all.size.df$division = factor(all.size.df$division, levels = basedivision)
 all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_likVal, ptab$CHAL1_conVal,
                                   ptab$CHAL2_conVal))
 
-# Climate --------------------------------------------
-# Race assigned to region --------------------------------------------
-total.region.mod<- lm(clim ~ val + name + region + gender + age + latino + racelarge + edu + work + politics + money, 
-                      data= all.size.df)
-summary(total.region.mod)
-resid.region.var<- 1-summary(total.region.mod)$r.squared; resid.region.var
-length(names(total.region.mod$coefficients))
-
-plot(all.size.df$politics, all.size.df$clim)
-
-
-x <- all.size.df$politics
-y <- all.size.df$clim
-z <- sqrt(outer(x ^ 2, y ^ 2, "+"))
-
-contour(x, y, z)
-
-library(MASS)
-
-# Data
-z <- kde2d(x, y, n = 50)
-
-plot(x, y, pch = 19)
-contour(z, lwd = 2, add = TRUE,
-        col = hcl.colors(10, "Spectral"),
-               nlevels = 10)
-
-filled.contour(z, nlevels = 10)
-
-filled.contour(z, plot.axes = {
-  axis(1)
-  axis(2)
-  contour(z, add = TRUE, lwd = 2)
-}
-)
-
-library(plotly)
-
-plot_ly(all.size.df, x = ~politics, y=~clim, type = "contour")
-
-# Race assigned to division --------------------------------------------
-total.div.mod<- lm(clim ~ val + name + division + gender + age + latino + racelarge + edu + work + politics + money, 
-                   data= all.size.df)
-summary(total.div.mod)
-resid.div.var<- 1-summary(total.div.mod)$r.squared; resid.div.var
-length(names(total.div.mod$coefficients))
-
-# EDU as a number
-
-# Race assigned to region --------------------------------------------
-total.region.modedu<- lm(clim ~ val + name + region+ gender + age + latino + racelarge + 
-                           as.numeric(edunum) + work + politics + money, 
-                         data= all.size.df)
-summary(total.region.modedu)
-resid.region.varedu<- 1-summary(total.region.modedu)$r.squared; resid.region.varedu
-length(names(total.region.modedu$coefficients))
-
-# Race assigned to division --------------------------------------------
-total.div.modedu<- lm(clim ~ val + name + division + gender + age + latino + racelarge + 
-                        as.numeric(edunum) + work + politics + money, 
-                      data= all.size.df)
-summary(total.div.modedu)
-resid.div.varedu<- 1-summary(total.div.modedu)$r.squared; resid.div.varedu
-length(names(total.div.modedu$coefficients))
-
-
+# # Climate --------------------------------------------
+# # Race assigned to region --------------------------------------------
+# total.region.mod<- lm(clim ~ val + name + region + gender + age + latino + racelarge + edu + work + politics + money, 
+#                       data= all.size.df)
+# summary(total.region.mod)
+# resid.region.var<- 1-summary(total.region.mod)$r.squared; resid.region.var
+# length(names(total.region.mod$coefficients))
+# 
+# # EDU as a number
+# # Race assigned to region --------------------------------------------
+# total.region.modedu<- lm(clim ~ val + name + region+ gender + age + latino + racelarge + 
+#                            as.numeric(edunum) + work + politics + money, 
+#                          data= all.size.df)
+# summary(total.region.modedu)
+# resid.region.varedu<- 1-summary(total.region.modedu)$r.squared; resid.region.varedu
+# length(names(total.region.modedu$coefficients))
+# 
+# # Race assigned to division --------------------------------------------
+# total.div.modedu<- lm(clim ~ val + name + division + gender + age + latino + racelarge + 
+#                         as.numeric(edunum) + work + politics + money, 
+#                       data= all.size.df)
+# summary(total.div.modedu)
+# resid.div.varedu<- 1-summary(total.div.modedu)$r.squared; resid.div.varedu
+# length(names(total.div.modedu$coefficients))
 
 total.region.pro<- lm(CHAL1 ~ val + name + region + gender + age + latino + racelarge + 
                         as.numeric(edunum) + work + politics + money + clim, 
@@ -875,9 +821,10 @@ total.region.lik<- lm(ptab$CHAL1_likVal ~ val + name + region + gender + age + l
 summary(total.region.lik)
 
 
-total.region.pro<- lm(CHAL2 ~ val + name + region + gender + age + latino + racelarge + 
+total.region.pro2<- lm(CHAL2 ~ val + name + region + gender + age + latino + racelarge + 
                         as.numeric(edunum) + work + politics + money+ clim, 
                       data= all.size.df)
+summary(total.region.pro2)
 
 total.region.con2<- lm(ptab$CHAL2_conVal ~ val + name + region + gender + age + latino + racelarge +
                         as.numeric(edunum) + work + politics + money + clim,
@@ -943,28 +890,18 @@ total.div.pro<- lm(CHAL2 ~ val + name + division + gender + age + latino + racel
                      as.numeric(edunum) + work + politics + money+ clim, 
                    data= all.size.df)
 summary(total.div.pro)
-cor(all.pro.df$CHAL2, all.pro.df$val)
-aggregate(CHAL1 ~ val, data = all.pro.df,
-          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
+# cor(all.pro.df$CHAL2, all.pro.df$val)
+# aggregate(CHAL1 ~ val, data = all.pro.df,
+#           function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
+# 
+# # http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r#:~:text=R%20functions,-Correlation%20coefficient%20can&text=cor()%20computes%20the%20correlation,%2Dvalue)%20of%20the%20correlation%20.
+# res <- cor.test(all.pro.df$CHAL2, all.pro.df$val, method = "pearson")
+# tt = cor.test(all.pro.df$CHAL2, all.pro.df$val, method = "pearson")
+# round(c(tt$estimate, tt$p.value), 2)
+# 
+# cor.test(overallUse$val, all.pro.df$val, method = "pearson")
 
-# http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r#:~:text=R%20functions,-Correlation%20coefficient%20can&text=cor()%20computes%20the%20correlation,%2Dvalue)%20of%20the%20correlation%20.
-res <- cor.test(all.pro.df$CHAL2, all.pro.df$val, method = "pearson")
-tt = cor.test(all.pro.df$CHAL2, all.pro.df$val, method = "pearson")
-round(c(tt$estimate, tt$p.value), 2)
-
-cor.test(overallUse$val, all.pro.df$val, method = "pearson")
-
-plot(CHAL1 ~ val, data = all.pro.df)
-
-# - -----------------------------------------------------------------------
-# https://stackoverflow.com/questions/3932038/plot-a-legend-outside-of-the-plotting-area-in-base-graphics
-add_legend <- function(...) {
-  opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
-              mar=c(0, 0, 0, 0), new=TRUE)
-  on.exit(par(opar))
-  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
-  legend(...)
-}
+# plot(CHAL1 ~ val, data = all.pro.df)
 
 # age -----------------------------------------------------------------
 # create bar plot data
@@ -1736,61 +1673,50 @@ aggregate(CHAL2_likVal ~ acc, data = ptab,
 color_codes = data.frame(code = unique(topics$AI.Analysis.of.Scenario.Justification..ChatGPT.), 
                          colors = brewer.pal(length(unique(topics$AI.Analysis.of.Scenario.Justification..ChatGPT.)), 
                                              "Paired"))
+seqreasoncol = brewer.pal(3, "YlGnBu")#"Greys")
 
-# Climate codes -----------------------------------------------------------
-sec_text_clim = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code", 
-                  varname="clim", groupstr=c("Lower literacy", "Neutral", "Higher literacy"), 
-                  subgroupstr=c("Low", "Neutral", "High"), color_codes, 
-                  scenname="driveway")
-
-# Grouped secondary aes(reorder_within(topic, percent, clim)
-drive_sec_reasonclim = ggplot(sec_text_clim$sec, aes(topic, percent, fill = topic)) +
-  geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-  facet_wrap(~clim, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  labs(x = "Climate science literacy", y= "Percent (%) of participants", 
-       fill="Reason")
-
-# Insurance scenario -------------------------------------------------------
 # Fix the I don't understand
 prochoices$Primary.cycle.code.1[which(prochoices$Primary.cycle.code.1 == "I don\xd5t understand")] = "I don't understand"
 
-sec_text_floodclim = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code.1", 
-                                  varname="clim", groupstr=c("Lower literacy", "Neutral", "Higher literacy"), 
-                                  subgroupstr=c("Low", "Neutral", "High"), color_codes, 
-                                  scenname="flood")
+# Climate codes -----------------------------------------------------------
+sec_drive_clim = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
+                            varname="clim", groupstr=c("Lower literacy", "Neutral", "Higher literacy"), 
+                            subgroupstr=c("Low", "Neutral", "High"), color_codes, 
+                            scenname="driveway", dirname="paper2/")
+sec_flood_clim = group_perc(textchoices=prochoices, codename="Primary.cycle.code.1", 
+                            varname="clim", groupstr=c("Lower literacy", "Neutral", "Higher literacy"), 
+                            subgroupstr=c("Low", "Neutral", "High"), color_codes, 
+                            scenname="flood", dirname="paper2/")
 
-# Grouped secondary
-flood_sec_reasonclim = ggplot(sec_text_floodclim$sec, aes(topic, percent, fill = topic)) +
+# Grouped secondary aes(reorder_within(topic, percent, clim)
+drive_sec_reasonclim = ggplot(sec_drive_clim$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-  facet_wrap(~clim, scales = "free_x") +
+  facet_wrap(~groups, scales = "free_x") +
   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill="Reason")
 
-# png(file="Pub2/Fig_Decision_Clim.png", family="Helvetica", res=300,
-#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
-# plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
-#           drive_sec_reasonclim, flood_sec_reasonclim,
-#           nrow=4, labels = "auto") # , align = "h", axis = "b"
-# dev.off()
+# Insurance scenario 
+flood_sec_reasonclim = ggplot(sec_flood_clim$sec_text, aes(topic, percent, fill = topic)) +
+  geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
+  scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  facet_wrap(~groups, scales = "free_x") +
+  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(x = "Climate science literacy", y= "Percent (%) of participants", 
+       fill="Reason")
 
+sec_drive_clim$sec_text$scenario = "Driveway washout scenario"
+sec_flood_clim$sec_text$scenario = "Flood insurance scenario"
 
-sec_text_clim$sec$scenario = "Driveway washout scenario"
-sec_text_floodclim$sec$scenario = "Flood insurance scenario"
+boundscenclim = rbind(sec_drive_clim$sec_text, sec_flood_clim$sec_text)
 
-boundscenclim = rbind(sec_text_clim$sec, sec_text_floodclim$sec)
-
-# geom_text(aes(label = percent, y=topic), 
-#           hjust=0, size = 3) +
-
-reason_clim = ggplot(boundscenclim, aes(fill=clim,x=percent, y=str_wrap(topic, 30))) + 
+# Part of Fig. 4
+reason_clim = ggplot(boundscenclim, aes(fill=groups,x=percent, y=str_wrap(topic, 30))) + 
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
@@ -1801,54 +1727,57 @@ reason_clim = ggplot(boundscenclim, aes(fill=clim,x=percent, y=str_wrap(topic, 3
         legend.background = element_rect(fill = NA, colour = NA)) + 
   facet_wrap(~scenario, ncol=2)
 
+# Create color table S. Tab
+clim_tbl <- gt(sec_drive_clim$pertab[,-ncol(sec_drive_clim$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+clim_fl_tbl <- gt(sec_flood_clim$pertab[,-ncol(sec_flood_clim$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+clim_tb = gt_group(clim_tbl, clim_fl_tbl)
+gtsave(clim_tb, "paper2/clim_reasoning.docx")
+
 # Age codes -----------------------------------------------------------
-sec_text_age = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code", 
-                                 varname="age", groupstr=c("18-34", "35-54", "55+"), 
-                                 subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
-                                 scenname="driveway")
+sec_drive_age = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
+                           varname="age", groupstr=c("18-34", "35-54", "55+"), 
+                           subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
+                           scenname="driveway", dirname="paper2/")
+sec_flood_age = group_perc(textchoices=prochoices, codename="Primary.cycle.code.1", 
+                           varname="age", groupstr=c("18-34", "35-54", "55+"), 
+                           subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
+                           scenname="flood", dirname="paper2/")
 # Grouped secondary
-drive_sec_reasonage = ggplot(sec_text_age$sec, aes(topic, percent, fill = topic)) +
+drive_sec_reasonage = ggplot(sec_drive_age$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  facet_wrap(~age, scales = "free_x") +
+  facet_wrap(~groups, scales = "free_x") +
   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Reason")
 
 # Insurance scenario 
-sec_text_floodage = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code.1", 
-                                      varname="age", groupstr=c("18-34", "35-54", "55+"), 
-                                      subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
-                                      scenname="flood")
-
-# Grouped secondary
-flood_sec_reasonage = ggplot(sec_text_floodage$sec, aes(topic, percent, fill = topic)) +
+flood_sec_reasonage = ggplot(sec_flood_age$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-  facet_wrap(~age, scales = "free_x") +
+  facet_wrap(~groups, scales = "free_x") +
   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Reason")
-# 
-# png(file="Pub2/Fig_Decision_Political.png", family="Helvetica", res=300,
-#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
-# plot_grid(drive_decpol, flood_decpol, drive_conpol, flood_conpol, drive_riskpol, flood_riskpol,
-#           drive_sec_reasonpol, flood_sec_reasonpol,
-#           nrow=4, labels = "auto") # , align = "h", axis = "b"
-# dev.off()
 
-sec_text_age$sec$scenario = "Driveway washout scenario"
-sec_text_floodage$sec$scenario = "Flood insurance scenario"
+sec_drive_age$sec_text$scenario = "Driveway washout scenario"
+sec_flood_age$sec_text$scenario = "Flood insurance scenario"
 
-boundscenage = rbind(sec_text_age$sec, sec_text_floodage$sec)
+boundscenage = rbind(sec_drive_age$sec_text, sec_flood_age$sec_text)
 # geom_text(aes(label = percent, y=topic), 
           # hjust=0, size = 3) +
 
-reason_age = ggplot(boundscenage, aes(fill=age,x=percent, y=str_wrap(topic, 30))) + 
+reason_age = ggplot(boundscenage, aes(fill=groups,x=percent, y=str_wrap(topic, 30))) + 
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
@@ -1860,54 +1789,55 @@ reason_age = ggplot(boundscenage, aes(fill=age,x=percent, y=str_wrap(topic, 30))
         legend.background = element_rect(fill = NA, colour = NA)) +
   facet_wrap(~scenario, ncol=2)
 
+# Create color table S. Tab
+age_tbl <- gt(sec_drive_age$pertab[,-ncol(sec_drive_age$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+age_fl_tbl <- gt(sec_flood_age$pertab[,-ncol(sec_flood_age$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+age_tb = gt_group(age_tbl, age_fl_tbl)
+gtsave(age_tb, "paper2/age_reasoning.docx")
+
 # Political codes -----------------------------------------------------------
-sec_text_pol = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code", 
-                                  varname="political", groupstr=c("Conservative", "Neutral", "Liberal"), 
-                                  subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
-                                  scenname="driveway")
-# Grouped secondary
-drive_sec_reasonpol = ggplot(sec_text_pol$sec, aes(topic, percent, fill = topic)) +
+sec_drive_pol = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
+                           varname="political", groupstr=c("Conservative", "Neutral", "Liberal"), 
+                           subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
+                           scenname="driveway", dirname="paper2/")
+sec_flood_pol = group_perc(textchoices=prochoices, codename="Primary.cycle.code.1", 
+                           varname="political", groupstr=c("Conservative", "Neutral", "Liberal"), 
+                           subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
+                           scenname="flood", dirname="paper2/")
+
+drive_sec_reasonpol = ggplot(sec_drive_pol$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  facet_wrap(~political, scales = "free_x") +
+  facet_wrap(groups, scales = "free_x") +
   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Reason")
 
 # Insurance scenario 
-sec_text_floodpol = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code.1", 
-                                       varname="political", groupstr=c("Conservative", "Neutral", "Liberal"), 
-                                       subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
-                                       scenname="flood")
-
-# Grouped secondary
-flood_sec_reasonpol = ggplot(sec_text_floodpol$sec, aes(topic, percent, fill = topic)) +
+flood_sec_reasonpol = ggplot(sec_flood_pol$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-  facet_wrap(~political, scales = "free_x") +
+  facet_wrap(~groups, scales = "free_x") +
   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Reason")
 
-png(file="Pub2/Fig_Decision_Political.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_decpol, flood_decpol, drive_conpol, flood_conpol, drive_riskpol, flood_riskpol,
-          drive_sec_reasonpol, flood_sec_reasonpol,
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
-dev.off()
+sec_drive_pol$sec_text$scenario = "Driveway washout scenario"
+sec_flood_pol$sec_text$scenario = "Flood insurance scenario"
 
-sec_text_pol$sec$scenario = "Driveway washout scenario"
-sec_text_floodpol$sec$scenario = "Flood insurance scenario"
+boundscenpol = rbind(sec_drive_pol$sec_text, sec_flood_pol$sec_text)
 
-boundscenpol = rbind(sec_text_pol$sec, sec_text_floodpol$sec)
-# geom_text(aes(label = percent, y=topic), 
-#           hjust=0, size = 3) +
-
-reason_pol = ggplot(boundscenpol, aes(fill=political,x=percent, y=str_wrap(topic, 30))) + 
+reason_pol = ggplot(boundscenpol, aes(fill=groups,x=percent, y=str_wrap(topic, 30))) + 
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
@@ -1918,39 +1848,36 @@ reason_pol = ggplot(boundscenpol, aes(fill=political,x=percent, y=str_wrap(topic
         legend.background = element_rect(fill = NA, colour = NA)) + 
   facet_wrap(~scenario, ncol=2)
 
+# Create color table S. Tab
+pol_tbl <- gt(sec_drive_pol$pertab[,-ncol(sec_drive_pol$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+pol_fl_tbl <- gt(sec_flood_pol$pertab[,-ncol(sec_flood_pol$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+pol_tb = gt_group(pol_tbl, pol_fl_tbl)
+gtsave(pol_tb, "paper2/pol_reasoning.docx")
+
 # Accuracy codes -----------------------------------------------------------
-sec_text_acc = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code", 
-                                 varname="acc", groupstr=c("Below average", "Average", "Above average"), 
-                                 subgroupstr=c("Below", "Average", "Above"), color_codes, 
-                                 scenname="driveway")
+sec_drive_acc = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
+                           varname="acc", groupstr=c("Below average", "Average", "Above average"), 
+                           subgroupstr=c("Below", "Average", "Above"), color_codes, 
+                           scenname="driveway", dirname="paper2/")
+
 # Insurance scenario 
-sec_text_floodacc = grouped_secondary(textchoices=prochoices, codename="Primary.cycle.code.1", 
-                                      varname="acc", groupstr=c("Below average", "Average", "Above average"), 
-                                      subgroupstr=c("Below", "Average", "Above"), color_codes, 
-                                      scenname="flood")
-# orderedcol_acc = sec_text_acc$color[order(sec_text_acc$percent[sec_text_acc$acc == "Above average"])]
+sec_flood_acc = group_perc(textchoices=prochoices, codename="Primary.cycle.code.1", 
+                           varname="acc", groupstr=c("Below average", "Average", "Above average"), 
+                           subgroupstr=c("Below", "Average", "Above"), color_codes, 
+                           scenname="flood", dirname="paper2/")
 
-# # Grouped secondary
-# drive_sec_reasonacc = ggplot(sec_text_acc$sec, aes(topic, percent, fill = topic)) +
-#   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-#   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-#   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-#   facet_wrap(~acc, scales = "free_x") +
-#   theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank()) +
-#   labs(x = "Interpretation", y= "Percent (%) of participants", 
-#        fill="Reason")
+sec_drive_acc$sec_text$scenario = "Driveway washout scenario"
+sec_flood_acc$sec_text$scenario = "Flood insurance scenario"
 
-seqreasoncol = brewer.pal(3, "YlGnBu")#"Greys")
+boundscen = rbind(sec_drive_acc$sec_text, sec_flood_acc$sec_text)
 
-sec_text_acc$sec$scenario = "Driveway washout scenario"
-sec_text_floodacc$sec$scenario = "Flood insurance scenario"
-
-boundscen = rbind(sec_text_acc$sec, sec_text_floodacc$sec)
-
-# geom_text(aes(label = percent, y=topic), 
-#           hjust=0, size = 3) +
-reason_acc = ggplot(boundscen, aes(fill=acc,x=percent, y=str_wrap(topic, 30))) + 
+reason_acc = ggplot(boundscen, aes(fill=groups,x=percent, y=str_wrap(topic, 30))) + 
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
@@ -1961,6 +1888,17 @@ reason_acc = ggplot(boundscen, aes(fill=acc,x=percent, y=str_wrap(topic, 30))) +
         legend.background = element_rect(fill = NA, colour = NA)) + 
   facet_wrap(~scenario, ncol=2)
 
+# Create color table S. Tab
+acc_tbl <- gt(sec_drive_acc$pertab[,-ncol(sec_drive_acc$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+acc_fl_tbl <- gt(sec_flood_acc$pertab[,-ncol(sec_flood_acc$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+acc_tb = gt_group(acc_tbl, acc_fl_tbl)
+gtsave(acc_tb, "paper2/acc_reasoning.docx")
 
 # Other characteristics ---------------------------------------------------
 all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_likVal, ptab$CHAL1_conVal,
@@ -1972,115 +1910,166 @@ char_prochoices = as.data.frame(cbind(char_prochoices, all.size.df$region, all.s
                                       all.size.df$work, incGroup))
 colnames(char_prochoices)[18:23] = c("region", "gender", "latino", "racelarge", "edu", "work")
 
-sec_text_region = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                 varname="region", groupstr=c("South", "Midwest", "Northeast", "West"), 
-                                 subgroupstr=c("South", "Midwest", "Northeast", "West"), color_codes, 
-                                 scenname="driveway")
-sec_text_floodregion = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                         varname="region", groupstr=c("South", "Midwest", "Northeast", "West"), 
-                                         subgroupstr=c("South", "Midwest", "Northeast", "West"), color_codes, 
-                                         scenname="flood")
-unlist(lapply(X=c("South", "Midwest", "Northeast", "West"), 
-              function(X){length(which(char_prochoices$region == X))}))
+# Region
+sec_drive_region = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                              varname="region", groupstr=c("South", "Midwest", "Northeast", "West"), 
+                              subgroupstr=c("South", "Midwest", "Northeast", "West"), color_codes, 
+                              scenname="driveway", dirname="paper2/")
+sec_flood_region = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                              varname="region", groupstr=c("South", "Midwest", "Northeast", "West"), 
+                              subgroupstr=c("South", "Midwest", "Northeast", "West"), color_codes, 
+                              scenname="flood", dirname="paper2/")
 
-sec_text_gender = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                         varname="gender", groupstr=c("Male", "Female", 
-                                                                      "Non-binary / third gender", 
-                                                                      "Prefer to self-describe", "Prefer not to say"), 
-                                         subgroupstr=c("Male", "Female", "Non-binary", "self-describe", "No"), color_codes, 
-                                         scenname="driveway")
-sec_text_floodgender = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                              varname="gender", groupstr=c("Male", "Female", 
-                                                                           "Non-binary / third gender", 
-                                                                           "Prefer to self-describe", "Prefer not to say"), 
-                                              subgroupstr=c("Male", "Female", "Non-binary", "self-describe", "No"), color_codes, 
-                                              scenname="flood")
-unlist(lapply(X=c("Male", "Female", 
-                  "Non-binary / third gender", 
-                  "Prefer to self-describe", "Prefer not to say"), 
-              function(X){length(which(char_prochoices$gender == X))}))
+gt_tbl <- gt(sec_drive_region$pertab[,-ncol(sec_drive_region$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
 
-sec_text_latino = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                         varname="latino", groupstr=c("No", "Yes"), subgroupstr=c("No", "Yes"), 
-                                         color_codes, scenname="driveway")
-sec_text_floodlatino = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                              varname="latino", groupstr=c("No", "Yes"), subgroupstr=c("No", "Yes"), 
-                                              color_codes, scenname="flood")
-unlist(lapply(X=c("No", "Yes"), function(X){length(which(char_prochoices$latino == X))}))
+gt_fl_tbl <- gt(sec_flood_region$pertab[,-ncol(sec_flood_region$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
 
-sec_text_race = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                         varname="racelarge", groupstr=c("white", "black", "asian", "indian", 
-                                                                         "islander", "other", "prefer"), 
-                                       subgroupstr=c("White", "Black", "Asian", "Indian", "Islander", "Other", "No"), 
-                                         color_codes, scenname="driveway")
-sec_text_floodrace = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                              varname="racelarge", groupstr=c("white", "black", "asian", "indian", 
-                                                                              "islander", "other", "prefer"), 
-                                       subgroupstr=c("White", "Black", "Asian", "Indian", "Islander", "Other", "No"), 
-                                              color_codes, scenname="flood")
-unlist(lapply(X=c("white", "black", "asian", "indian", "islander", "other", "prefer"), 
-              function(X){length(which(char_prochoices$racelarge == X))}))
+region_tb = gt_group(gt_tbl, gt_fl_tbl)
+gtsave(region_tb, "paper2/region_reasoning.docx")
 
-sec_text_edu = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                       varname="edu", groupstr=c("Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.)", 
-                                                                 "Bachelor’s degree", "Associates or technical degree", "Some college, but no degree", 
-                                                                 "High school diploma or GED", "Some high school or less", "Prefer not to say"), 
-                                       subgroupstr=c("Graduate", "Bachelors", "Associates", "Some-college", "High-school", "Some-high-school", "Prefer"), 
-                                       color_codes, scenname="driveway")
-sec_text_floodedu = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                            varname="edu", groupstr=c("Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.)", 
-                                                                      "Bachelor’s degree", "Associates or technical degree", "Some college, but no degree", 
-                                                                      "High school diploma or GED", "Some high school or less", "Prefer not to say"), 
-                                            subgroupstr=c("Graduate", "Bachelors", "Associates", "Some-college", "High-school", "Some-high-school", "Prefer"), 
-                                            color_codes, scenname="flood")
-unlist(lapply(X=c("Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.)", 
-                  "Bachelor’s degree", "Associates or technical degree", "Some college, but no degree", 
-                  "High school diploma or GED", "Some high school or less", "Prefer not to say"), 
-              function(X){length(which(char_prochoices$edu == X))}))
+# Gender
+sec_drive_gender = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                              varname="gender", groupstr=c("Male", "Female", 
+                                                           "Non-binary / third gender", 
+                                                           "Prefer to self-describe", "Prefer not to say"), 
+                              subgroupstr=c("Male", "Female", "Non-binary", "self-describe", "No"), color_codes, 
+                              scenname="driveway", dirname="paper2/")
+sec_flood_gender = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                              varname="gender", groupstr=c("Male", "Female", 
+                                                           "Non-binary / third gender", 
+                                                           "Prefer to self-describe", "Prefer not to say"), 
+                              subgroupstr=c("Male", "Female", "Non-binary", "self-describe", "No"), color_codes, 
+                              scenname="flood", dirname="paper2/")
 
-sec_text_work = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                      varname="work", groupstr=c("Other", "Retired", "Working full-time", "Working part-time", 
-                                                                 "A homemaker or stay-at-home parent", "Student", "Unemployed and looking for work"), 
-                                      subgroupstr=c("Other", "Retired", "full-time", "part-time", "homemaker", "Student", "Unemployed"), 
-                                      color_codes, scenname="driveway")
-sec_text_floodwork = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                           varname="work", groupstr=c("Other", "Retired", "Working full-time", "Working part-time", 
-                                                                      "A homemaker or stay-at-home parent", "Student", "Unemployed and looking for work"), 
-                                           subgroupstr=c("Other", "Retired", "full-time", "part-time", "homemaker", "Student", "Unemployed"), 
-                                           color_codes, scenname="flood")
-unlist(lapply(X=c("Other", "Retired", "Working full-time", "Working part-time", 
-                  "A homemaker or stay-at-home parent", "Student", "Unemployed and looking for work"), 
-              function(X){length(which(char_prochoices$work == X))}))
+gend_tbl <- gt(sec_drive_gender$pertab[,-ncol(sec_drive_gender$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
 
-sec_text_income = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                                       varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
-                                                                      "75,000-99,999", "100,000-149,999", "150,000 or more"), 
-                                       subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
-                                                     "75,000-99,999", "100,000-149,999", "150,000+"), 
-                                       color_codes, scenname="driveway")
-sec_text_floodincome = grouped_secondary_mult(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                                            varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
-                                                                           "75,000-99,999", "100,000-149,999", "150,000 or more"), 
-                                            subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
-                                                          "75,000-99,999", "100,000-149,999", "150,000+"), 
-                                            color_codes, scenname="flood")
-unlist(lapply(X=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
-                  "75,000-99,999", "100,000-149,999", "150,000 or more"), 
-              function(X){length(which(incGroup == X))}))
+gend_fl_tbl <- gt(sec_flood_gender$pertab[,-ncol(sec_flood_gender$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
 
-# Grouped secondary
-ggplot(sec_text_floodwork$sec, aes(topic, percent, fill = topic)) +
-  geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
-  scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  facet_wrap(~work, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  labs(x = "Political preference", y= "Percent (%) of participants", 
-       fill="Reason")
+gender_tb = gt_group(gend_tbl, gend_fl_tbl)
+gtsave(gender_tb, "paper2/gender_reasoning.docx")
 
+# Latino
+sec_drive_latino = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                              varname="latino", groupstr=c("No", "Yes"), subgroupstr=c("No", "Yes"), 
+                              color_codes, scenname="driveway", dirname="paper2/")
+sec_flood_latino = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                              varname="latino", groupstr=c("No", "Yes"), subgroupstr=c("No", "Yes"), 
+                              color_codes, scenname="flood", dirname="paper2/")
 
+latino_tbl <- gt(sec_drive_latino$pertab[,-ncol(sec_drive_latino$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
 
+latino_fl_tbl <- gt(sec_flood_latino$pertab[,-ncol(sec_flood_latino$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+latino_tb = gt_group(latino_tbl, latino_fl_tbl)
+gtsave(latino_tb, "paper2/latino_reasoning.docx")
+
+# Race
+sec_drive_race = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                            varname="racelarge", groupstr=c("white", "black", "asian", "indian", 
+                                                            "islander", "other", "prefer"), 
+                            subgroupstr=c("White", "Black", "Asian", "Indian", "Islander", "Other", "No"), 
+                            color_codes, scenname="driveway", dirname="paper2/")
+sec_flood_race = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                            varname="racelarge", groupstr=c("white", "black", "asian", "indian", 
+                                                            "islander", "other", "prefer"), 
+                            subgroupstr=c("White", "Black", "Asian", "Indian", "Islander", "Other", "No"), 
+                            color_codes, scenname="flood", dirname="paper2/")
+
+race_tbl <- gt(sec_drive_race$pertab[,-ncol(sec_drive_race$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+race_fl_tbl <- gt(sec_flood_race$pertab[,-ncol(sec_flood_race$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+race_tb = gt_group(race_tbl, race_fl_tbl)
+gtsave(race_tb, "paper2/race_reasoning.docx")
+
+# EDU
+sec_drive_edu = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                           varname="edu", groupstr=c("Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.)", 
+                                                     "Bachelor’s degree", "Associates or technical degree", "Some college, but no degree", 
+                                                     "High school diploma or GED", "Some high school or less", "Prefer not to say"), 
+                           subgroupstr=c("Graduate", "Bachelors", "Associates", "Some-college", "High-school", "Some-high-school", "Prefer"), 
+                           color_codes, scenname="driveway", dirname="paper2/")
+sec_flood_edu = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                           varname="edu", groupstr=c("Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.)", 
+                                                     "Bachelor’s degree", "Associates or technical degree", "Some college, but no degree", 
+                                                     "High school diploma or GED", "Some high school or less", "Prefer not to say"), 
+                           subgroupstr=c("Graduate", "Bachelors", "Associates", "Some-college", "High-school", "Some-high-school", "Prefer"), 
+                           color_codes, scenname="flood", dirname="paper2/")
+
+edu_tbl <- gt(sec_drive_edu$pertab[,-ncol(sec_drive_edu$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+edu_fl_tbl <- gt(sec_flood_edu$pertab[,-ncol(sec_flood_edu$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+edu_tb = gt_group(edu_tbl, edu_fl_tbl)
+gtsave(edu_tb, "paper2/edu_reasoning.docx")
+
+# Work
+sec_drive_work = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                            varname="work", groupstr=c("Other", "Retired", "Working full-time", "Working part-time", 
+                                                       "A homemaker or stay-at-home parent", "Student", "Unemployed and looking for work"), 
+                            subgroupstr=c("Other", "Retired", "full-time", "part-time", "homemaker", "Student", "Unemployed"), 
+                            color_codes, scenname="driveway", dirname="paper2/")
+sec_flood_work = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                            varname="work", groupstr=c("Other", "Retired", "Working full-time", "Working part-time", 
+                                                       "A homemaker or stay-at-home parent", "Student", "Unemployed and looking for work"), 
+                            subgroupstr=c("Other", "Retired", "full-time", "part-time", "homemaker", "Student", "Unemployed"), 
+                            color_codes, scenname="flood", dirname="paper2/")
+
+work_tbl <- gt(sec_drive_work$pertab[,-ncol(sec_drive_work$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+work_fl_tbl <- gt(sec_flood_work$pertab[,-ncol(sec_flood_work$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+work_tb = gt_group(work_tbl, work_fl_tbl)
+gtsave(work_tb, "paper2/work_reasoning.docx")
+
+# Income
+sec_drive_income = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                              varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
+                                                             "75,000-99,999", "100,000-149,999", "150,000 or more"), 
+                              subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
+                                            "75,000-99,999", "100,000-149,999", "150,000+"), 
+                              color_codes, scenname="driveway", dirname="paper2/")
+sec_flood_income = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                              varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
+                                                             "75,000-99,999", "100,000-149,999", "150,000 or more"), 
+                              subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
+                                            "75,000-99,999", "100,000-149,999", "150,000+"), 
+                              color_codes, scenname="flood", dirname="paper2/")
+
+income_tbl <- gt(sec_drive_income$pertab[,-ncol(sec_drive_income$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+income_fl_tbl <- gt(sec_flood_income$pertab[,-ncol(sec_flood_income$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+income_tb = gt_group(income_tbl, income_fl_tbl)
+gtsave(income_tb, "paper2/income_reasoning.docx")
 
 # -------------------------------------------------------------------------
 
@@ -2099,41 +2088,40 @@ ggplot(sec_text_floodwork$sec, aes(topic, percent, fill = topic)) +
 #   labs(x = "Interpretation", y= "Percent (%) of participants", 
 #        fill="Reason")
 
-png(file="Pub2/Fig_Decision_Accuracy.png", family="Helvetica", res=300,
+# png(file="paper2/Fig_Decision_Accuracy.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(drive_decacc, flood_decacc, drive_conacc, flood_conacc, drive_riskacc, 
+#           flood_riskacc, drive_sec_reasonacc, flood_sec_reasonacc,
+#           nrow=4, labels = "auto") # , align = "h", axis = "b"
+# dev.off()
+# 
+# drive_dec + geom_text(aes(label = paste0(round(Percent), "%"), y=Percent), position = position_stack(vjust = 0.3), size = 3)
+# 
+# png(file="paper2/Fig_Decision_protection.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(drive_dec_full +ylim(0,55), flood_dec_full+ylim(0,90),
+#           drive_dec + theme(legend.position = "none")+ylim(0,55), 
+#           flood_dec + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decpol + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decpol + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decacc + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decacc + theme(legend.position = "none")+ylim(0,90), 
+#           nrow=4, labels = "auto" , align = "h", axis = "b")
+# dev.off()
+
+png(file="paper2/Fig_DecisionMaking.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_decacc, flood_decacc, drive_conacc, flood_conacc, drive_riskacc, 
-          flood_riskacc, drive_sec_reasonacc, flood_sec_reasonacc,
+plot_grid(drive_risk_full, flood_risk_full, 
+          drive_dec_full, flood_dec_full,
+          drive_con_full, flood_con_full, 
+          drive_txt_full, flood_txt_full,
           nrow=4, labels = "auto") # , align = "h", axis = "b"
 dev.off()
-
-drive_dec + geom_text(aes(label = paste0(round(Percent), "%"), y=Percent), position = position_stack(vjust = 0.3), size = 3)
-
-png(file="Pub2/Fig_Decision_protection.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_dec_full +ylim(0,55), flood_dec_full+ylim(0,90),
-          drive_dec + theme(legend.position = "none")+ylim(0,55), 
-          flood_dec + theme(legend.position = "none")+ylim(0,90), 
-          drive_decpol + theme(legend.position = "none")+ylim(0,55), 
-          flood_decpol + theme(legend.position = "none")+ylim(0,90), 
-          drive_decacc + theme(legend.position = "none")+ylim(0,55), 
-          flood_decacc + theme(legend.position = "none")+ylim(0,90), 
-          nrow=4, labels = "auto" , align = "h", axis = "b")
-dev.off()
-
-addSmallLegend <- function(myPlot, pointSize = 5, textSize = 8, spaceLegend = 0.75) {
-  myPlot +
-    guides(shape = guide_legend(nrow=2, byrow=TRUE, override.aes = list(size = pointSize)),
-           color = guide_legend(nrow=2, byrow=TRUE, override.aes = list(size = pointSize)),
-           fill = guide_legend(nrow=2, byrow=TRUE))+
-    theme(legend.title = element_text(size = textSize), 
-          legend.text  = element_text(size = textSize),
-          legend.key.size = unit(spaceLegend, "lines"))
-}
 
 legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom"))
 legend_b <- get_legend(flood_decage + theme(legend.position="bottom"))
 
-png(file="Pub2/Fig_Decision_protectionleg.png", family="Helvetica", res=300,
+png(file="paper2/Fig_Decision_protectionleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
 plot_grid(legend_a, legend_b,
           drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
@@ -2148,17 +2136,17 @@ plot_grid(legend_a, legend_b,
           rel_heights = c(.25, 1, 1, 1, 1))
 dev.off()
 
-png(file="Pub2/Fig_Decision_protectionage.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_dec_age +theme(legend.position = "top")+ylim(0,55), flood_decage+theme(legend.position = "top")+ylim(0,90),
-          drive_dec + theme(legend.position = "none")+ylim(0,55), 
-          flood_dec + theme(legend.position = "none")+ylim(0,90), 
-          drive_decpol + theme(legend.position = "none")+ylim(0,55), 
-          flood_decpol + theme(legend.position = "none")+ylim(0,90), 
-          drive_decacc + theme(legend.position = "none")+ylim(0,55), 
-          flood_decacc + theme(legend.position = "none")+ylim(0,90), 
-          nrow=4, labels = "auto" , align = "h", axis = "b")
-dev.off()
+# png(file="paper2/Fig_Decision_protectionage.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(drive_dec_age +theme(legend.position = "top")+ylim(0,55), flood_decage+theme(legend.position = "top")+ylim(0,90),
+#           drive_dec + theme(legend.position = "none")+ylim(0,55), 
+#           flood_dec + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decpol + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decpol + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decacc + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decacc + theme(legend.position = "none")+ylim(0,90), 
+#           nrow=4, labels = "auto" , align = "h", axis = "b")
+# dev.off()
 
 legend_b <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
 
@@ -2172,7 +2160,7 @@ conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = 
                     flood_conacc + theme(legend.position = "none")+ylim(0,40), 
                     nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1))
 
-png(file="Pub2/Fig_Decision_confidenceleg.png", family="Helvetica", res=300,
+png(file="paper2/Fig_Decision_confidenceleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
 plot_grid(legend_b, conplot, 
           nrow=2, labels = c("", ""), 
@@ -2192,28 +2180,28 @@ likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title =
           nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1))
 
 
-png(file="Pub2/Fig_Decision_riskleg.png", family="Helvetica", res=300,
+png(file="paper2/Fig_Decision_riskleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
 plot_grid(legend_b, likplot,
           nrow=2, labels = c("", ""), 
           rel_heights = c(.06, 1)) # , align = "h", axis = "b"
 dev.off()
 
-png(file="Pub2/Fig_Decision_reason.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_txt_full+ylim(0,50), flood_txt_full+ylim(0,50),
-          drive_sec_reasonage + theme(legend.position = "none")+ylim(0,50), 
-          flood_sec_reasonage + theme(legend.position = "none")+ylim(0,50),
-          drive_sec_reasonclim + theme(legend.position = "none")+ylim(0,50), 
-          flood_sec_reasonclim + theme(legend.position = "none")+ylim(0,50),
-          drive_sec_reasonpol + theme(legend.position = "none")+ylim(0,50), 
-          flood_sec_reasonpol + theme(legend.position = "none")+ylim(0,50),
-          drive_sec_reasonacc + theme(legend.position = "none")+ylim(0,50), 
-          flood_sec_reasonacc + theme(legend.position = "none")+ylim(0,50),
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
-dev.off()
+# png(file="paper2/Fig_Decision_reason.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(drive_txt_full+ylim(0,50), flood_txt_full+ylim(0,50),
+#           drive_sec_reasonage + theme(legend.position = "none")+ylim(0,50), 
+#           flood_sec_reasonage + theme(legend.position = "none")+ylim(0,50),
+#           drive_sec_reasonclim + theme(legend.position = "none")+ylim(0,50), 
+#           flood_sec_reasonclim + theme(legend.position = "none")+ylim(0,50),
+#           drive_sec_reasonpol + theme(legend.position = "none")+ylim(0,50), 
+#           flood_sec_reasonpol + theme(legend.position = "none")+ylim(0,50),
+#           drive_sec_reasonacc + theme(legend.position = "none")+ylim(0,50), 
+#           flood_sec_reasonacc + theme(legend.position = "none")+ylim(0,50),
+#           nrow=4, labels = "auto") # , align = "h", axis = "b"
+# dev.off()
 
-png(file="Pub2/Fig_Decision_reasonleg.png", family="Helvetica", res=300,
+png(file="paper2/Fig_Decision_reasonleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
 plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
           reason_pol+labs(y="Political affiliation"), 
@@ -2221,43 +2209,55 @@ plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy
           nrow=4, labels = "auto") # , align = "h", axis = "b"
 dev.off()
 
-
-png(file="Pub2/Fig_DecisionMaking.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_risk_full, flood_risk_full, 
-          drive_dec_full, flood_dec_full,
-          drive_con_full, flood_con_full, 
-          drive_txt_full, flood_txt_full,
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
-dev.off()
-
 # Primary graph -----------------------------------------------------------
-drive_age_prim = grouped_primary(topics, sec_text_age, subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
-                                 groupstr=c("18-34", "35-54", "55+"))
-flood_age_prim = grouped_primary(topics, sec_text_floodage, subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
-                                 groupstr=c("18-34", "35-54", "55+"))
+# drive_age_prim = grouped_primary(topics, sec_text_age, subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
+#                                  groupstr=c("18-34", "35-54", "55+"))
+# flood_age_prim = grouped_primary(topics, sec_text_floodage, subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
+#                                  groupstr=c("18-34", "35-54", "55+"))
+# 
+# drive_clim_prim = grouped_primary(topics, sec_text_clim, subgroupstr=c("Low", "Neutral", "High"), color_codes, 
+#                                  groupstr=c("Lower literacy", "Neutral", "Higher literacy"))
+# flood_clim_prim = grouped_primary(topics, sec_text_floodclim, subgroupstr=c("Low", "Neutral", "High"), color_codes, 
+#                                  groupstr=c("Lower literacy", "Neutral", "Higher literacy"))
+# 
+# drive_pol_prim = grouped_primary(topics, sec_text_pol, subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
+#                                  groupstr=c("Conservative", "Neutral", "Liberal"))
+# flood_pol_prim = grouped_primary(topics, sec_text_floodpol, subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
+#                                  groupstr=c("Conservative", "Neutral", "Liberal"))
+# 
+# drive_acc_prim = grouped_primary(topics, sec_text_acc, subgroupstr=c("Below", "Average", "Above"), color_codes, 
+#                                  groupstr=c("Below average", "Average", "Above average"))
+# flood_acc_prim = grouped_primary(topics, sec_text_floodacc, subgroupstr=c("Below", "Average", "Above"), color_codes, 
+#                                  groupstr=c("Below average", "Average", "Above average"))
 
-drive_clim_prim = grouped_primary(topics, sec_text_clim, subgroupstr=c("Low", "Neutral", "High"), color_codes, 
-                                 groupstr=c("Lower literacy", "Neutral", "Higher literacy"))
-flood_clim_prim = grouped_primary(topics, sec_text_floodclim, subgroupstr=c("Low", "Neutral", "High"), color_codes, 
-                                 groupstr=c("Lower literacy", "Neutral", "Higher literacy"))
-
-drive_pol_prim = grouped_primary(topics, sec_text_pol, subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
-                                 groupstr=c("Conservative", "Neutral", "Liberal"))
-flood_pol_prim = grouped_primary(topics, sec_text_floodpol, subgroupstr=c("Conservative", "Neutral", "Liberal"), color_codes, 
-                                 groupstr=c("Conservative", "Neutral", "Liberal"))
-
-drive_acc_prim = grouped_primary(topics, sec_text_acc, subgroupstr=c("Below", "Average", "Above"), color_codes, 
-                                 groupstr=c("Below average", "Average", "Above average"))
-flood_acc_prim = grouped_primary(topics, sec_text_floodacc, subgroupstr=c("Below", "Average", "Above"), color_codes, 
-                                 groupstr=c("Below average", "Average", "Above average"))
-
-png(file="Pub2/Fig_primarydriveage.png", 
+png(file="paper2/Fig_primarydriveage.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(drive_age_prim, aes(x = percent, y = word, fill=reason)) +
+sec_drive_age$prim.df = arrange(sec_drive_age$prim.df, sec_drive_age$prim.df$topic)
+sec_drive_age$prim.df$word = factor(sec_drive_age$prim.df$word, levels = unique(sec_drive_age$prim.df$word))
+sec_drive_age$prim.df$level = factor(sec_drive_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+
+ggplot(sec_drive_age$prim.df, aes(x = percent, y = word, fill=topic)) +
+  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+  xlim(0, 16) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+  facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
+  labs(y = "", x= "Percent (%) of participants", fill="Reason")
+dev.off()
+
+png(file="paper2/Fig_primaryfloodage.png", 
+    family="Helvetica", res=300, 
+    units="in", width=double_column, height=column_height*3, pointsize=10)
+par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+
+sec_flood_age$prim.df = arrange(sec_flood_age$prim.df, sec_flood_age$prim.df$topic)
+sec_flood_age$prim.df$word = factor(sec_flood_age$prim.df$word, levels = unique(sec_flood_age$prim.df$word))
+sec_flood_age$prim.df$level = factor(sec_flood_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+
+ggplot(sec_flood_age$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 16) +
   geom_bar(stat="identity", position=position_dodge()) +
@@ -2266,12 +2266,36 @@ ggplot(drive_age_prim, aes(x = percent, y = word, fill=reason)) +
   labs(y = "", x= "Percent (%) of participants", fill="Reason")
 dev.off()
 
-png(file="Pub2/Fig_primaryfloodage.png", 
+png(file="paper2/Fig_primarydriveclim.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(flood_age_prim, aes(x = percent, y = word, fill=reason)) +
+sec_drive_clim$prim.df = arrange(sec_drive_clim$prim.df, sec_drive_clim$prim.df$topic)
+sec_drive_clim$prim.df$word = factor(sec_drive_clim$prim.df$word, levels = unique(sec_drive_clim$prim.df$word))
+sec_drive_clim$prim.df$level = factor(sec_drive_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
+levels(sec_drive_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
+
+ggplot(sec_drive_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
+  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+  xlim(0, 16) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+  facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
+  labs(y = "", x= "Percent (%) of participants", fill="Reason")
+dev.off()
+
+png(file="paper2/Fig_primaryfloodclim.png", 
+    family="Helvetica", res=300, 
+    units="in", width=double_column, height=column_height*3, pointsize=10)
+par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+
+sec_flood_clim$prim.df = arrange(sec_flood_clim$prim.df, sec_flood_clim$prim.df$topic)
+sec_flood_clim$prim.df$word = factor(sec_flood_clim$prim.df$word, levels = unique(sec_flood_clim$prim.df$word))
+sec_flood_clim$prim.df$level = factor(sec_flood_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
+levels(sec_flood_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
+
+ggplot(sec_flood_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 16) +
   geom_bar(stat="identity", position=position_dodge()) +
@@ -2280,40 +2304,16 @@ ggplot(flood_age_prim, aes(x = percent, y = word, fill=reason)) +
   labs(y = "", x= "Percent (%) of participants", fill="Reason")
 dev.off()
 
-png(file="Pub2/Fig_primarydriveclim.png", 
+png(file="paper2/Fig_primarydrivePol.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(drive_clim_prim, aes(x = percent, y = word, fill=reason)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
+sec_drive_pol$prim.df = arrange(sec_drive_pol$prim.df, sec_drive_pol$prim.df$topic)
+sec_drive_pol$prim.df$word = factor(sec_drive_pol$prim.df$word, levels = unique(sec_drive_pol$prim.df$word))
+sec_drive_pol$prim.df$level = factor(sec_drive_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
 
-png(file="Pub2/Fig_primaryfloodclim.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-ggplot(flood_clim_prim, aes(x = percent, y = word, fill=reason)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
-
-png(file="Pub2/Fig_primarydrivePol.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-ggplot(drive_pol_prim, aes(x = percent, y = word, fill=reason)) +
+ggplot(sec_drive_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 14) +
   geom_bar(stat="identity", position=position_dodge()) +
@@ -2322,12 +2322,16 @@ ggplot(drive_pol_prim, aes(x = percent, y = word, fill=reason)) +
   labs(y = "", x= "Percent (%) of participants", fill="Reason")
 dev.off()
 
-png(file="Pub2/Fig_primaryfloodPol.png", 
+png(file="paper2/Fig_primaryfloodPol.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(flood_pol_prim, aes(x = percent, y = word, fill=reason)) +
+sec_flood_pol$prim.df = arrange(sec_flood_pol$prim.df, sec_flood_pol$prim.df$topic)
+sec_flood_pol$prim.df$word = factor(sec_flood_pol$prim.df$word, levels = unique(sec_flood_pol$prim.df$word))
+sec_flood_pol$prim.df$level = factor(sec_flood_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
+
+ggplot(sec_flood_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 14) +
   geom_bar(stat="identity", position=position_dodge()) +
@@ -2336,12 +2340,17 @@ ggplot(flood_pol_prim, aes(x = percent, y = word, fill=reason)) +
   labs(y = "", x= "Percent (%) of participants", fill="Reason")
 dev.off()
 
-png(file="Pub2/Fig_primarydriveAcc.png", 
+png(file="paper2/Fig_primarydriveAcc.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(drive_acc_prim, aes(x = percent, y = word, fill=reason)) +
+sec_drive_acc$prim.df = arrange(sec_drive_acc$prim.df, sec_drive_acc$prim.df$topic)
+sec_drive_acc$prim.df$word = factor(sec_drive_acc$prim.df$word, levels = unique(sec_drive_acc$prim.df$word))
+sec_drive_acc$prim.df$level = factor(sec_drive_acc$prim.df$level, levels = c("Below", "Average", "Above"))
+levels(sec_drive_acc$prim.df$level) <- c("Below average", "Average", "Above average")
+
+ggplot(sec_drive_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 14) +
   geom_bar(stat="identity", position=position_dodge()) +
@@ -2352,12 +2361,17 @@ ggplot(drive_acc_prim, aes(x = percent, y = word, fill=reason)) +
        fill="Reason")
 dev.off()
 
-png(file="Pub2/Fig_primaryfloodAcc.png", 
+png(file="paper2/Fig_primaryfloodAcc.png", 
     family="Helvetica", res=300, 
     units="in", width=double_column, height=column_height*3, pointsize=10)
 par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
 
-ggplot(flood_acc_prim, aes(x = percent, y = word, fill=reason)) +
+sec_flood_acc$prim.df = arrange(sec_flood_acc$prim.df, sec_flood_acc$prim.df$topic)
+sec_flood_acc$prim.df$word = factor(sec_flood_acc$prim.df$word, levels = unique(sec_flood_acc$prim.df$word))
+sec_flood_acc$prim.df$level = factor(sec_flood_acc$prim.df$level, levels = c("Below", "Average", "Above"))
+levels(sec_flood_acc$prim.df$level) <- c("Below average", "Average", "Above average")
+
+ggplot(sec_flood_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
   xlim(0, 26) +
   geom_bar(stat="identity", position=position_dodge()) +

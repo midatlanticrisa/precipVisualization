@@ -370,15 +370,32 @@ word_freq = function(list_of_codes, color_codes, filename, filename2,
   return(tab)
 }
 
-# Calculate the percentage of each secondary code for each subgroup --------------
-group_perc = function(textchoices, codename, varname, groupstr, subgroupstr, color_codes, scenname){
+# Calculate the percentage of each secondary code for each subgroup and return tabkes for plotting --------------
+group_perc = function(textchoices, codename, varname, groupstr, subgroupstr, color_codes, scenname, dirname){
   par(mar = c(0, 0, 0, 0))
   drive_tab = lapply(X=1:length(groupstr), 
                      function(X){word_freq(textchoices[,codename][textchoices[,varname] == groupstr[X]], 
                                            color_codes, 
-                                           paste0("prim_coding_", scenname, subgroupstr[X], ".csv"),
-                                           paste0("sec_coding_", scenname, subgroupstr[X], ".csv"))})
+                                           paste0(dirname, "prim_coding_", scenname, subgroupstr[X], ".csv"),
+                                           paste0(dirname, "sec_coding_", scenname, subgroupstr[X], ".csv"))})
   names(drive_tab) = subgroupstr
+  
+  # primary
+  prim = lapply(drive_tab, function(X){(X$count/sum(X$count))*100})
+  prim_tab = list()
+  
+  for(X in 1:length(subgroupstr)){
+    prim_tab[[X]] = drive_tab[[X]][ ,1:3]
+    prim_tab[[X]]$percent = prim[[X]]
+    
+    unused = data.frame(word = setdiff(topics$Code, prim_tab[[X]]$word))
+    unused$percent = unused$count = 0
+    unused = add_topic(unused, topics)
+    prim_tab[[X]] = rbind(prim_tab[[X]], unused)
+  }
+  
+  prim.df = do.call(rbind.data.frame, prim_tab)
+  prim.df$level = unlist(lapply(X=1:length(subgroupstr), function(X){rep(subgroupstr[X], times=dim(prim_tab[[X]])[1])}))
   
   # secondary
   sec_tab = data.frame(topic = unique(topics$AI.Analysis.of.Scenario.Justification..ChatGPT.))
@@ -401,9 +418,13 @@ group_perc = function(textchoices, codename, varname, groupstr, subgroupstr, col
     }
   }
   colnames(pertab) = c("Theme", paste0(groupstr, " (n=", groupcount, ")"), "color")
-  return(pertab)
+  
+  sec_text = data.frame(topic = rep(pertab$Theme, length(subgroupstr)), 
+                        percent = unlist(pertab[ ,2:(length(subgroupstr)+1)]),
+                        groups = as.vector(sapply(subgroupstr, rep, times=length(pertab$Theme))))
+  
+  return(list(pertab = pertab, sec_text = sec_text, prim.df=prim.df))
 }
-
 # -------------------------------------------------------------------------
 # Functions for plotting
 # https://stackoverflow.com/questions/3932038/plot-a-legend-outside-of-the-plotting-area-in-base-graphics
