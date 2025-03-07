@@ -25,11 +25,6 @@
 # THE SOFTWARE.
 ##########################################################################
 
-# install.packages("coin", type = "binary")
-# install.packages("rcompanion", type = "binary")
-# install.packages("gridGraphics")
-# install.packages("gt")
-# install.packages("magick")
 library(report)
 library(ggplot2)
 library(car)
@@ -1103,7 +1098,7 @@ flood_risk = ggplot(gldatlikflo, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
 
 # Read in notes with primary codes ----------------------------------------
-prochoices = read.csv("protectiveTable_5june2024.csv")
+prochoices = read.csv("data/protectiveTable_5june2024.csv")
 
 prochoices$graph = prochoices$name
 prochoices$graph = ifelse(prochoices$graph == "Area_Freq" | prochoices$graph == "Area_Int", 
@@ -1116,17 +1111,6 @@ prochoices$graph = ifelse(prochoices$graph == "Box_freq" | prochoices$graph == "
 
 # Read in code topics (secondary coding) ----------------------------------
 topics = read.csv("data/codebook.csv")
-# Function to add secondary codes to data.frames based on the primary code
-add_topic = function(df, topics){
-  df$topic = NA
-  # df$decision = NA
-  for(i in 1:nrow(topics)){
-    # df$topic[which(df$word == topics$Code[i])] = topics$What.influences.participant.decisions.[i]
-    df$topic[which(df$word == topics$Code[i])] = topics$AI.Analysis.of.Scenario.Justification..ChatGPT.[i]
-    # df$decision[which(df$topic == topics$What.influences.participant.decisions.[i])] = topics$tricode[i]
-  }
-  return(df)
-}
 
 # Create a vector of colors based on secondary codes
 # color_codes = data.frame(code = unique(topics$What.influences.participant.decisions.), 
@@ -1141,12 +1125,12 @@ color_codes = data.frame(code = unique(topics$AI.Analysis.of.Scenario.Justificat
 drive_tab = list()
 
 par(mar = c(0, 0, 0, 0))
-drive_tab$Area = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Area"], color_codes, "primary_coding_drivewayArea.csv", 
-                      "secondary_coding_drivewayArea.csv")
-drive_tab$Bar = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Bar"], color_codes, "primary_coding_drivewayBar.csv", 
-                           "secondary_coding_drivewayBar.csv")
-drive_tab$Box = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Box"], color_codes, "primary_coding_drivewayBox.csv", 
-                           "secondary_coding_drivewayBox.csv")
+drive_tab$Area = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Area"], color_codes, "paper1/primary_coding_drivewayArea.csv", 
+                      "paper1/secondary_coding_drivewayArea.csv")
+drive_tab$Bar = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Bar"], color_codes, "paper1/primary_coding_drivewayBar.csv", 
+                           "paper1/secondary_coding_drivewayBar.csv")
+drive_tab$Box = word_freq(prochoices$Primary.cycle.code[prochoices$graph == "Box"], color_codes, "paper1/primary_coding_drivewayBox.csv", 
+                           "paper1/secondary_coding_drivewayBox.csv")
 # secondary
 sec_tab = data.frame(topic = unique(topics$AI.Analysis.of.Scenario.Justification..ChatGPT.))
 # sec_tab = data.frame(topic = unique(topics$What.influences.participant.decisions.))
@@ -1187,12 +1171,12 @@ flood_tab = list()
 prochoices$Primary.cycle.code.1[which(prochoices$Primary.cycle.code.1 == "I don\xd5t understand")] = "I don't understand"
 
 par(mar = c(0, 0, 0, 0))
-flood_tab$Area = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Area"], color_codes, "primary_coding_floodArea.csv", 
-                           "secondary_coding_floodArea.csv")
-flood_tab$Bar = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Bar"], color_codes, "primary_coding_floodBar.csv", 
-                          "secondary_coding_floodBar.csv")
-flood_tab$Box = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Box"], color_codes, "primary_coding_floodBox.csv", 
-                          "secondary_coding_floodBox.csv")
+flood_tab$Area = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Area"], color_codes, "paper1/primary_coding_floodArea.csv", 
+                           "paper1/secondary_coding_floodArea.csv")
+flood_tab$Bar = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Bar"], color_codes, "paper1/primary_coding_floodBar.csv", 
+                          "paper1/secondary_coding_floodBar.csv")
+flood_tab$Box = word_freq(prochoices$Primary.cycle.code.1[prochoices$graph == "Box"], color_codes, "paper1/primary_coding_floodBox.csv", 
+                          "paper1/secondary_coding_floodBox.csv")
 
 # secondary
 # sec_tab_flood = data.frame(topic = unique(topics$What.influences.participant.decisions.))
@@ -1596,6 +1580,8 @@ DEMrespcensus<- data.frame("region"= region,
 all.size.df<- as.data.frame(cbind(overAcc, DEMrespcensus))
 all.pro.df<- as.data.frame(cbind(protab[,1:2], all.size.df))
 
+
+# Table S2 ----------------------------------------------------------------
 # Gender
 round((table(all.size.df$gender[all.size.df$name == "Area"])/length(all.size.df$gender[all.size.df$name == "Area"]))*100, 1)
 round((table(all.size.df$gender[all.size.df$name == "Box"])/length(all.size.df$gender[all.size.df$name == "Box"]))*100, 1)
@@ -1682,6 +1668,11 @@ round((table(incomeGroup[all.size.df$name == "Box"])/length(incomeGroup[all.size
 round((table(incomeGroup[all.size.df$name == "Bar"])/length(incomeGroup[all.size.df$name == "Bar"]))*100, 1)
 round((table(incomeGroup)/length(incomeGroup))*100, 1)
 
+# Education with people 25+
+age25p = which(all.size.df$age >= 25)
+round((table(all.size.df$edu[age25p])/length(all.size.df$edu[age25p]))*100, 1)
+
+
 all.size.df$work = factor(all.size.df$work, levels = c("Working full-time", 
                                                        "Other", 
                                                        "Retired", "Student", 
@@ -1751,3 +1742,54 @@ length(names(total.region.modedu$coefficients))
 round(summary(total.region.modedu)[["coefficients"]],3)
 
 write.csv(summary(total.region.modedu)[["coefficients"]], "paper1/SuppTab1_DemRegion.csv")
+
+
+# Demographic comparison --------------------------------------------------
+dec = read.csv("data/DecennialCensusComparison.csv")
+
+census = cbind(dec[,1:3], rep("Census", nrow(dec)))
+study = cbind(dec[,c(1,2,4)], rep("This study", nrow(dec)))
+colnames(census) = c("Demographic", "Variable", "Percent", "Source")
+colnames(study) = c("Demographic", "Variable", "Percent", "Source")
+
+formatted_dec = rbind(census, study)
+formatted_dec$Variable = factor(formatted_dec$Variable, levels = formatted_dec$Variable[1:nrow(dec)])
+
+po_col = brewer.pal(3, "PuOr")
+
+png(file="paper1/Demographics.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=10)
+
+ggplot(formatted_dec, aes(fill=Source,x=Percent, y=Variable)) + 
+  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
+  labs(y = "Demographic variable", x= "Percent (%) of population", fill="") + 
+  # define colors
+  scale_fill_manual(values=po_col[c(1,3)]) +
+  theme_bw() +
+  geom_text(aes(label = round(Percent)), hjust=-0.1, size = 3, position = position_dodge(0.9)) +
+  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), legend.position = c(0.55,0.2),  
+        legend.background = element_rect(fill = NA, colour = NA)) +
+  facet_wrap(~Demographic, ncol=2, scales = "free_y")
+
+dev.off()
+
+RdYlBu_col = brewer.pal(7, "RdYlBu")
+png(file="paper1/Demographics2.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=10)
+
+ggplot(formatted_dec, aes(x = Percent, y = Variable, fill=Demographic)) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  theme_bw() +
+  scale_fill_manual(values=RdYlBu_col) +
+  theme(legend.position="top", legend.text=element_text(size=9), 
+        legend.box.spacing = unit(0, "pt"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  facet_grid(Demographic ~ Source, scales = "free_y", 
+             labeller = labeller(Demographic = label_wrap_gen(15))) + 
+  geom_text(aes(label = round(Percent), y=Variable), hjust=-0.1, size = 3) +
+  labs(y = "", x= "Percent (%) of population", fill="")
+
+dev.off()
+
+

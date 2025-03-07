@@ -333,7 +333,7 @@ add_topic = function(df, topics){
 
 # Function to create tables of code frequency and wordclouds --------------
 word_freq = function(list_of_codes, color_codes, filename, filename2, 
-                     plot.legend = TRUE){
+                     plot.legend = TRUE, write.tab = TRUE){
   # list_of_codes = combined_df
   # Convert word list to a table organized by frequency
   tab <- table(list_of_codes)
@@ -356,7 +356,9 @@ word_freq = function(list_of_codes, color_codes, filename, filename2,
            col = unique(tab$color), ncol=2)
   }
   
-  write.csv(tab, filename, row.names = FALSE)
+  if(write.tab){
+    write.csv(tab, filename, row.names = FALSE)
+  }
   
   # Create tables for secondary coding
   combined_x = data.frame(word = list_of_codes)
@@ -365,19 +367,23 @@ word_freq = function(list_of_codes, color_codes, filename, filename2,
   top <- table(combined_x$topic)
   top <- data.frame(word = names(top), count = as.numeric(top))
   top <- arrange(top, desc(count))
-  write.csv(top, filename2, row.names = FALSE)
+  
+  if(write.tab){
+    write.csv(top, filename2, row.names = FALSE)
+  }
   
   return(tab)
 }
 
 # Calculate the percentage of each secondary code for each subgroup and return tabkes for plotting --------------
-group_perc = function(textchoices, codename, varname, groupstr, subgroupstr, color_codes, scenname, dirname){
+group_perc = function(textchoices, codename, varname, groupstr, subgroupstr, color_codes, scenname, dirname, write.tab=FALSE){
   par(mar = c(0, 0, 0, 0))
   drive_tab = lapply(X=1:length(groupstr), 
                      function(X){word_freq(textchoices[,codename][textchoices[,varname] == groupstr[X]], 
                                            color_codes, 
                                            paste0(dirname, "prim_coding_", scenname, subgroupstr[X], ".csv"),
-                                           paste0(dirname, "sec_coding_", scenname, subgroupstr[X], ".csv"))})
+                                           paste0(dirname, "sec_coding_", scenname, subgroupstr[X], ".csv"),
+                                           write.tab = write.tab)})
   names(drive_tab) = subgroupstr
   
   # primary
