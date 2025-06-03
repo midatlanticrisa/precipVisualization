@@ -780,6 +780,8 @@ all.size.df$division = factor(all.size.df$division, levels = basedivision)
 all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_likVal, ptab$CHAL1_conVal,
                                   ptab$CHAL2_conVal))
 
+# all.size.df<- as.data.frame(cbind(all.size.df, politicalGroup))
+
 # # Climate --------------------------------------------
 # # Race assigned to region --------------------------------------------
 # total.region.mod<- lm(clim ~ val + name + region + gender + age + latino + racelarge + edu + work + politics + money, 
@@ -804,7 +806,10 @@ all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_lik
 # summary(total.div.modedu)
 # resid.div.varedu<- 1-summary(total.div.modedu)$r.squared; resid.div.varedu
 # length(names(total.div.modedu$coefficients))
+aggregate(CHAL1 ~ division, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
 
+options(scipen=999)
 total.region.pro<- lm(CHAL1 ~ val + name + region + gender + age + latino + racelarge + 
                         as.numeric(edunum) + work + politics + money + clim, 
                       data= all.size.df)
@@ -819,6 +824,9 @@ total.region.lik<- lm(ptab$CHAL1_likVal ~ val + name + region + gender + age + l
                         as.numeric(edunum) + work + politics + money + clim,
                       data= all.size.df)
 summary(total.region.lik)
+
+aggregate(ptab$CHAL2_conVal ~ politicalGroup, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
 
 
 total.region.pro2<- lm(CHAL2 ~ val + name + region + gender + age + latino + racelarge + 
@@ -835,6 +843,46 @@ total.region.lik2<- lm(ptab$CHAL2_likVal ~ val + name + region + gender + age + 
                         as.numeric(edunum) + work + politics + money + clim,
                       data= all.size.df)
 summary(total.region.lik2)
+
+aggregate(CHAL1 ~ region, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
+
+# Division
+
+total.division.pro<- lm(CHAL1 ~ val + name + division + gender + age + latino + racelarge + 
+                        as.numeric(edunum) + work + politics + money + clim, 
+                      data= all.size.df)
+summary(total.division.pro)
+
+total.division.con<- lm(ptab$CHAL1_conVal ~ val + name + division + gender + age + latino + racelarge +
+                        as.numeric(edunum) + work + politics + money + clim,
+                      data= all.size.df)
+summary(total.division.con)
+
+total.division.lik<- lm(ptab$CHAL1_likVal ~ val + name + division + gender + age + latino + racelarge +
+                        as.numeric(edunum) + work + politics + money + clim,
+                      data= all.size.df)
+summary(total.division.lik)
+write.csv(summary(total.division.lik)[["coefficients"]], "lik.csv")
+
+
+total.division.pro2<- lm(CHAL2 ~ val + name + division + gender + age + latino + racelarge + 
+                         as.numeric(edunum) + work + politics + money+ clim, 
+                       data= all.size.df)
+summary(total.division.pro2)
+
+total.division.con2<- lm(ptab$CHAL2_conVal ~ val + name + division + gender + age + latino + racelarge +
+                         as.numeric(edunum) + work + politics + money + clim,
+                       data= all.size.df)
+summary(total.division.con2)
+
+write.csv(summary(total.division.con2)[["coefficients"]], "con2.csv")
+
+total.division.lik2<- lm(ptab$CHAL2_likVal ~ val + name + division + gender + age + latino + racelarge +
+                         as.numeric(edunum) + work + politics + money + clim,
+                       data= all.size.df)
+summary(total.division.lik2)
+write.csv(summary(total.division.lik2)[["coefficients"]], "lik2.csv")
 
 # Female 3.74, male 3.86; 3.73 and 3.81 Male (flood insurance); prefer to self desribe 2.75 (fi). Other groups 4,4,2 people
 aggregate(ptab$CHAL1_conVal ~ gender, data = all.size.df,
@@ -1905,10 +1953,10 @@ all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_lik
                                   ptab$CHAL2_conVal))
 
 char_prochoices = prochoices
-char_prochoices = as.data.frame(cbind(char_prochoices, all.size.df$region, all.size.df$gender, 
+char_prochoices = as.data.frame(cbind(char_prochoices, all.size.df$region, all.size.df$division, all.size.df$gender, 
                                       all.size.df$latino, all.size.df$racelarge, all.size.df$edu, 
                                       all.size.df$work, incGroup))
-colnames(char_prochoices)[18:23] = c("region", "gender", "latino", "racelarge", "edu", "work")
+colnames(char_prochoices)[18:24] = c("region", "division", "gender", "latino", "racelarge", "edu", "work")
 
 # Region
 sec_drive_region = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -1930,6 +1978,52 @@ gt_fl_tbl <- gt(sec_flood_region$pertab[,-ncol(sec_flood_region$pertab)]) |>
 
 region_tb = gt_group(gt_tbl, gt_fl_tbl)
 gtsave(region_tb, "paper2/region_reasoning.docx")
+
+# Division
+# sec_drive_division = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+#                               varname="division", groupstr=c("South Atlantic", "West North Central", "East North Central", 
+#                                                            "Middle Atlantic", "Mountain", "West South Central", "Pacific",
+#                                                            "East South Central", "New England"), 
+#                               subgroupstr=c("SouthAtlantic", "WestNorthCentral", "EastNorthCentral", 
+#                                             "MiddleAtlantic", "Mountain", "WestSouthCentral", "Pacific",
+#                                             "EastSouthCentral", "NewEngland"), color_codes, 
+#                               scenname="driveway", dirname="paper2/")
+# sec_flood_division = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+#                               varname="division", groupstr=c("South Atlantic", "West North Central", "East North Central", 
+#                                                            "Middle Atlantic", "Mountain", "West South Central", "Pacific",
+#                                                            "East South Central", "New England"), 
+#                               subgroupstr=c("SouthAtlantic", "WestNorthCentral", "EastNorthCentral", 
+#                                             "MiddleAtlantic", "Mountain", "WestSouthCentral", "Pacific",
+#                                             "EastSouthCentral", "NewEngland"), color_codes, 
+#                               scenname="flood", dirname="paper2/")
+
+sec_drive_division = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
+                                varname="division", groupstr=c("New England", "Middle Atlantic", "South Atlantic", "East South Central", 
+                                                               "West South Central", "Mountain", "Pacific", "West North Central", 
+                                                               "East North Central"), 
+                                subgroupstr=c("NewEngland", "MiddleAtlantic", "SouthAtlantic", "EastSouthCentral", 
+                                              "WestSouthCentral", "Mountain", "Pacific", "WestNorthCentral", 
+                                              "EastNorthCentral"), color_codes, 
+                                scenname="driveway", dirname="paper2/")
+sec_flood_division = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
+                                varname="division", groupstr=c("New England", "Middle Atlantic", "South Atlantic", "East South Central", 
+                                                               "West South Central", "Mountain", "Pacific", "West North Central", 
+                                                               "East North Central"), 
+                                subgroupstr=c("NewEngland", "MiddleAtlantic", "SouthAtlantic", "EastSouthCentral", 
+                                              "WestSouthCentral", "Mountain", "Pacific", "WestNorthCentral", 
+                                              "EastNorthCentral"), color_codes, 
+                                scenname="flood", dirname="paper2/")
+
+gt_tbl <- gt(sec_drive_division$pertab[,-ncol(sec_drive_division$pertab)]) |>
+  tab_header(title = "Driveway washout scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+gt_fl_tbl <- gt(sec_flood_division$pertab[,-ncol(sec_flood_division$pertab)]) |>
+  tab_header(title = "Flood insurance scenario (% of participants)") |>
+  data_color(method = "numeric", palette = "inferno", domain = c(0,75))
+
+division_tb = gt_group(gt_tbl, gt_fl_tbl)
+gtsave(division_tb, "paper2/region_division_grouped.docx")
 
 # Gender
 sec_drive_gender = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 

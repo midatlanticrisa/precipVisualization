@@ -76,10 +76,24 @@ mm_TO_inches = function(mm){
   mm * 0.039370
 }
 
-single_column = mm_TO_inches(84)
-med_column = mm_TO_inches(129)
-double_column = mm_TO_inches(174)
-maximum_width = mm_TO_inches(234)
+# single_column = mm_TO_inches(84)
+# med_column = mm_TO_inches(129)
+# double_column = mm_TO_inches(174)
+# maximum_width = mm_TO_inches(234)
+# column_height = 2.7
+# double_height = column_height * 2
+
+# Original width	      Final width*
+#                       Picas	Inches	Centimeters
+# One column	          19	  3.2	    8
+# 2/3 page width	      27	  4.5	    11.4
+# Two columns	          33	  5.5	    14
+# More than two columns	39	  6.5	    16.5
+
+single_column = 3.2
+med23_column = 4.5
+double_column = 5.5
+maximum_width = 6.5
 column_height = 2.7
 double_height = column_height * 2
 
@@ -234,15 +248,23 @@ facetover = ggplot(overaccTab, aes(fill=graph,y=percent, x=ques)) +
        fill="") + 
   # define colors
   scale_fill_manual(values=graphcol) +
-  theme_bw() + geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.5) +
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+  theme_bw() + geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2) +
+  theme(legend.title = element_text(size=8), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), legend.position = "inside", 
         legend.position.inside = c(0.16, 0.96), 
         legend.background = element_rect(fill = NA, colour = NA)) +
   facet_wrap(~acctype, ncol=1, scales = "free_x")
 
-png(file="paper1/Fig3_DiagwithIDs.png", family="Helvetica", res=300,
-    units="in", width=double_column, height=column_height*3, pointsize=10)
+png(file="paper1/Fig3_DiagwithIDswidth.png", family="Helvetica", res=300,
+    units="in", width=double_column, height=column_height*2.35, pointsize=9)
+plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable, nrow=1)
+dev.off()
+
+# cairo_ps(filename = "paper1/figure03.eps", family="Helvetica", fallback_resolution = 300,
+#          width=double_column, height=column_height*2.35, pointsize=9)
+# postscript(file="paper1/figure03.eps", horizontal = FALSE, onefile = FALSE, paper = "special", family="Helvetica",
+#            width=double_column, height=column_height*2.35, pointsize=9)
+pdf(file="paper1/figure03.pdf", family="Helvetica", width=double_column, height=column_height*2.35, pointsize=9)
 plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable, nrow=1)
 dev.off()
 ### Figure #3 stop
@@ -277,7 +299,7 @@ leveneTest(val ~ name, data = overAcc)
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = overAcc,
           function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x),
-                              quantile(x, 0.95), quantile(x, 0.05)), 2))
+                              quantile(x, 0.95), quantile(x, 0.05)), 1))
 
 # 1st method: Assuming equal variances
 oneway.test(val ~ name, data = overAcc, var.equal = TRUE)
@@ -331,7 +353,7 @@ leveneTest(val ~ name, data = datExpress)
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = datExpress,
-          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 1))
 
 # One-way ANOVA
 # 1st method:
@@ -380,7 +402,7 @@ leveneTest(val ~ name, data = datEmphasis)
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = datEmphasis,
-          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 1))
 
 # One-way ANOVA
 # 1st method:
@@ -435,7 +457,7 @@ leveneTest(val ~ name, data = datAcc)
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = datAcc,
-          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 1))
 
 # One-way ANOVA
 # # 1st method:
@@ -494,7 +516,7 @@ leveneTest(val ~ name, data = datTime)
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = datTime,
-          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x)), 1))
 
 # Kruskal-Wallis test and post-hoc test
 kruskal.test(val ~ name, data = datTime)
@@ -506,8 +528,9 @@ pairwiseMedianTest(val ~ name, data = datTime, exact = NULL, method = "fdr")
 
 ##########################################################################
 ## Figure 2
-png(file="paper1/Fig2_PerfDiagVio.png", family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=14)
+# png(file="paper1/Fig2_PerfDiagVio.png", family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=14)
+pdf(file="paper1/figure02.pdf", family="Helvetica", width=double_column, height=column_height*2.5, pointsize=14)
 
 par(mfrow=c(3,2), mgp=c(1.5,.5,0), mar=c(2,4,1,1))
 vioplot(val ~ name, data = overAcc, xlab="", ylab="Number of correct responses", 
@@ -516,8 +539,8 @@ points(1, mean(overAcc$val[overAcc$name == "Bar"]), bg="white", pch=21)
 points(2, mean(overAcc$val[overAcc$name == "Box"]), bg="white", pch=21)
 points(3, mean(overAcc$val[overAcc$name == "Area"]), bg="white", pch=21)
 
-put.fig.letter("a.",font=2, location = "topleft")
-put.fig.letter("Overall interpretation",font=2, location = "topcenter")
+put.fig.letter("a.",font=2, x=0.025, y=0.98)
+put.fig.letter("Overall interpretation",font=2, x=0.5525, y=0.96)
 
 # Legend
 plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
@@ -531,8 +554,8 @@ points(1, mean(datExpress$val[datExpress$name == "Bar"]), bg="white", pch=21)
 points(2, mean(datExpress$val[datExpress$name == "Box"]), bg="white", pch=21)
 points(3, mean(datExpress$val[datExpress$name == "Area"]), bg="white", pch=21)
 
-put.fig.letter("b.",font=2, location = "topleft")
-put.fig.letter("Expressiveness",font=2, location = "topcenter")
+put.fig.letter("b.",font=2, x=0.025, y=0.98)
+put.fig.letter("Expressiveness",font=2, x=0.5525, y=0.96)
 
 vioplot(val ~ name, data = datEmphasis, xlab="", ylab="Number of correct responses", 
         col=graphcol, plotCentre="line")
@@ -540,8 +563,8 @@ points(1, mean(datEmphasis$val[datEmphasis$name == "Bar"]), bg="white", pch=21)
 points(2, mean(datEmphasis$val[datEmphasis$name == "Box"]), bg="white", pch=21)
 points(3, mean(datEmphasis$val[datEmphasis$name == "Area"]), bg="white", pch=21)
 
-put.fig.letter("c.",font=2, location = "topleft")
-put.fig.letter("Emphasis",font=2, location = "topcenter")
+put.fig.letter("c.",font=2, x=0.025, y=0.98)
+put.fig.letter("Emphasis",font=2, x=0.5525, y=0.96)
 
 vioplot(val ~ name, data = datAcc, xlab="", ylab="Number of correct responses", 
         col=graphcol, plotCentre="line")
@@ -549,8 +572,8 @@ points(1, mean(datAcc$val[datAcc$name == "Bar"]), bg="white", pch=21)
 points(2, mean(datAcc$val[datAcc$name == "Box"]), bg="white", pch=21)
 points(3, mean(datAcc$val[datAcc$name == "Area"]), bg="white", pch=21)
 
-put.fig.letter("d.",font=2, location = "topleft")
-put.fig.letter("Accuracy",font=2, location = "topcenter")
+put.fig.letter("d.",font=2, x=0.025, y=0.98)
+put.fig.letter("Accuracy",font=2, x=0.5525, y=0.96)
 
 vioplot(val ~ name, data = datTime, xlab="", ylab="Time (minutes)", 
         col=graphcol, plotCentre="line")
@@ -558,8 +581,8 @@ points(1, mean(datTime$val[datTime$name == "Bar"]), bg="white", pch=21)
 points(2, mean(datTime$val[datTime$name == "Box"]), bg="white", pch=21)
 points(3, mean(datTime$val[datTime$name == "Area"]), bg="white", pch=21)
 
-put.fig.letter("e.",font=2, location = "topleft")
-put.fig.letter("Efficiency",font=2, location = "topcenter")
+put.fig.letter("e.",font=2, x=0.025, y=0.98)
+put.fig.letter("Efficiency",font=2, x=0.5525, y=0.96)
 
 dev.off()
 
@@ -598,7 +621,7 @@ dev.off()
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(val ~ name, data = overallUse,
-          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
 
 # Check for normality using Shapiro-Wilk normality test
 res_aovuse <- aov(val ~ name, data = overallUse)
@@ -661,7 +684,7 @@ susdat$name = factor(susdat$name, levels = c("Bar", "Box", "Area"))
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(sus ~ name, data = susdat,
-          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 2))
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
 
 # Check for normality using Shapiro-Wilk normality test
 res_aovsus <- aov(sus ~ name, data = susdat)
@@ -763,6 +786,12 @@ png(file="paper1/Fig4_SUS.png", family="Helvetica", res=300,
     units="in", width=med_column, height=column_height*3, pointsize=10)
 plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
 dev.off()
+
+pdf(file="paper1/figure04.pdf", family="Helvetica", width=med23_column, height=column_height*3, pointsize=10)
+# png(file="paper1/Fig4_SUS.png", family="Helvetica", res=300,
+#     units="in", width=med23_column, height=column_height*3, pointsize=10)
+plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
+dev.off()
 ## Figure 4 end
 
 ##########################################################################
@@ -796,6 +825,10 @@ protab$graph = c(rep("Area", nrow(proAF) + nrow(proAI)),
                  rep("Box", nrow(proXF) + nrow(proXI)))
 protab$CHAL1 = protab$CHAL1+1
 protab$graph = factor(protab$graph, levels = c("Bar", "Box", "Area"))
+
+# Is there a correlation between interpretation and protection value
+cor.test(overAcc$val, protab$CHAL1)
+cor.test(overAcc$val, protab$CHAL2)
 
 # Risk Perception 
 likeops = data.frame(ans = c("exceptionally unlikely", 
@@ -862,8 +895,12 @@ drive_dec = gldat %>%
   ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) + 
+  geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -894,7 +931,15 @@ pairwiseMedianTest(CHAL1_conVal ~ graph, data = ptab, exact  = NULL, method = "f
 # summary(res_aovchal1)
 # report(res_aovchal1)
 
-# create bar plot data
+# Percent by total data
+ptab %>%
+  dplyr::group_by(CHAL1_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 2)) %>%
+  dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
+                                      labels = confidence$ans))
+
+# create bar plot data by graph type
 gldatcondrive <- ptab %>%
   dplyr::group_by(graph, CHAL1_conVal) %>%
   dplyr::summarise(Frequency = n()) %>%
@@ -909,9 +954,12 @@ drive_con = ggplot(gldatcondrive, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
-  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -940,6 +988,13 @@ pairwiseMedianTest(CHAL1_likVal ~ graph, data = ptab, exact  = NULL, method = "f
 # summary(res_aovlik1)
 # report(res_aovlik1)
 
+ptab %>%
+  dplyr::group_by(CHAL1_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 2)) %>%
+  dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
+                                      labels = likeops$ans))
+
 # create bar plot data
 gldatlik <- ptab %>%
   dplyr::group_by(graph, CHAL1_likVal) %>%
@@ -953,11 +1008,14 @@ gldatlik <- ptab %>%
 drive_risk = ggplot(gldatlik, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
                      width = 20)) #questionslist$Area_Freq$CHAL1.4
@@ -974,6 +1032,14 @@ dunnTest(CHAL2 ~ graph, data = protab, method = "holm")
 # median_test(CHAL2 ~ graph, data = protab)
 # pairwiseMedianTest(CHAL2 ~ graph, data = protab, exact  = NULL, method = "fdr")
 
+protab %>%
+  dplyr::group_by(CHAL2) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2 = factor(CHAL2, 
+                               levels = 0:1,
+                               labels = c("no", "yes")))
+
 # Decision
 gldatflood <- protab %>%
   dplyr::group_by(graph, CHAL2) %>%
@@ -989,10 +1055,13 @@ flood_dec = gldatflood %>%
   ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
   facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -1022,6 +1091,13 @@ boxplot(CHAL2_conVal ~ graph, data = ptab)
 # summary(res_aovcon2)
 # report(res_aovcon2)
 
+ptab %>%
+  dplyr::group_by(CHAL2_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 2)) %>%
+  dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
+                                      labels = confidence$ans))
+
 # create bar plot data
 gldatconflo <- ptab %>%
   dplyr::group_by(graph, CHAL2_conVal) %>%
@@ -1037,9 +1113,12 @@ flood_con = ggplot(gldatconflo, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal))
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
-  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.3
@@ -1075,6 +1154,13 @@ aggregate(CHAL2_conVal ~ graph, data = ptab,
 aggregate(CHAL1_conVal ~ graph, data = ptab,
           function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 2))
 
+ptab %>%
+  dplyr::group_by(CHAL2_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 2)) %>%
+  dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
+                                      labels = likeops$ans))
+
 # create bar plot data
 gldatlikflo <- ptab %>%
   dplyr::group_by(graph, CHAL2_likVal) %>%
@@ -1090,9 +1176,12 @@ flood_risk = ggplot(gldatlikflo, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + 
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
-  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
@@ -1158,9 +1247,12 @@ drive_sec_reason = ggplot(secdriveway, aes(reorder_within(topic, percent, graph)
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=sec_tab$color, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   facet_wrap(~graph, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
+  geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1205,18 +1297,27 @@ flood_sec_reason = ggplot(secfloodway, aes(reorder_within(topic, percent, graph)
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=sec_tab_flood$color, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   facet_wrap(~graph, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
+        axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
+        strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
+  geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill="Reason")
 
 ## Fig. 5
-png(file="paper1/Fig5_DecisionAll_percent.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
+png(file="paper1/Fig5_DecisionAll_percenttest.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=10)
 plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
           drive_sec_reason, flood_sec_reason,
           nrow=4, labels = "auto") # , align = "h", axis = "b"
+dev.off()
+
+pdf(file="paper1/figure05.pdf", family="Helvetica", width=maximum_width, height=column_height*2.75)
+plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
+          drive_sec_reason, flood_sec_reason,
+          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
 dev.off()
 ## Fig. 5
 
@@ -1580,6 +1681,17 @@ DEMrespcensus<- data.frame("region"= region,
 all.size.df<- as.data.frame(cbind(overAcc, DEMrespcensus))
 all.pro.df<- as.data.frame(cbind(protab[,1:2], all.size.df))
 
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(val ~ gender, data = all.pro.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+aggregate(val ~ work, data = all.pro.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+aggregate(val ~ edu, data = all.pro.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+aggregate(val ~ race_largest, data = all.pro.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+aggregate(val ~ region, data = all.pro.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
 
 # Table S2 ----------------------------------------------------------------
 # Gender
@@ -1757,26 +1869,29 @@ formatted_dec$Variable = factor(formatted_dec$Variable, levels = formatted_dec$V
 
 po_col = brewer.pal(3, "PuOr")
 
-png(file="paper1/Demographics.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*3, pointsize=10)
-
-ggplot(formatted_dec, aes(fill=Source,x=Percent, y=Variable)) + 
-  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
-  labs(y = "Demographic variable", x= "Percent (%) of population", fill="") + 
-  # define colors
-  scale_fill_manual(values=po_col[c(1,3)]) +
-  theme_bw() +
-  geom_text(aes(label = round(Percent)), hjust=-0.1, size = 3, position = position_dodge(0.9)) +
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), legend.position = c(0.55,0.2),  
-        legend.background = element_rect(fill = NA, colour = NA)) +
-  facet_wrap(~Demographic, ncol=2, scales = "free_y")
-
-dev.off()
+# png(file="paper1/Demographics.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*3, pointsize=10)
+# 
+# ggplot(formatted_dec, aes(fill=Source,x=Percent, y=Variable)) + 
+#   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
+#   labs(y = "Demographic variable", x= "Percent (%) of population", fill="") + 
+#   # define colors
+#   scale_fill_manual(values=po_col[c(1,3)]) +
+#   theme_bw() +
+#   geom_text(aes(label = round(Percent)), hjust=-0.1, size = 3, position = position_dodge(0.9)) +
+#   theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(), legend.position = c(0.55,0.2),  
+#         legend.background = element_rect(fill = NA, colour = NA)) +
+#   facet_wrap(~Demographic, ncol=2, scales = "free_y")
+# 
+# dev.off()
 
 RdYlBu_col = brewer.pal(7, "RdYlBu")
-png(file="paper1/Demographics2.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*3, pointsize=10)
+png(file="paper1/Sfigure01.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=8)
+
+# pdf(file="paper1/Sfigure01.pdf", family="Helvetica", width=maximum_width, 
+#     height=8)
 
 ggplot(formatted_dec, aes(x = Percent, y = Variable, fill=Demographic)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
@@ -1784,10 +1899,10 @@ ggplot(formatted_dec, aes(x = Percent, y = Variable, fill=Demographic)) +
   scale_fill_manual(values=RdYlBu_col) +
   theme(legend.position="top", legend.text=element_text(size=9), 
         legend.box.spacing = unit(0, "pt"), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+        panel.grid.minor = element_blank(), axis.text.y = element_text(size=7)) +
   facet_grid(Demographic ~ Source, scales = "free_y", 
              labeller = labeller(Demographic = label_wrap_gen(15))) + 
-  geom_text(aes(label = round(Percent), y=Variable), hjust=-0.1, size = 3) +
+  geom_text(aes(label = round(Percent), y=Variable), hjust=-0.1, size = 2.3) +
   labs(y = "", x= "Percent (%) of population", fill="")
 
 dev.off()
