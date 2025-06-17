@@ -250,10 +250,18 @@ facetover = ggplot(overaccTab, aes(fill=graph,y=percent, x=ques)) +
   scale_fill_manual(values=graphcol) +
   theme_bw() + geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2) +
   theme(legend.title = element_text(size=8), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), legend.position = "inside", 
+        panel.grid.minor = element_blank(), legend.position = "none", #"inside"
         legend.position.inside = c(0.16, 0.96), 
         legend.background = element_rect(fill = NA, colour = NA)) +
   facet_wrap(~acctype, ncol=1, scales = "free_x")
+
+outside_legend <- function(){
+  par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(0,0,0,0))
+  plot(NULL,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+  legend("top", legend =c("Bar", "Box", "Area"), pch=c(15, 15, 15), bty='n',
+         col = graphcol, pt.cex=2)}
+
+leg_tab = plot_grid(outside_legend, exp_drawtable, nrow=2, rel_heights = c(0.25, 2))
 
 png(file="paper1/Fig3_DiagwithIDswidth.png", family="Helvetica", res=300,
     units="in", width=double_column, height=column_height*2.35, pointsize=9)
@@ -265,7 +273,7 @@ dev.off()
 # postscript(file="paper1/figure03.eps", horizontal = FALSE, onefile = FALSE, paper = "special", family="Helvetica",
 #            width=double_column, height=column_height*2.35, pointsize=9)
 pdf(file="paper1/figure03.pdf", family="Helvetica", width=double_column, height=column_height*2.35, pointsize=9)
-plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable, nrow=1)
+plot_grid(tag_facet_flex(facetover, position = 'right'), leg_tab, nrow=1)
 dev.off()
 ### Figure #3 stop
 
@@ -1009,7 +1017,7 @@ drive_risk = ggplot(gldatlik, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
-  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 21)) +
   theme_bw() +
   theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
         axis.text.x=element_blank(), panel.grid.major = element_blank(),
@@ -1056,14 +1064,14 @@ flood_dec = gldatflood %>%
   facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
-  scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 21)) + theme_bw() +
   theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
         axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
         strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
         legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
-       fill="Buy flood insurance?")
+       fill="Buy flood insurance?     ") # Spaces are added to maintain plot alignment
 
 # Evaluate confidence
 ptab$CHAL2_conVal = confidence$val[match(ptab$CHAL2_con, confidence$ans)]
@@ -1175,7 +1183,7 @@ flood_risk = ggplot(gldatlikflo, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)
   facet_grid(~graph) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + 
-  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 21)) +
   theme_bw() + geom_text(aes(label = round(Percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
         axis.text.x=element_blank(), panel.grid.major = element_blank(),
@@ -1229,6 +1237,7 @@ for(i in 1:length(sec_tab$topic)){
   sec_tab$Boxcount[i] = sum(drive_tab$Box$count[which(drive_tab$Box$topic == sec_tab$topic[i])])
 }
 sec_tab$color = color_codes$colors[match(sec_tab$topic, color_codes$code)]
+sec_tab$topic = gsub("\\sand", " &", sec_tab$topic)
 
 secdriveway = data.frame(topic = rep(sec_tab$topic, 3))
 secdriveway$count = c(sec_tab$Areacount, sec_tab$Barcount, sec_tab$Boxcount)
@@ -1245,13 +1254,14 @@ secdriveway$topic = factor(secdriveway$topic, levels=sec_tab$topic[s_codeind])
 # Grouped secondary
 drive_sec_reason = ggplot(secdriveway, aes(reorder_within(topic, percent, graph), percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  scale_fill_manual(values=sec_tab$color, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  scale_fill_manual(values=sec_tab$color, labels = function(x) str_wrap(x, width = 16)) + theme_bw() +
   facet_wrap(~graph, scales = "free_x") +
   theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
         axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
         strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
-        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt"),
+        legend.key.spacing.y = unit(2, "pt")) +
   geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill="Reason")
@@ -1279,6 +1289,7 @@ for(i in 1:length(sec_tab_flood$topic)){
   sec_tab_flood$Boxcount[i] = sum(flood_tab$Box$count[which(flood_tab$Box$topic == sec_tab_flood$topic[i])])
 }
 sec_tab_flood$color = color_codes$colors[match(sec_tab_flood$topic, color_codes$code)]
+sec_tab_flood$topic = gsub("\\sand", " &", sec_tab_flood$topic)
 
 secfloodway = data.frame(topic = rep(sec_tab_flood$topic, 3))
 secfloodway$count = c(sec_tab_flood$Areacount, sec_tab_flood$Barcount, sec_tab_flood$Boxcount)
@@ -1290,18 +1301,20 @@ secfloodway$graph = c(rep("Area", nrow(sec_tab_flood)), rep("Bar", nrow(sec_tab_
 secfloodway$graph = factor(secfloodway$graph, levels = c("Bar", "Box", "Area"))
 
 s_codeind = order(rowSums(sec_tab[ ,2:4]))
+
 secfloodway$topic = factor(secfloodway$topic, levels=sec_tab_flood$topic[s_codeind])
 
 # grouped secondary
 flood_sec_reason = ggplot(secfloodway, aes(reorder_within(topic, percent, graph), percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  scale_fill_manual(values=sec_tab_flood$color, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  scale_fill_manual(values=sec_tab_flood$color, labels = function(x) str_wrap(x, width = 16)) + theme_bw() +
   facet_wrap(~graph, scales = "free_x") +
   theme(legend.title = element_text(size=6), legend.text = element_text(size=6), 
         axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.title = element_text(size = 7),
         strip.text = element_text(size = 6), axis.text.y = element_text(size=6),
-        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt")) +
+        legend.key.size = unit(0.4, 'cm'), legend.box.spacing = unit(0, "pt"), 
+        legend.key.spacing.y = unit(2, "pt")) +
   geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 1.9) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill="Reason")
