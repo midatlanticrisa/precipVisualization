@@ -32,6 +32,8 @@ The directory `code/` also contains the scripts to summarize the time series. `s
 ### Create graphs and visuals for the survey
 Using the above data, running `precip_vis_experimentDesign.R` will call the helper script `precip_functions.R` (contains in-house plotting functions) and generate the plots collect the specific precipitation information presented to participants. These plots and information are then read into the InDesign template `outlooks/simplified_template_vertical.indd` to creating the survey visuals. The plots are saved in `plots/mtsunapeeNH_100km`, the information in `outlooks/outlooks_merge.txt`, and the survey visuals in `outlooks`.
 
+The explanation plots at the beginning of the survey are created with `explanation_plots.R`.
+
 ## Survey data collection
 The survey (SuppMat2_Survery.pdf) was distributed through Qualtrics. The responses are listed in `data/HeavyPrecip_June+5,+2024_11.24.csv`. Not all of the responses are high quality, so `data/responses2remove_5June2024.csv` contains a list of responses to remove due to quality issues 
 
@@ -77,7 +79,11 @@ In this analysis, we tested how graph type influenced the interpretation, usabil
 ### Paper 2
 For this paper, we investigated how U.S. adults make flood preparedness decisions, focusing on the influence of climate science literacy, graph interpretation skills, and a range of demographic and socio-political factors. To generate the figures you can simply source the script (`analysis/paper2_Dec.R`), however, we again recommend opening the script and running it by each line. Running the script by each line will allow the user to see results of statistical testing.
 
-> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in prep). Survey of U.S. Adults Reveals Visual Interpretation, Climate Literacy, Demographics, and Personal Values Drive Flood Preparedness Decisions. *In prep.*, ...
+> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in prep). Survey of U.S. Adults Reveals Visual Interpretation, Climate Literacy, Demographics, and Personal Values Drive Flood Preparedness Decisions. *In prep.*, ... 
+
+## Other files/analyses
+### Survey testing
+The survey was initially tested with Amazon MTurk. The survey responses and initial testing scripts are listed in `MTurk_test_launch`
 
 ## Contacts
 Kelsey Ruckert (klr324@psu.edu)  
