@@ -75,10 +75,24 @@ mm_TO_inches = function(mm){
   mm * 0.039370
 }
 
-single_column = mm_TO_inches(84)
-med_column = mm_TO_inches(129)
-double_column = mm_TO_inches(174)
-maximum_width = mm_TO_inches(234)
+# single_column = mm_TO_inches(84)
+# med_column = mm_TO_inches(129)
+# double_column = mm_TO_inches(174)
+# maximum_width = mm_TO_inches(234)
+# column_height = 2.7
+# double_height = column_height * 2
+
+# Original width	      Final width*
+#                       Picas	Inches	Centimeters
+# One column	          19	  3.2	    8
+# 2/3 page width	      27	  4.5	    11.4
+# Two columns	          33	  5.5	    14
+# More than two columns	39	  6.5	    16.5
+
+single_column = 3.2
+med23_column = 4.5
+double_column = 5.5
+maximum_width = 6.5
 column_height = 2.7
 double_height = column_height * 2
 
@@ -428,9 +442,15 @@ drive_txt_full = d_tab %>%
   ggplot(aes(topic, Perc, fill = topic)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt"),
+        legend.key.spacing.y = unit(2, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -438,9 +458,15 @@ flood_txt_full = f_tab %>%
   ggplot(aes(topic, Perc, fill = topic)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt"),
+        legend.key.spacing.y = unit(2, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -450,10 +476,16 @@ flood_txt_full = f_tab %>%
 drive_dec_full = scen_dec %>%
   ggplot(aes(Val, Perc, fill = Val)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + scale_fill_manual(values=driveCols, labels = str_wrap(driveops, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_line() + scale_fill_manual(values=driveCols, labels = str_wrap(driveops, width = 20)) + 
+  theme_bw() +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), 
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -462,10 +494,14 @@ drive_con_full = scen_con %>%
   ggplot(aes(Val, Perc, fill = Val)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=conCols, labels = str_wrap(confidence$ans, width = 18)) +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -473,23 +509,31 @@ drive_con_full = scen_con %>%
 drive_risk_full = scen_lik %>% 
   ggplot(aes(Val, Perc, fill = Val)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + scale_fill_manual(values=likCols, labels = str_wrap(likeops$ans, width = 30)) +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
+  geom_line() + scale_fill_manual(values=likCols, labels = str_wrap(likeops$ans, width = 20)) +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Driveway washout scenario", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
-                     width = 30))
+                     width = 25))
 
 # Flood scenario
 flood_dec_full = scen_decflood %>%
   ggplot(aes(Val, Perc, fill = Val)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols[c(1,4)], labels = str_wrap(driveops, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -498,10 +542,14 @@ flood_con_full = scen_conflood %>%
   ggplot(aes(Val, Perc, fill = Val)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=conCols, labels = str_wrap(confidence$ans, width = 18)) +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL2.3, width = 25))
 
@@ -509,14 +557,19 @@ flood_con_full = scen_conflood %>%
 flood_risk_full = scen_likflood %>% 
   ggplot(aes(Val, Perc, fill = Val)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + scale_fill_manual(values=likCols, labels = str_wrap(likeops$ans, width = 30)) +
-  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 3) +
+  geom_line() + scale_fill_manual(values=likCols, labels = str_wrap(likeops$ans, width = 20)) +
+  geom_text(aes(label = round(Perc), x=Val), vjust=-0.1, size = 1.9) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt"), 
+        legend.margin = margin(b = 20)) +
   labs(x = "Flood insurance scenario", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
-                     width = 30))
+                     width = 25))
 
 ##########################################################################
 # Demographics
@@ -970,9 +1023,14 @@ drive_dec_age = agedat %>%
   ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -997,11 +1055,16 @@ gldatcondriveage <- ptab %>%
 drive_conage = ggplot(gldatcondriveage, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
   facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -1026,11 +1089,15 @@ gldatlikage <- ptab %>%
 drive_risk_age = ggplot(gldatlikage, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
                      width = 20)) #questionslist$Area_Freq$CHAL1.4
@@ -1059,10 +1126,14 @@ flood_decage = gldatfloodage %>%
   ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
   facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -1090,11 +1161,15 @@ gldatconfloage <- ptab %>%
 flood_conage = ggplot(gldatconfloage, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.3
@@ -1121,11 +1196,15 @@ gldatlikfloage <- ptab %>%
 flood_riskage = ggplot(gldatlikfloage, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~age) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
@@ -1158,9 +1237,13 @@ drive_dec = gldat %>%
   ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -1197,11 +1280,15 @@ gldatcondrive <- ptab %>%
 drive_con = ggplot(gldatcondrive, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
   facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -1227,11 +1314,15 @@ gldatlik <- ptab %>%
 drive_risk = ggplot(gldatlik, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
                      width = 20)) #questionslist$Area_Freq$CHAL1.4
@@ -1261,10 +1352,14 @@ flood_dec = gldatflood %>%
   ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
   facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -1293,11 +1388,15 @@ gldatconflo <- ptab %>%
 flood_con = ggplot(gldatconflo, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.3
@@ -1325,11 +1424,15 @@ gldatlikflo <- ptab %>%
 flood_risk = ggplot(gldatlikflo, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~clim) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
@@ -1360,9 +1463,13 @@ drive_decpol = gldatpol %>%
   ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -1388,11 +1495,15 @@ gldatcondrivepol <- ptab %>%
 drive_conpol = ggplot(gldatcondrivepol, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
   facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -1418,11 +1529,15 @@ gldatlikpol <- ptab %>%
 drive_riskpol = ggplot(gldatlikpol, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
                      width = 20)) #questionslist$Area_Freq$CHAL1.4
@@ -1452,10 +1567,14 @@ flood_decpol = gldatfloodpol %>%
   ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
   facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -1481,11 +1600,15 @@ gldatconflopol <- ptab %>%
 flood_conpol = ggplot(gldatconflopol, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.3
@@ -1511,11 +1634,15 @@ gldatlikflopol <- ptab %>%
 flood_riskpol = ggplot(gldatlikflopol, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~political) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
@@ -1547,9 +1674,13 @@ drive_decacc = gldatacc %>%
   ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill="Protection options")
 
@@ -1575,11 +1706,15 @@ gldatcondriveacc <- ptab %>%
 drive_conacc = ggplot(gldatcondriveacc, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
   facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
 
@@ -1605,11 +1740,15 @@ gldatlikacc <- ptab %>%
 drive_riskacc = ggplot(gldatlikacc, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
                      width = 20)) #questionslist$Area_Freq$CHAL1.4
@@ -1639,10 +1778,14 @@ flood_decacc = gldatfloodacc %>%
   ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
   facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill="Buy flood insurance?")
 
@@ -1668,11 +1811,15 @@ gldatconfloacc <- ptab %>%
 flood_conacc = ggplot(gldatconfloacc, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.3
@@ -1698,11 +1845,15 @@ gldatlikfloacc <- ptab %>%
 flood_riskacc = ggplot(gldatlikfloacc, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~acc) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 3) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
   theme_bw() +
-  theme(legend.title = element_text(size=9), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Interpretation", y= "Percent (%) of participants", 
        fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
                      width = 20)) # questionslist$Area_Freq$CHAL2.4
@@ -1740,10 +1891,14 @@ sec_flood_clim = group_perc(textchoices=prochoices, codename="Primary.cycle.code
 drive_sec_reasonclim = ggplot(sec_drive_clim$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1751,10 +1906,14 @@ drive_sec_reasonclim = ggplot(sec_drive_clim$sec_text, aes(topic, percent, fill 
 flood_sec_reasonclim = ggplot(sec_flood_clim$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Climate science literacy", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1768,11 +1927,16 @@ reason_clim = ggplot(boundscenclim, aes(fill=groups,x=percent, y=str_wrap(topic,
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
-  geom_text(aes(label = round(percent)), colour = "black", size = 3, hjust = -0.1, position = position_dodge(.9))+
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+  geom_text(aes(label = round(percent)), colour = "black", size = 1.9, hjust = -0.1, position = position_dodge(.9))+
+  theme(legend.title = element_text(size=6), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), legend.position = "inside", 
         legend.position.inside = c(0.92, 0.3), 
-        legend.background = element_rect(fill = NA, colour = NA)) + 
+        legend.background = element_rect(fill = NA, colour = NA), 
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) + 
   facet_wrap(~scenario, ncol=2)
 
 # Create color table S. Tab
@@ -1799,11 +1963,15 @@ sec_flood_age = group_perc(textchoices=prochoices, codename="Primary.cycle.code.
 # Grouped secondary
 drive_sec_reasonage = ggplot(sec_drive_age$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1811,10 +1979,14 @@ drive_sec_reasonage = ggplot(sec_drive_age$sec_text, aes(topic, percent, fill = 
 flood_sec_reasonage = ggplot(sec_flood_age$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Age", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1829,12 +2001,17 @@ reason_age = ggplot(boundscenage, aes(fill=groups,x=percent, y=str_wrap(topic, 3
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
-  geom_text(aes(label = round(percent)), colour = "black", size = 3, hjust = -0.1, position = position_dodge(.9))+
+  geom_text(aes(label = round(percent)), colour = "black", size = 1.9, hjust = -0.1, position = position_dodge(.9))+
   # geom_text(aes(label = round(percent), x=percent, fill=topic), vjust=-0.1, size = 3) +
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+  theme(legend.title = element_text(size=6), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), legend.position = "inside", 
         legend.position.inside = c(0.92, 0.3), 
-        legend.background = element_rect(fill = NA, colour = NA)) +
+        legend.background = element_rect(fill = NA, colour = NA), 
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   facet_wrap(~scenario, ncol=2)
 
 # Create color table S. Tab
@@ -1861,11 +2038,15 @@ sec_flood_pol = group_perc(textchoices=prochoices, codename="Primary.cycle.code.
 
 drive_sec_reasonpol = ggplot(sec_drive_pol$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   facet_wrap(groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1873,10 +2054,14 @@ drive_sec_reasonpol = ggplot(sec_drive_pol$sec_text, aes(topic, percent, fill = 
 flood_sec_reasonpol = ggplot(sec_flood_pol$sec_text, aes(topic, percent, fill = topic)) +
   geom_bar(stat = 'identity', position=position_dodge(), colour="black", linewidth = 0.1) +
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
-  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 3) +
+  geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=9), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
   labs(x = "Political preference", y= "Percent (%) of participants", 
        fill="Reason")
 
@@ -1889,11 +2074,16 @@ reason_pol = ggplot(boundscenpol, aes(fill=groups,x=percent, y=str_wrap(topic, 3
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
-  geom_text(aes(label = round(percent)), colour = "black", size = 3, hjust = -0.1, position = position_dodge(.9))+
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+  geom_text(aes(label = round(percent)), colour = "black", size = 1.9, hjust = -0.1, position = position_dodge(.9))+
+  theme(legend.title = element_text(size=6), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), legend.position = "inside", 
         legend.position.inside = c(0.93, 0.3), 
-        legend.background = element_rect(fill = NA, colour = NA)) + 
+        legend.background = element_rect(fill = NA, colour = NA),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) + 
   facet_wrap(~scenario, ncol=2)
 
 # Create color table S. Tab
@@ -1929,11 +2119,16 @@ reason_acc = ggplot(boundscen, aes(fill=groups,x=percent, y=str_wrap(topic, 30))
   geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="") + scale_fill_manual(values=seqreasoncol) + theme_bw() +
-  geom_text(aes(label = round(percent)), colour = "black", size = 3, hjust = -0.1, position = position_dodge(.9))+
-  theme(legend.title = element_text(size=9), panel.grid.major = element_blank(),
+  geom_text(aes(label = round(percent)), colour = "black", size = 1.9, hjust = -0.1, position = position_dodge(.9))+
+  theme(legend.title = element_text(size=6), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), legend.position = "inside", 
         legend.position.inside = c(0.91, 0.3), 
-        legend.background = element_rect(fill = NA, colour = NA)) + 
+        legend.background = element_rect(fill = NA, colour = NA), 
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) + 
   facet_wrap(~scenario, ncol=2)
 
 # Create color table S. Tab
@@ -2211,8 +2406,25 @@ plot_grid(drive_risk_full, flood_risk_full,
           drive_txt_full, flood_txt_full,
           nrow=4, labels = "auto") # , align = "h", axis = "b"
 dev.off()
+# + theme(legend.position = c(0.8, 0.42))
+# margin(t, r, l, b)
+pdf(file="paper2/Fig_1.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*2.75)
+plot_grid(drive_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
+          flood_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
+          drive_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+          flood_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
+          drive_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+          flood_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+          drive_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+          flood_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
+          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
+dev.off()
 
-legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom"))
+legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom", 
+                                                             legend.text = element_text(size=6),
+                                                             legend.title = element_text(size = 6),
+                                                             legend.key.size = unit(0.4, 'cm'),))
 legend_b <- get_legend(flood_decage + theme(legend.position="bottom"))
 
 png(file="paper2/Fig_Decision_protectionleg.png", family="Helvetica", res=300,
@@ -2230,6 +2442,21 @@ plot_grid(legend_a, legend_b,
           rel_heights = c(.25, 1, 1, 1, 1))
 dev.off()
 
+pdf(file="paper2/Fig_2.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*2.75)
+plot_grid(legend_a, legend_b,
+          drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
+          flood_decage+ theme(legend.position = "none")+ylim(0,90),
+          drive_dec + theme(legend.position = "none")+ylim(0,55), 
+          flood_dec + theme(legend.position = "none")+ylim(0,90), 
+          drive_decpol + theme(legend.position = "none")+ylim(0,55), 
+          flood_decpol + theme(legend.position = "none")+ylim(0,90), 
+          drive_decacc + theme(legend.position = "none")+ylim(0,55), 
+          flood_decacc + theme(legend.position = "none")+ylim(0,90), 
+          nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
+          rel_heights = c(.25, 1, 1, 1, 1), label_size=10)
+dev.off()
+
 # png(file="paper2/Fig_Decision_protectionage.png", family="Helvetica", res=300,
 #     units="in", width=maximum_width, height=column_height*4, pointsize=10)
 # plot_grid(drive_dec_age +theme(legend.position = "top")+ylim(0,55), flood_decage+theme(legend.position = "top")+ylim(0,90),
@@ -2244,15 +2471,16 @@ dev.off()
 
 legend_b <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
 
-conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = element_text(hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"),
-                    flood_conage + theme(legend.position = "none", plot.title = element_text(hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
+conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"),
+                    flood_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
                     drive_con + theme(legend.position = "none")+ylim(0,40), 
                     flood_con + theme(legend.position = "none")+ylim(0,40), 
                     drive_conpol + theme(legend.position = "none")+ylim(0,40), 
                     flood_conpol + theme(legend.position = "none")+ylim(0,40), 
                     drive_conacc + theme(legend.position = "none")+ylim(0,40), 
                     flood_conacc + theme(legend.position = "none")+ylim(0,40), 
-                    nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1))
+                    nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), 
+                    label_size=10)
 
 png(file="paper2/Fig_Decision_confidenceleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
@@ -2261,21 +2489,35 @@ plot_grid(legend_b, conplot,
           rel_heights = c(.05, 1)) # , align = "h", axis = "b"
 dev.off()
 
+pdf(file="paper2/Fig_3.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*2.75)
+plot_grid(legend_b, conplot, 
+          nrow=2, labels = c("", ""), 
+          rel_heights = c(.05, 1)) # , align = "h", axis = "b"
+dev.off()
+
 legend_b <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="bottom"))
 
-likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title = element_text(hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"), 
-                    flood_riskage+theme(legend.position = "none", plot.title = element_text(hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
+likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"), 
+                    flood_riskage+theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
           drive_risk + theme(legend.position = "none")+ylim(0,40), 
           flood_risk + theme(legend.position = "none")+ylim(0,40), 
           drive_riskpol + theme(legend.position = "none")+ylim(0,40), 
           flood_riskpol + theme(legend.position = "none")+ylim(0,40), 
           drive_riskacc + theme(legend.position = "none")+ylim(0,40), 
           flood_riskacc + theme(legend.position = "none")+ylim(0,40),
-          nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1))
+          nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), label_size=10)
 
 
 png(file="paper2/Fig_Decision_riskleg.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+plot_grid(legend_b, likplot,
+          nrow=2, labels = c("", ""), 
+          rel_heights = c(.06, 1)) # , align = "h", axis = "b"
+dev.off()
+
+pdf(file="paper2/Fig_4.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*2.75)
 plot_grid(legend_b, likplot,
           nrow=2, labels = c("", ""), 
           rel_heights = c(.06, 1)) # , align = "h", axis = "b"
@@ -2301,6 +2543,14 @@ plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy
           reason_pol+labs(y="Political affiliation"), 
           reason_acc+labs(y="Interpretation"),
           nrow=4, labels = "auto") # , align = "h", axis = "b"
+dev.off()
+
+pdf(file="paper2/Fig_5.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*2.75)
+plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
+          reason_pol+labs(y="Political affiliation"), 
+          reason_acc+labs(y="Interpretation"),
+          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
 dev.off()
 
 # Primary graph -----------------------------------------------------------
