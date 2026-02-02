@@ -1,18 +1,18 @@
 # Code for the extreme precipitation survey and analyses
 
-We conducted an online survey of U.S. adults to test 1) how graph type influenced the interpretation, usability, and decision-making related to information about extreme precipitation in flood risk scenarios, and 2) how demographics, climate science knowledge, and interpretation influence decisions. Our study consisted of four phases: graph development, survey design, data collection, and data analysis. This repository contains the code used for graph development and design for in the survey, the survey and the collected responses from U.S. adults, and the code analyzing the responses and generating the figures in the two journal articles. Analysis codes are predomintely written in R.
+We conducted an online survey of U.S. adults to test 1) how graph type influenced the interpretation, usability, and decision-making related to information about extreme precipitation in flood risk scenarios, and 2) how demographics, climate science knowledge, and interpretation influence decisions. Our study consisted of four phases: graph development, survey design, data collection, and data analysis. This repository contains the code used for survey graphs, the survey, survey responses from U.S. adults, and the code analyzing the responses. Analysis codes are predomintely written in R.
 
 Full Citation:
 
-> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (in review). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
+> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (2026). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
 
-> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in prep). Survey of U.S. Adults Reveals Visual Interpretation, Climate Literacy, Demographics, and Personal Values Drive Flood Preparedness Decisions. *In prep.*, ...
+> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in review). National survey reveals how climate knowledge, visual interpretation, and sociodemographics shape U.S. flood risk responses. *Weather, Climate, and Society*, ...
 
 ## Survey graph development and design
-The survey used three common graph types for extreme precipitation following the style used in the [Local Hazard Outlooks](https://www.marisa.psu.edu/outlooks/). To generate the extreme precipitation data, we use the code and data available in the [Outlooks Repo](https://github.com/midatlanticrisa/communityClimateOutlooks). Since, the Outlooks cover the Mid-Atlantic region on a county scale, we provide the scripts for the 100x100 km area center on Mt. Sunapee, NH in this repo. If you do not wish to rerun the graph development scripts for the survey, you can skip this part and just run the survey analyses.
+The survey used three graph types for extreme precipitation following the style used in the [Local Hazard Outlooks](https://www.marisa.psu.edu/outlooks/). To generate the extreme precipitation data, we use the code and data available in the [Outlooks repository](https://github.com/midatlanticrisa/communityClimateOutlooks). Since, the Outlooks cover the Mid-Atlantic region on a county scale, we provide the scripts for the 100 x 100 km area center on Mt. Sunapee, NH in this repo. If you do not wish to rerun the graph development scripts for the survey, you can skip this part and just run the survey analyses.
 
 ### Create location shapefile mask
-To begin the extraction process, first create the shapefile to mask 100kmx100km box around Mt. Sunapee using `code/`:
+To begin the extraction process, first create the shapefile to mask 100 km x 100 km box around Mt. Sunapee using `code/`:
 
 - createLocationShapefiles.R and
 - createShapefilesMtSunapee.pbs
@@ -38,7 +38,7 @@ The explanation plots at the beginning of the survey are created with `explanati
 The survey (SuppMat2_Survery.pdf) was distributed through Qualtrics. The responses are listed in `data/HeavyPrecip_June+5,+2024_11.24.csv`. Not all of the responses are high quality, so `data/responses2remove_5June2024.csv` contains a list of responses to remove due to quality issues 
 
 ## Survey analysis 
-The directory `analysis/` includes everything needed to reproduce the work described in the papers. However, you will more than likely need to update or modify paths to folders/files.  The data files that correspond to the paper are available in the `data/` directory. 
+The directory `analysis/` includes everything needed to reproduce the work described in the papers. However, you will need to update or modify paths to folders/files.  The data files that correspond to the paper are available in the `data/` directory. 
 
 Once you have downloaded the repository, you can open R, install the relevant R packages, and run the analysis. Note that if these packages are already installed and/ or loaded in R, R will throw error messages with a request to restart R before proceeding with package updates.
 
@@ -74,12 +74,12 @@ The scripts `analysis/paper1_Vis.R` and `analysis/paper2_Dec.R` analyze the impa
 ### Paper 1
 In this analysis, we tested how graph type influenced the interpretation, usability, and decision-making related to information about extreme precipitation in flood risk scenarios. To generate the figures you can simply source the script (`analysis/paper1_Vis.R`), however, we recommend opening the script and running it by each line. Running the script by each line will allow the user to see results of statistical testing. 
 
-> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (in review). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
+> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (2026). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
 
 ### Paper 2
 For this paper, we investigated how U.S. adults make flood preparedness decisions, focusing on the influence of climate science literacy, graph interpretation skills, and a range of demographic and socio-political factors. To generate the figures you can simply source the script (`analysis/paper2_Dec.R`), however, we again recommend opening the script and running it by each line. Running the script by each line will allow the user to see results of statistical testing.
 
-> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in prep). Survey of U.S. Adults Reveals Visual Interpretation, Climate Literacy, Demographics, and Personal Values Drive Flood Preparedness Decisions. *In prep.*, ... 
+> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in review). National survey reveals how climate knowledge, visual interpretation, and sociodemographics shape U.S. flood risk responses. *Weather, Climate, and Society*, ...
 
 ## Other files/analyses
 ### Survey testing
