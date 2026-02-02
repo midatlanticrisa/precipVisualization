@@ -3,6 +3,9 @@
 !/outlooks/*.pdf
 !/analysis/*/*.pdf
 
+# Hide reasoning tables
+/analysis/*/*.docx
+
 # Log and error output files
 *.pbs.e*
 *.pbs.o*
