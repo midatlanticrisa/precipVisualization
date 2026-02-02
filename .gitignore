@@ -5,6 +5,7 @@
 
 # Hide reasoning tables and csv
 /analysis/*/*.docx
+/analysis/paper1/*.csv
 /analysis/paper2/*.csv
 
 # Log and error output files
