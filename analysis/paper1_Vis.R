@@ -135,6 +135,7 @@ overaccTab$acctype[grep("emp", overaccTab$ques)] = "Emphasis"
 overaccTab$acctype[grep("exp", overaccTab$ques)] = "Expressiveness"
 overaccTab$acctype = factor(overaccTab$acctype, levels = c("Expressiveness", "Emphasis", "Accuracy"))
 
+# Add a figure letter outside of a faceted ggplot plot
 # https://forum.posit.co/t/how-to-automatically-add-text-annotations-or-tags-outside-of-faceted-plots/13700/10
 tag_facet_flex <- function(p, position = 'both', 
                            open = c("(", ""), close = c(")", "."),
@@ -296,10 +297,6 @@ outside_legend <- function(){
          col = graphcol, pt.cex=2)}
 
 leg_tab = plot_grid(outside_legend, exp_drawtable, nrow=2, rel_heights = c(0.25, 2))
-# 
-# plot_grid(exp_drawtable_1, exp_drawtable_2, nrow=1)
-# 
-# plot_grid(facetover, exp_drawtable_3, nrow=2, rel_heights = c(3, 1))
 
 png(file="paper1/Fig3_DiagwithIDstest.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*3, pointsize=12)
@@ -313,18 +310,18 @@ plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable_3,
           nrow=2, rel_heights = c(3, 0.9))
 dev.off()
 
-png(file="paper1/Fig3_DiagwithIDswidth.png", family="Helvetica", res=300,
-    units="in", width=double_column, height=column_height*2.35, pointsize=9)
-plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable, nrow=1)
-dev.off()
+# png(file="paper1/Fig3_DiagwithIDswidth.png", family="Helvetica", res=300,
+#     units="in", width=double_column, height=column_height*2.35, pointsize=9)
+# plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable, nrow=1)
+# dev.off()
 
 # cairo_ps(filename = "paper1/figure03.eps", family="Helvetica", fallback_resolution = 300,
 #          width=double_column, height=column_height*2.35, pointsize=9)
 # postscript(file="paper1/figure03.eps", horizontal = FALSE, onefile = FALSE, paper = "special", family="Helvetica",
 #            width=double_column, height=column_height*2.35, pointsize=9)
-pdf(file="paper1/figure03.pdf", family="Helvetica", width=double_column, height=column_height*2.35, pointsize=9)
-plot_grid(tag_facet_flex(facetover, position = 'right'), leg_tab, nrow=1)
-dev.off()
+# pdf(file="paper1/figure03.pdf", family="Helvetica", width=double_column, height=column_height*2.35, pointsize=9)
+# plot_grid(tag_facet_flex(facetover, position = 'right'), leg_tab, nrow=1)
+# dev.off()
 ### Figure #3 stop
 
 # -------------------------------------------------------------------------
@@ -1314,7 +1311,6 @@ prochoices$graph = ifelse(prochoices$graph == "Bar_freq" | prochoices$graph == "
 prochoices$graph = ifelse(prochoices$graph == "Box_freq" | prochoices$graph == "Box_int", 
                           "Box", prochoices$graph)
 
-
 # Read in code topics (secondary coding) ----------------------------------
 topics = read.csv("data/codebook.csv")
 
@@ -1429,19 +1425,18 @@ flood_sec_reason = ggplot(secfloodway, aes(reorder_within(topic, percent, graph)
        fill="Reason")
 
 ## Fig. 5
-png(file="paper1/Fig5_DecisionAll_percenttest.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*3, pointsize=10)
-plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
-          drive_sec_reason, flood_sec_reason,
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
-dev.off()
+# png(file="paper1/Fig5_DecisionAll_percenttest.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*3, pointsize=10)
+# plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
+#           drive_sec_reason, flood_sec_reason,
+#           nrow=4, labels = "auto") # , align = "h", axis = "b"
+# dev.off()
 
-pdf(file="paper1/figure05.pdf", family="Helvetica", width=maximum_width, height=column_height*2.75)
-plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
-          drive_sec_reason, flood_sec_reason,
-          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
-dev.off()
-## Fig. 5
+# pdf(file="paper1/figure05.pdf", family="Helvetica", width=maximum_width, height=column_height*2.75)
+# plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
+#           drive_sec_reason, flood_sec_reason,
+#           nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
+# dev.off()
 
 legend_pro1 <- get_legend(drive_dec + theme(legend.position="right", 
                                                 legend.text = element_text(size=6),
@@ -1485,6 +1480,7 @@ dev.off()
 #           flood_con, flood_risk, flood_sec_reason,
 #           nrow=2, labels = "auto") # , align = "h", axis = "b"
 # dev.off()
+## Fig. 5
 
 # ##########################################################################
 # # General

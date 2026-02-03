@@ -121,10 +121,10 @@ for(i in question_id){
 }
 
 ##########################################################################
-# Overall accuracy
+# Plot all responses, total responses for each question
 ##########################################################################
 
-plot_ans = function(ques_ID="ACC4", split.by.block, questionslist, ans,
+plot_ans_total = function(ques_ID="ACC4", split.by.block, questionslist, ans,
                     color_class = "Set3"){
   overtabAF = split.by.block[["Area_Freq"]][paste0(ques_ID,"")]
   overtabAI = split.by.block[["Area_Int"]][paste0(ques_ID,".1")]
@@ -183,8 +183,10 @@ plot_ans = function(ques_ID="ACC4", split.by.block, questionslist, ans,
 }
 
 # Modeled historical instead of hindcast
-plot_ans(ques_ID="ACC4", split.by.block, questionslist, ans)
-plot_ans(ques_ID="EMP3", split.by.block, questionslist, ans)
-plot_ans(ques_ID="EMP6", split.by.block, questionslist, ans)
+plot_ans_total(ques_ID="ACC4", split.by.block, questionslist, ans)
+plot_ans_total(ques_ID="EMP3", split.by.block, questionslist, ans)
+plot_ans_total(ques_ID="EMP6", split.by.block, questionslist, ans)
 
-table(unlist(c(split.by.block[["Area_Freq"]]["EMP5"], split.by.block[["Area_Int"]]["EMP5.1"])))
+print("List color mixing responses by percentage: ")
+colormixing = table(unlist(c(split.by.block[["Area_Freq"]]["EMP5"], split.by.block[["Area_Int"]]["EMP5.1"])))
+colormixing/sum(colormixing)*100
