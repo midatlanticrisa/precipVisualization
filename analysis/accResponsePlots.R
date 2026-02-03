@@ -99,9 +99,11 @@ plot_ans = function(ques_ID="EMP5", split.by.block, questionslist, ans,
     geom_point(aes(x=correct, y=0), pch = 8, color="black", size=3.5, show.legend=FALSE) +
     theme_bw() +
     theme(axis.text.x=element_blank(), legend.position="top", 
-          legend.direction = "vertical") +
+          legend.direction = "vertical", axis.title = element_text(size = 9),
+          legend.title = element_text(size=9), legend.text = element_text(size=8),
+          legend.box.spacing = unit(0, "pt")) +
     labs(x = "", y= "Percent (%) of correct responses", 
-         fill=str_wrap(questionslist$Area_Freq[ques_ID], width = 80))
+         fill=str_wrap(questionslist$Area_Freq[ques_ID], width = 100))
   
   png(file=paste0("Figures/Fig_", ques_ID, ".png"), 
       family="Helvetica", res=300, 
@@ -157,19 +159,22 @@ plot_ans = function(ques_ID="ACC4", split.by.block, questionslist, ans,
     geom_bar(stat="identity", position=position_dodge()) +
     geom_line() +
     # define colors
-    scale_fill_manual(values=seqCols, labels = function(x) str_wrap(x, width = 100)) +
+    scale_fill_manual(values=seqCols, labels = function(x) str_wrap(x, width = 80)) +
     # add text and define color
     geom_text(aes(label=round(Percent,0)), vjust=1.6, color="black", 
               position = position_dodge(0.9),  size=3.5) +  
     geom_point(aes(x=correct, y=0), pch = 8, color="black", size=3.5, show.legend=FALSE) +
     theme_bw() +
-    theme(axis.text.x=element_blank(), legend.position="top", legend.direction = "vertical") +
+    theme(axis.text.x=element_blank(), legend.position="top", legend.direction = "vertical", 
+          axis.title = element_text(size = 9),
+          legend.title = element_text(size=9), legend.text = element_text(size=8),
+          legend.box.spacing = unit(0, "pt")) +
     labs(x = "", y= "Percent (%) of correct responses", 
-         fill=str_wrap(questionslist$Area_Freq[ques_ID], width = 70))
+         fill=str_wrap(questionslist$Area_Freq[ques_ID], width = 80))
   
   png(file=paste0("Figures/Fig_TOTAL_", ques_ID, ".png"), 
       family="Helvetica", res=300, 
-      units="in", width=5, height=5, pointsize=10)
+      units="in", width=5, height=4, pointsize=10)
   par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
   
   print(datPlot)
@@ -179,5 +184,7 @@ plot_ans = function(ques_ID="ACC4", split.by.block, questionslist, ans,
 
 # Modeled historical instead of hindcast
 plot_ans(ques_ID="ACC4", split.by.block, questionslist, ans)
+plot_ans(ques_ID="EMP3", split.by.block, questionslist, ans)
+plot_ans(ques_ID="EMP6", split.by.block, questionslist, ans)
 
 table(unlist(c(split.by.block[["Area_Freq"]]["EMP5"], split.by.block[["Area_Int"]]["EMP5.1"])))

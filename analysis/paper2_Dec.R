@@ -25,6 +25,8 @@
 # THE SOFTWARE.
 ##########################################################################
 
+# install.packages("reshape")
+library(reshape)
 library(report)
 library(ggplot2)
 library(car)
@@ -168,6 +170,56 @@ ageGroup = ifelse(age >= 55, "55+", ageGroup)
 ageGroup = ifelse(age >= 35 & age <= 54, "35-54", ageGroup)
 
 ##########################################################################
+# Location
+##########################################################################
+demStates = c(split.by.block$Area_Freq$DEM1_AF, split.by.block$Area_Int$DEM1_AI, 
+              split.by.block$Bar_freq$DEM1_BF, split.by.block$Bar_int$DEM1_BI, 
+              split.by.block$Box_freq$DEM1_XF, split.by.block$Box_int$DEM1_XI)
+
+# https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
+# U.S. Census Bureau–designated regions and divisions
+division = demStates
+# Region 1: Northeast (New England and Middle Atlantic)
+division = ifelse(division == "Connecticut" | division == "Maine" | division == "Massachusetts" |
+                    division == "New Hampshire" | division == "Rhode Island" | division == "Vermont", 
+                  "New England", division)
+division = ifelse(division == "New Jersey" | division == "New York" | division == "Pennsylvania", 
+                  "Middle Atlantic", division)
+# Region 2: Midwest (East North Central and West North Central)
+division = ifelse(division == "Illinois" | division == "Indiana" | division == "Michigan" |
+                    division == "Ohio" | division == "Wisconsin", "East North Central", division)
+division = ifelse(division == "Iowa" | division == "Kansas" | division == "Minnesota" |
+                    division == "Missouri" | division == "Nebraska" | division == "North Dakota" | 
+                    division == "South Dakota", "West North Central", division)
+# Region 3: South (South Atlantic, East South Central, and West South Central)
+division = ifelse(division == "Delaware" | division == "District of Columbia" | 
+                    division == "Florida" | division == "Georgia" | division == "Maryland" | 
+                    division == "North Carolina" | division == "South Carolina" | 
+                    division == "Virginia" | division == "West Virginia", "South Atlantic", division)
+division = ifelse(division == "Alabama" | division == "Kentucky" | division == "Mississippi" |
+                    division == "Tennessee", "East South Central", division)
+division = ifelse(division == "Arkansas" | division == "Louisiana" | division == "Oklahoma" |
+                    division == "Texas", "West South Central", division)
+# Region 4: West (Mountain and Pacific)
+division = ifelse(division == "Arizona" | division == "Colorado" | division == "Idaho" |
+                    division == "Montana" | division == "Nevada" | division == "New Mexico" | 
+                    division == "Utah" | division == "Wyoming", "Mountain", division)
+division = ifelse(division == "Alaska" | division == "California" | division == "Hawaii" |
+                    division == "Oregon" | division == "Washington", "Pacific", division)
+
+region = division
+# Region 1: Northeast (New England and Middle Atlantic)
+region = ifelse(region == "New England" | region == "Middle Atlantic", "Northeast", region)
+# Region 2: Midwest (East North Central and West North Central)
+region = ifelse(region == "East North Central" | region == "West North Central", 
+                "Midwest", region)
+# Region 3: South (South Atlantic, East South Central, and West South Central)
+region = ifelse(region == "South Atlantic" | region == "East South Central" | 
+                  region == "West South Central", "South", region)
+# Region 4: West (Mountain and Pacific)
+region = ifelse(region == "Mountain" | region == "Pacific", "West", region)
+
+##########################################################################
 # Protective decisions
 ##########################################################################
 
@@ -194,6 +246,9 @@ ptab$acc = factor(ptab$acc, levels = c("Below average", "Average",
 
 ptab$age = ageGroup
 ptab$age = factor(ptab$age, levels = c("18-34", "35-54", "55+"))
+
+ptab$region = region
+ptab$region = factor(ptab$region, levels = c("West", "South", "Midwest", "Northeast"))
 # - -----------------------------------------------------------------------
 
 proAF = calcProtective(name="Area_Freq", id="")
@@ -222,6 +277,9 @@ protab$acc = factor(protab$acc, levels = c("Below average", "Average",
 protab$age = ageGroup
 protab$age = factor(protab$age, levels = c("18-34", "35-54", "55+"))
 
+protab$region = region
+protab$region = factor(protab$region, levels = c("West", "South", "Midwest", "Northeast"))
+
 # Read in notes with primary and secondary codes ----------------------------------------
 # Primary coding
 prochoices = read.csv("data/protectiveTable_5june2024.csv")
@@ -249,6 +307,9 @@ prochoices$acc = factor(prochoices$acc, levels = c("Below average", "Average",
 
 prochoices$age = ageGroup
 prochoices$age = factor(prochoices$age, levels = c("18-34", "35-54", "55+"))
+
+prochoices$region = region
+prochoices$region = factor(prochoices$region, levels = c("West", "South", "Midwest", "Northeast"))
 
 # Decisions ---------------------------------------------------------------
 # create bar plot data
@@ -323,6 +384,10 @@ cor.test(concerned, overAcc$val, method = "pearson") # climate and accuracy
 cor.test(political, age, method = "pearson") # politics and age
 cor.test(concerned, age, method = "pearson") # climate and age
 cor.test(age, overAcc$val, method = "pearson") # age and accuracy
+# cor.test(political, region, method = "pearson") # politics and region
+# cor.test(concerned, region, method = "pearson") # climate and region
+# cor.test(region, overAcc$val, method = "pearson") # region and accuracy
+# cor.test(age, region, method = "pearson") # age and region
 
 condf = data.frame(val = protab$CHAL1, con = ptab$CHAL1_con)
 dec_con <- condf %>%
@@ -441,7 +506,11 @@ f_tab$Perc = (f_tab$count/sum(f_tab$count))*100
 drive_txt_full = d_tab %>%
   ggplot(aes(topic, Perc, fill = topic)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  geom_line() + theme_bw() +
+  scale_fill_manual(values=color_codes$colors, 
+                    labels = c("Data interp.", "Economics", "No Reason",  
+                               "Personal\njudgment","Preparedness", "Flood risk")) + 
+  # geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 1.9) +
   theme(legend.title = element_text(size=6), axis.text.x=element_blank(), 
         panel.grid.major = element_blank(),
@@ -457,7 +526,11 @@ drive_txt_full = d_tab %>%
 flood_txt_full = f_tab %>%
   ggplot(aes(topic, Perc, fill = topic)) + 
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
-  geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  geom_line() + theme_bw() +
+  scale_fill_manual(values=color_codes$colors, 
+                    labels = c("Data interp.", "Economics", "No Reason",  
+                               "Personal\njudgment","Preparedness", "Flood risk")) + 
+  #geom_line() + scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(Perc), x=topic), vjust=-0.1, size = 1.9) +
   theme(legend.title = element_text(size=6), axis.text.x=element_blank(), 
         panel.grid.major = element_blank(),
@@ -620,54 +693,54 @@ incGroup = ifelse(income >= 100000 & income <= 149999, "100,000-149,999", incGro
 incGroup = factor(incGroup, levels = c("Less than 25,000", "25,000-49,999", "50,000-74,999",
                                        "75,000-99,999", "100,000-149,999", "150,000 or more"))
 
-# Location ----------------------------------------------------------------
-demStates = c(split.by.block$Area_Freq$DEM1_AF, split.by.block$Area_Int$DEM1_AI, 
-              split.by.block$Bar_freq$DEM1_BF, split.by.block$Bar_int$DEM1_BI, 
-              split.by.block$Box_freq$DEM1_XF, split.by.block$Box_int$DEM1_XI)
-
-# https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
-# U.S. Census Bureau–designated regions and divisions
-
-division = demStates
-# Region 1: Northeast (New England and Middle Atlantic)
-division = ifelse(division == "Connecticut" | division == "Maine" | division == "Massachusetts" |
-                    division == "New Hampshire" | division == "Rhode Island" | division == "Vermont", 
-                  "New England", division)
-division = ifelse(division == "New Jersey" | division == "New York" | division == "Pennsylvania", 
-                  "Middle Atlantic", division)
-# Region 2: Midwest (East North Central and West North Central)
-division = ifelse(division == "Illinois" | division == "Indiana" | division == "Michigan" |
-                    division == "Ohio" | division == "Wisconsin", "East North Central", division)
-division = ifelse(division == "Iowa" | division == "Kansas" | division == "Minnesota" |
-                    division == "Missouri" | division == "Nebraska" | division == "North Dakota" | 
-                    division == "South Dakota", "West North Central", division)
-# Region 3: South (South Atlantic, East South Central, and West South Central)
-division = ifelse(division == "Delaware" | division == "District of Columbia" | 
-                    division == "Florida" | division == "Georgia" | division == "Maryland" | 
-                    division == "North Carolina" | division == "South Carolina" | 
-                    division == "Virginia" | division == "West Virginia", "South Atlantic", division)
-division = ifelse(division == "Alabama" | division == "Kentucky" | division == "Mississippi" |
-                    division == "Tennessee", "East South Central", division)
-division = ifelse(division == "Arkansas" | division == "Louisiana" | division == "Oklahoma" |
-                    division == "Texas", "West South Central", division)
-# Region 4: West (Mountain and Pacific)
-division = ifelse(division == "Arizona" | division == "Colorado" | division == "Idaho" |
-                    division == "Montana" | division == "Nevada" | division == "New Mexico" | 
-                    division == "Utah" | division == "Wyoming", "Mountain", division)
-division = ifelse(division == "Alaska" | division == "California" | division == "Hawaii" |
-                    division == "Oregon" | division == "Washington", "Pacific", division)
-
-region = division
-# Region 1: Northeast (New England and Middle Atlantic)
-region = ifelse(region == "New England" | region == "Middle Atlantic", "Northeast", region)
-# Region 2: Midwest (East North Central and West North Central)
-region = ifelse(region == "East North Central" | region == "West North Central", 
-                "Midwest", region)
-# Region 3: South (South Atlantic, East South Central, and West South Central)
-region = ifelse(region == "South Atlantic" | region == "East South Central" | 
-                  region == "West South Central", "South", region)
-# Region 4: West (Mountain and Pacific)
-region = ifelse(region == "Mountain" | region == "Pacific", "West", region)
+# # Location ----------------------------------------------------------------
+# demStates = c(split.by.block$Area_Freq$DEM1_AF, split.by.block$Area_Int$DEM1_AI, 
+#               split.by.block$Bar_freq$DEM1_BF, split.by.block$Bar_int$DEM1_BI, 
+#               split.by.block$Box_freq$DEM1_XF, split.by.block$Box_int$DEM1_XI)
+# 
+# # https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
+# # U.S. Census Bureau–designated regions and divisions
+# 
+# division = demStates
+# # Region 1: Northeast (New England and Middle Atlantic)
+# division = ifelse(division == "Connecticut" | division == "Maine" | division == "Massachusetts" |
+#                     division == "New Hampshire" | division == "Rhode Island" | division == "Vermont", 
+#                   "New England", division)
+# division = ifelse(division == "New Jersey" | division == "New York" | division == "Pennsylvania", 
+#                   "Middle Atlantic", division)
+# # Region 2: Midwest (East North Central and West North Central)
+# division = ifelse(division == "Illinois" | division == "Indiana" | division == "Michigan" |
+#                     division == "Ohio" | division == "Wisconsin", "East North Central", division)
+# division = ifelse(division == "Iowa" | division == "Kansas" | division == "Minnesota" |
+#                     division == "Missouri" | division == "Nebraska" | division == "North Dakota" | 
+#                     division == "South Dakota", "West North Central", division)
+# # Region 3: South (South Atlantic, East South Central, and West South Central)
+# division = ifelse(division == "Delaware" | division == "District of Columbia" | 
+#                     division == "Florida" | division == "Georgia" | division == "Maryland" | 
+#                     division == "North Carolina" | division == "South Carolina" | 
+#                     division == "Virginia" | division == "West Virginia", "South Atlantic", division)
+# division = ifelse(division == "Alabama" | division == "Kentucky" | division == "Mississippi" |
+#                     division == "Tennessee", "East South Central", division)
+# division = ifelse(division == "Arkansas" | division == "Louisiana" | division == "Oklahoma" |
+#                     division == "Texas", "West South Central", division)
+# # Region 4: West (Mountain and Pacific)
+# division = ifelse(division == "Arizona" | division == "Colorado" | division == "Idaho" |
+#                     division == "Montana" | division == "Nevada" | division == "New Mexico" | 
+#                     division == "Utah" | division == "Wyoming", "Mountain", division)
+# division = ifelse(division == "Alaska" | division == "California" | division == "Hawaii" |
+#                     division == "Oregon" | division == "Washington", "Pacific", division)
+# 
+# region = division
+# # Region 1: Northeast (New England and Middle Atlantic)
+# region = ifelse(region == "New England" | region == "Middle Atlantic", "Northeast", region)
+# # Region 2: Midwest (East North Central and West North Central)
+# region = ifelse(region == "East North Central" | region == "West North Central", 
+#                 "Midwest", region)
+# # Region 3: South (South Atlantic, East South Central, and West South Central)
+# region = ifelse(region == "South Atlantic" | region == "East South Central" | 
+#                   region == "West South Central", "South", region)
+# # Region 4: West (Mountain and Pacific)
+# region = ifelse(region == "Mountain" | region == "Pacific", "West", region)
 
 # Gender ------------------------------------------------------------------
 gender = c(split.by.block$Area_Freq$DEM2_AF, split.by.block$Area_Int$DEM2_AI, 
@@ -845,10 +918,18 @@ all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_lik
 # 
 # # EDU as a number
 # # Race assigned to region --------------------------------------------
-# total.region.modedu<- lm(clim ~ val + name + region+ gender + age + latino + racelarge + 
-#                            as.numeric(edunum) + work + politics + money, 
-#                          data= all.size.df)
-# summary(total.region.modedu)
+clim.region.modedu<- lm(clim ~ val + name + division + gender + age + latino + racelarge +
+                           as.numeric(edunum) + work + politics + money,
+                         data= all.size.df)
+summary(clim.region.modedu)
+
+political.region.modedu<- lm(politics ~ val + name + division + gender + age + latino + racelarge +
+                          as.numeric(edunum) + work + clim + money,
+                        data= all.size.df)
+summary(political.region.modedu)
+
+aggregate(politics ~ division, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
 # resid.region.varedu<- 1-summary(total.region.modedu)$r.squared; resid.region.varedu
 # length(names(total.region.modedu$coefficients))
 # 
@@ -861,8 +942,10 @@ all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_lik
 # length(names(total.div.modedu$coefficients))
 aggregate(CHAL1 ~ division, data = all.size.df,
           function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
+aggregate(ptab$CHAL1_likVal ~ region, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
 
-options(scipen=999)
+# options(scoptions(scoptions(scipen=999)))
 total.region.pro<- lm(CHAL1 ~ val + name + region + gender + age + latino + racelarge + 
                         as.numeric(edunum) + work + politics + money + clim, 
                       data= all.size.df)
@@ -1003,6 +1086,218 @@ summary(total.div.pro)
 # cor.test(overallUse$val, all.pro.df$val, method = "pearson")
 
 # plot(CHAL1 ~ val, data = all.pro.df)
+
+# Region -----------------------------------------------------------------
+# create bar plot data
+regiondat <- protab %>%
+  dplyr::group_by(region, CHAL1) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1 = factor(CHAL1, 
+                               levels = 1:4,
+                               labels = c("do nothing",
+                                          "protect 2 events/yr", 
+                                          "protect 4 events/yr",
+                                          "pave the driveway\n(120 events)"))) %>%
+  dplyr::mutate(region = factor(region, levels = c("West", "South", "Midwest", "Northeast")))
+
+# create grouped bar plot
+drive_dec_region = regiondat %>%
+  ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill="Protection options")
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1 ~ region, data = protab)
+dunnTest(CHAL1 ~ region, data = protab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1 ~ region, data = protab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate confidence
+gldatcondriveregion <- ptab %>%
+  dplyr::group_by(region, CHAL1_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
+                                      labels = confidence$ans)) %>%
+  dplyr::mutate(region = factor(region, levels = c("West", "South", "Midwest", "Northeast")))
+
+# create grouped bar plot
+drive_conregion = ggplot(gldatcondriveregion, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1_conVal ~ region, data = ptab)
+dunnTest(CHAL1_conVal ~ region, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1_conVal ~ region, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate risk perception
+# create bar plot data
+gldatlikage <- ptab %>%
+  dplyr::group_by(age, CHAL1_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
+                                      labels = likeops$ans)) %>%
+  dplyr::mutate(age = factor(age, levels = c("18-34", "35-54", "55+")))
+
+drive_risk_age = ggplot(gldatlikage, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
+  facet_grid(~age) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Age", y= "Percent (%) of participants", 
+       fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
+                     width = 20)) #questionslist$Area_Freq$CHAL1.4
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1_likVal ~ age, data = ptab)
+dunnTest(CHAL1_likVal ~ age, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1_likVal ~ age, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Flood scenario
+# Decision
+gldatfloodage <- protab %>%
+  dplyr::group_by(age, CHAL2) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2 = factor(CHAL2, 
+                               levels = 0:1,
+                               labels = c("no", "yes"))) %>%
+  dplyr::mutate(age = factor(age, levels = c("18-34", "35-54", "55+")))
+
+# create grouped bar plot
+flood_decage = gldatfloodage %>%
+  ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
+  facet_grid(~age) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Age", y= "Percent (%) of participants", 
+       fill="Buy flood insurance?")
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2 ~ age, data = protab)
+dunnTest(CHAL2 ~ age, data = protab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2 ~ age, data = protab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate confidence
+ptab$CHAL2_conVal = confidence$val[match(ptab$CHAL2_con, confidence$ans)]
+
+# create bar plot data
+gldatconfloage <- ptab %>%
+  dplyr::group_by(age, CHAL2_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
+                                      labels = confidence$ans)) %>%
+  dplyr::mutate(age = factor(age, levels = c("18-34", "35-54", "55+")))
+
+# create grouped bar plot
+flood_conage = ggplot(gldatconfloage, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
+  facet_grid(~age) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Age", y= "Percent (%) of participants", 
+       fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
+                     width = 20)) # questionslist$Area_Freq$CHAL2.3
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2_conVal ~ age, data = ptab)
+dunnTest(CHAL2_conVal ~ age, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2_conVal ~ age, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate risk perception
+ptab$CHAL2_likVal = likeops$val[match(ptab$CHAL2_lik, likeops$ans)]
+
+gldatlikfloage <- ptab %>%
+  dplyr::group_by(age, CHAL2_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
+                                      labels = likeops$ans)) %>%
+  dplyr::mutate(age = factor(age, levels = c("18-34", "35-54", "55+")))
+
+flood_riskage = ggplot(gldatlikfloage, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
+  facet_grid(~age) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Age", y= "Percent (%) of participants", 
+       fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
+                     width = 20)) # questionslist$Area_Freq$CHAL2.4
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2_likVal ~ age, data = ptab)
+dunnTest(CHAL2_likVal ~ age, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2_likVal ~ age, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
 
 # age -----------------------------------------------------------------
 # create bar plot data
@@ -1230,7 +1525,8 @@ gldat <- protab %>%
                                           "protect 4 events/yr",
                                           "pave the driveway\n(120 events)")))%>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"), 
+                              labels = c("Lower", "Moderate", "Higher")))
 
 # create grouped bar plot
 drive_dec = gldat %>%
@@ -1274,7 +1570,8 @@ gldatcondrive <- ptab %>%
   dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"),
+                              labels = c("Lower", "Moderate", "Higher")))
 
 # create grouped bar plot
 drive_con = ggplot(gldatcondrive, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
@@ -1309,7 +1606,8 @@ gldatlik <- ptab %>%
   dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"),
+                              labels = c("Lower", "Moderate", "Higher")))
 
 drive_risk = ggplot(gldatlik, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~clim) +
@@ -1345,7 +1643,8 @@ gldatflood <- protab %>%
                                levels = 0:1,
                                labels = c("no", "yes"))) %>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"),
+                              labels = c("Lower", "Moderate", "Higher")))
 
 # create grouped bar plot
 flood_dec = gldatflood %>%
@@ -1382,7 +1681,8 @@ gldatconflo <- ptab %>%
   dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"),
+                              labels = c("Lower", "Moderate", "Higher")))
 
 # create grouped bar plot
 flood_con = ggplot(gldatconflo, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
@@ -1419,7 +1719,8 @@ gldatlikflo <- ptab %>%
   dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(clim = factor(clim, levels = c("Lower literacy", "Neutral", 
-                                               "Higher literacy")))
+                                               "Higher literacy"),
+                              labels = c("Lower", "Moderate", "Higher")))
 
 flood_risk = ggplot(gldatlikflo, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~clim) +
@@ -1456,7 +1757,9 @@ gldatpol <- protab %>%
                                           "protect 4 events/yr",
                                           "pave the driveway\n(120 events)")))%>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                               "Liberal")))
+                                               "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 
 # create grouped bar plot
 drive_decpol = gldatpol %>%
@@ -1489,7 +1792,9 @@ gldatcondrivepol <- ptab %>%
   dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                                         "Liberal")))
+                                                         "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 
 # create grouped bar plot
 drive_conpol = ggplot(gldatcondrivepol, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
@@ -1524,7 +1829,9 @@ gldatlikpol <- ptab %>%
   dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                               "Liberal")))
+                                               "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 
 drive_riskpol = ggplot(gldatlikpol, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~political) +
@@ -1560,7 +1867,9 @@ gldatfloodpol <- protab %>%
                                levels = 0:1,
                                labels = c("no", "yes"))) %>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                               "Liberal")))
+                                               "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 
 # create grouped bar plot
 flood_decpol = gldatfloodpol %>%
@@ -1595,7 +1904,9 @@ gldatconflopol <- ptab %>%
   dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                               "Liberal")))
+                                               "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 # create grouped bar plot
 flood_conpol = ggplot(gldatconflopol, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~political) +
@@ -1629,7 +1940,9 @@ gldatlikflopol <- ptab %>%
   dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(political = factor(political, levels = c("Conservative", "Neutral", 
-                                               "Liberal")))
+                                               "Liberal"),
+                                   labels = c("Conservative", "Moderate", 
+                                              "Liberal")))
 
 flood_riskpol = ggplot(gldatlikflopol, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~political) +
@@ -1655,6 +1968,212 @@ dunnTest(CHAL2_likVal ~ political, data = ptab, method = "holm")
 aggregate(CHAL2_likVal ~ political, data = ptab,
           function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
 
+# Region ----------------------------------------------------------------
+gldatreg <- protab %>%
+  dplyr::group_by(region, CHAL1) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1 = factor(CHAL1, 
+                               levels = 1:4,
+                               labels = c("do nothing",
+                                          "protect 2 events/yr", 
+                                          "protect 4 events/yr",
+                                          "pave the driveway\n(120 events)")))%>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+# create grouped bar plot
+drive_decreg = gldatreg %>%
+  ggplot(aes(CHAL1, Percent, fill = CHAL1)) + facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + scale_fill_manual(values=driveCols, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  geom_text(aes(label = round(Percent), x=CHAL1), vjust=-0.1, size = 1.9) +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill="Protection options")
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1 ~ region, data = protab)
+dunnTest(CHAL1 ~ region, data = protab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1 ~ region, data = protab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate confidence
+gldatcondrivereg <- ptab %>%
+  dplyr::group_by(region, CHAL1_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
+                                      labels = confidence$ans)) %>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+# create grouped bar plot
+drive_conreg = ggplot(gldatcondrivereg, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_conVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill=str_wrap(questionslist$Area_Freq$CHAL1.3, width = 20))
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1_conVal ~ region, data = ptab)
+dunnTest(CHAL1_conVal ~ region, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1_conVal ~ region, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate risk perception
+# create bar plot data
+gldatlikreg <- ptab %>%
+  dplyr::group_by(region, CHAL1_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
+                                      labels = likeops$ans)) %>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+drive_riskreg = ggplot(gldatlikreg, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL1_likVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill=str_wrap("How likely do you think you’ll see a year with 4 or more heavy rainfall events in the next 30 years?", 
+                     width = 20)) #questionslist$Area_Freq$CHAL1.4
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL1_likVal ~ region, data = ptab)
+dunnTest(CHAL1_likVal ~ region, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL1_likVal ~ region, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Flood scenario
+# Decision
+gldatfloodreg <- protab %>%
+  dplyr::group_by(region, CHAL2) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2 = factor(CHAL2, 
+                               levels = 0:1,
+                               labels = c("no", "yes"))) %>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+# create grouped bar plot
+flood_decreg = gldatfloodreg %>%
+  ggplot(aes(CHAL2, Percent, fill = CHAL2)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=driveCols[c(1,4)], labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill="Buy flood insurance?")
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2 ~ region, data = protab)
+dunnTest(CHAL2 ~ region, data = protab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2 ~ region, data = protab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate confidence
+# create bar plot data
+gldatconfloreg <- ptab %>%
+  dplyr::group_by(region, CHAL2_conVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
+                                      labels = confidence$ans)) %>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+# create grouped bar plot
+flood_conreg = ggplot(gldatconfloacc, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=conCols, labels = function(x) str_wrap(x, width = 18)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill=str_wrap("How confident are you that you will be protected financially from a flood, based on your choice and the information given to you?", 
+                     width = 20)) # questionslist$Area_Freq$CHAL2.3
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2_conVal ~ region, data = ptab)
+dunnTest(CHAL2_conVal ~ region, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2_conVal ~ region, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
+# Evaluate risk perception
+gldatlikfloreg <- ptab %>%
+  dplyr::group_by(region, CHAL2_likVal) %>%
+  dplyr::summarise(Frequency = n()) %>%
+  dplyr::mutate(Percent = round(Frequency/sum(Frequency)*100, 1)) %>%
+  dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
+                                      labels = likeops$ans)) %>%
+  dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
+
+flood_riskreg = ggplot(gldatlikfloreg, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
+  facet_grid(~region) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
+  geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_likVal), vjust=-0.1, size = 1.9) +
+  scale_fill_manual(values=likCols, labels = function(x) str_wrap(x, width = 20)) +
+  theme_bw() +
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
+        legend.text = element_text(size=6),
+        axis.title = element_text(size = 7),
+        legend.key.size = unit(0.4, 'cm'), 
+        legend.box.spacing = unit(0, "pt")) +
+  labs(x = "Region", y= "Percent (%) of participants", 
+       fill=str_wrap("How likely do you think another flood will occur from a heavy rainfall event in the next 30 years?", 
+                     width = 20)) # questionslist$Area_Freq$CHAL2.4
+
+# Kruskal-Wallis test and post-hoc test
+kruskal.test(CHAL2_likVal ~ region, data = ptab)
+dunnTest(CHAL2_likVal ~ region, data = ptab, method = "holm")
+
+# Calculate descriptive stats, i.e., mean and standard deviation
+aggregate(CHAL2_likVal ~ region, data = ptab,
+          function(x) c(mean = mean(x), med = median(x),  sd = sd(x)))
+
 # Accuracy ----------------------------------------------------------------
 gldatacc <- protab %>%
   dplyr::group_by(acc, CHAL1) %>%
@@ -1667,7 +2186,7 @@ gldatacc <- protab %>%
                                           "protect 4 events/yr",
                                           "pave the driveway\n(120 events)")))%>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 
 # create grouped bar plot
 drive_decacc = gldatacc %>%
@@ -1700,7 +2219,7 @@ gldatcondriveacc <- ptab %>%
   dplyr::mutate(CHAL1_conVal = factor(CHAL1_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 
 # create grouped bar plot
 drive_conacc = ggplot(gldatcondriveacc, aes(CHAL1_conVal, Percent, fill = CHAL1_conVal)) +
@@ -1735,7 +2254,7 @@ gldatlikacc <- ptab %>%
   dplyr::mutate(CHAL1_likVal = factor(CHAL1_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 
 drive_riskacc = ggplot(gldatlikacc, aes(CHAL1_likVal, Percent, fill = CHAL1_likVal)) +
   facet_grid(~acc) +
@@ -1771,7 +2290,7 @@ gldatfloodacc <- protab %>%
                                levels = 0:1,
                                labels = c("no", "yes"))) %>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 
 # create grouped bar plot
 flood_decacc = gldatfloodacc %>%
@@ -1806,7 +2325,7 @@ gldatconfloacc <- ptab %>%
   dplyr::mutate(CHAL2_conVal = factor(CHAL2_conVal, levels = confidence$val,
                                       labels = confidence$ans)) %>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 # create grouped bar plot
 flood_conacc = ggplot(gldatconfloacc, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~acc) +
@@ -1840,7 +2359,7 @@ gldatlikfloacc <- ptab %>%
   dplyr::mutate(CHAL2_likVal = factor(CHAL2_likVal, levels = likeops$val,
                                       labels = likeops$ans)) %>%
   dplyr::mutate(acc = factor(acc, levels = c("Below average", "Average", 
-                                                         "Above average")))
+                                             "Above average")))
 
 flood_riskacc = ggplot(gldatlikfloacc, aes(CHAL2_likVal, Percent, fill = CHAL2_likVal)) +
   facet_grid(~acc) +
@@ -1893,7 +2412,7 @@ drive_sec_reasonclim = ggplot(sec_drive_clim$sec_text, aes(topic, percent, fill 
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=6), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
         legend.text = element_text(size=6),
         axis.title = element_text(size = 7),
@@ -1908,7 +2427,7 @@ flood_sec_reasonclim = ggplot(sec_flood_clim$sec_text, aes(topic, percent, fill 
   scale_fill_manual(values=color_codes$colors, labels = function(x) str_wrap(x, width = 20)) + theme_bw() +
   geom_text(aes(label = round(percent), x=topic), vjust=-0.1, size = 1.9) +
   facet_wrap(~groups, scales = "free_x") +
-  theme(legend.title = element_text(size=6), legend.text = element_text(size=8), axis.text.x=element_blank(), panel.grid.major = element_blank(),
+  theme(legend.title = element_text(size=6), axis.text.x=element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.text = element_text(size = 6),  
         legend.text = element_text(size=6),
         axis.title = element_text(size = 7),
@@ -1950,6 +2469,37 @@ clim_fl_tbl <- gt(sec_flood_clim$pertab[,-ncol(sec_flood_clim$pertab)]) |>
 
 clim_tb = gt_group(clim_tbl, clim_fl_tbl)
 gtsave(clim_tb, "paper2/clim_reasoning.docx")
+
+# Climate
+clim_dws = melt(sec_drive_clim$pertab[,-ncol(sec_drive_clim$pertab)]) 
+clim_fis = melt(sec_flood_clim$pertab[,-ncol(sec_flood_clim$pertab)])
+
+clim_dws$scenario = "Climate science literacy: DWS"
+clim_fis$scenario = "Climate science literacy: FIS"
+
+clim_comb <- rbind(clim_dws, clim_fis)
+
+clim_comb$txtcol = ifelse(clim_comb$value < 35, "white", "black")
+clim_comb_short <- clim_comb %>%
+  mutate(variable = recode(variable,
+                           "Higher literacy (n=690)" = "Higher literacy\n(n=690)",
+                           "Neutral (n=334)" = "Neutral\n(n=334)",
+                           "Lower literacy (n=140)" = "Lower literacy\n(n=140)"))
+
+clim_plot = ggplot(clim_comb_short, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7),
+                                     strip.text = element_text(size = 7))+
+  geom_text(aes(label = value), color = clim_comb_short$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
 
 # Age codes -----------------------------------------------------------
 sec_drive_age = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
@@ -2026,6 +2576,37 @@ age_fl_tbl <- gt(sec_flood_age$pertab[,-ncol(sec_flood_age$pertab)]) |>
 age_tb = gt_group(age_tbl, age_fl_tbl)
 gtsave(age_tb, "paper2/age_reasoning.docx")
 
+# Age
+age_dws = melt(sec_drive_age$pertab[,-ncol(sec_drive_age$pertab)]) 
+age_fis = melt(sec_flood_age$pertab[,-ncol(sec_flood_age$pertab)])
+
+age_dws$scenario = "Age: DWS"
+age_fis$scenario = "Age: FIS"
+
+age_comb <- rbind(age_dws, age_fis)
+
+age_comb$txtcol = ifelse(age_comb$value < 35, "white", "black")
+# age_comb_short <- age_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "18-34 (n=347)" = "Liberal\n(n=254)",
+#                            "Neutral (n=489)" = "Neutral\n(n=489)",
+#                            "Conservative (n=421)" = "Conservative\n(n=421)"))
+
+age_plot = ggplot(age_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = age_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
 # Political codes -----------------------------------------------------------
 sec_drive_pol = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
                            varname="political", groupstr=c("Conservative", "Neutral", "Liberal"), 
@@ -2098,6 +2679,37 @@ pol_fl_tbl <- gt(sec_flood_pol$pertab[,-ncol(sec_flood_pol$pertab)]) |>
 pol_tb = gt_group(pol_tbl, pol_fl_tbl)
 gtsave(pol_tb, "paper2/pol_reasoning.docx")
 
+# Political
+pol_dws = melt(sec_drive_pol$pertab[,-ncol(sec_drive_pol$pertab)]) 
+pol_fis = melt(sec_flood_pol$pertab[,-ncol(sec_flood_pol$pertab)])
+
+pol_dws$scenario = "Political preference: DWS"
+pol_fis$scenario = "Political preference: FIS"
+
+pol_comb <- rbind(pol_dws, pol_fis)
+
+pol_comb$txtcol = ifelse(pol_comb$value < 35, "white", "black")
+# pol_comb_short <- pol_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Liberal (n=254)" = "Liberal\n(n=254)",
+#                            "Neutral (n=489)" = "Neutral\n(n=489)",
+#                            "Conservative (n=421)" = "Conservative\n(n=421)"))
+
+pol_plot = ggplot(pol_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = pol_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
 # Accuracy codes -----------------------------------------------------------
 sec_drive_acc = group_perc(textchoices=prochoices, codename="Primary.cycle.code", 
                            varname="acc", groupstr=c("Below average", "Average", "Above average"), 
@@ -2143,15 +2755,47 @@ acc_fl_tbl <- gt(sec_flood_acc$pertab[,-ncol(sec_flood_acc$pertab)]) |>
 acc_tb = gt_group(acc_tbl, acc_fl_tbl)
 gtsave(acc_tb, "paper2/acc_reasoning.docx")
 
+# Interpretation
+int_dws = melt(sec_drive_acc$pertab[,-ncol(sec_drive_acc$pertab)]) 
+int_fis = melt(sec_flood_acc$pertab[,-ncol(sec_flood_acc$pertab)])
+
+int_dws$scenario = "Interpretation: DWS"
+int_fis$scenario = "Interpretation: FIS"
+
+int_comb <- rbind(int_dws, int_fis)
+
+# "Below average", "Average", "Above average"
+int_comb$txtcol = ifelse(int_comb$value < 35, "white", "black")
+# int_comb_short <- int_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Below average (n=99)" = "Below average\n(n=99)",
+#                            "Average (n=921)" = "Average\n(n=921)",
+#                            "Above average (n=144)" = "Above average\n(n=144)"))
+
+int_plot = ggplot(int_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = int_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
 # Other characteristics ---------------------------------------------------
 all.size.df<- as.data.frame(cbind(all.size.df, ptab$CHAL1_likVal, ptab$CHAL2_likVal, ptab$CHAL1_conVal,
                                   ptab$CHAL2_conVal))
 
 char_prochoices = prochoices
-char_prochoices = as.data.frame(cbind(char_prochoices, all.size.df$region, all.size.df$division, all.size.df$gender, 
+char_prochoices = as.data.frame(cbind(char_prochoices, all.size.df$division, all.size.df$gender, 
                                       all.size.df$latino, all.size.df$racelarge, all.size.df$edu, 
                                       all.size.df$work, incGroup))
-colnames(char_prochoices)[18:24] = c("region", "division", "gender", "latino", "racelarge", "edu", "work")
+colnames(char_prochoices)[19:25] = c("division", "gender", "latino", "racelarge", "edu", "work", "income")
 
 # Region
 sec_drive_region = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -2173,6 +2817,40 @@ gt_fl_tbl <- gt(sec_flood_region$pertab[,-ncol(sec_flood_region$pertab)]) |>
 
 region_tb = gt_group(gt_tbl, gt_fl_tbl)
 gtsave(region_tb, "paper2/region_reasoning.docx")
+
+# Region
+region_dws = melt(sec_drive_region$pertab[,-ncol(sec_drive_region$pertab)]) 
+region_fis = melt(sec_flood_region$pertab[,-ncol(sec_flood_region$pertab)])
+
+region_dws$scenario = "Region: DWS"
+region_fis$scenario = "Region: FIS"
+
+region_comb <- rbind(region_dws, region_fis)
+
+region_comb$txtcol = ifelse(region_comb$value < 35, "white", "black")
+# region_comb_short <- region_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "South (n=471)" = "South\n(n=471)",
+#                            "Midwest (n=248)" = "Midwest\n(n=248)",
+#                            "Northeast (n=222)" = "Northeast\n(n=222)",
+#                            "West (n=223)" = "West\n(n=223)"))
+
+region_plot = ggplot(region_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                                  panel.grid.major = element_blank(),
+                                                  panel.grid.minor = element_blank(),
+                                                  strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = region_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
+
 
 # Division
 # sec_drive_division = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -2245,6 +2923,41 @@ gend_fl_tbl <- gt(sec_flood_gender$pertab[,-ncol(sec_flood_gender$pertab)]) |>
 gender_tb = gt_group(gend_tbl, gend_fl_tbl)
 gtsave(gender_tb, "paper2/gender_reasoning.docx")
 
+# Gender
+gen_dws = melt(sec_drive_gender$pertab[,-ncol(sec_drive_gender$pertab)]) 
+gen_fis = melt(sec_flood_gender$pertab[,-ncol(sec_flood_gender$pertab)])
+
+gen_dws$scenario = "Gender: DWS"
+gen_fis$scenario = "Gender: FIS"
+
+gen_comb <- rbind(gen_dws, gen_fis)
+
+gen_comb$txtcol = ifelse(gen_comb$value < 35, "white", "black")
+# gen_comb_short <- gen_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Male (n=583)" = "Male\n(n=583)",
+#                            "Female (n=571)" = "Female\n(n=571)",
+#                            "Non-binary / third gender (n=4)" = "Non-binary\n(n=4)",
+#                            "Prefer to self-describe (n=4)" = "Self-describe\n(n=4)",
+#                            "Prefer not to say (n=2)" = "Prefer\nnot to say\n(n=2)"))
+
+# , oob=squish: If, rather than dropping values outside of the range, you want them to be 
+# set to the limits of the range, you need the squish option of the oob argument to scales:
+gen_plot = ggplot(gen_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none",  
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = gen_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50), oob=squish) +
+  facet_wrap(~scenario)
+
 # Latino
 sec_drive_latino = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
                               varname="latino", groupstr=c("No", "Yes"), subgroupstr=c("No", "Yes"), 
@@ -2263,6 +2976,36 @@ latino_fl_tbl <- gt(sec_flood_latino$pertab[,-ncol(sec_flood_latino$pertab)]) |>
 
 latino_tb = gt_group(latino_tbl, latino_fl_tbl)
 gtsave(latino_tb, "paper2/latino_reasoning.docx")
+
+# ethnicity
+lat_dws = melt(sec_drive_latino$pertab[,-ncol(sec_drive_latino$pertab)]) 
+lat_fis = melt(sec_flood_latino$pertab[,-ncol(sec_flood_latino$pertab)])
+
+lat_dws$scenario = "Ethnicity: DWS"
+lat_fis$scenario = "Ethnicity: FIS"
+
+lat_comb <- rbind(lat_dws, lat_fis)
+
+lat_comb$txtcol = ifelse(lat_comb$value < 35, "white", "black")
+# lat_comb_short <- lat_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Yes (n=141)" = "Spanish, Hispanic, or Latino origin\n(n=141)",
+#                            "No (n=1023)" = "Non-Hispanic\n(n=1023)"))
+
+lat_plot = ggplot(lat_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = lat_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
 
 # Race
 sec_drive_race = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -2286,6 +3029,43 @@ race_fl_tbl <- gt(sec_flood_race$pertab[,-ncol(sec_flood_race$pertab)]) |>
 
 race_tb = gt_group(race_tbl, race_fl_tbl)
 gtsave(race_tb, "paper2/race_reasoning.docx")
+
+# Race
+race_dws = melt(sec_drive_race$pertab[,-ncol(sec_drive_race$pertab)]) 
+race_fis = melt(sec_flood_race$pertab[,-ncol(sec_flood_race$pertab)])
+
+race_dws$scenario = "Race: DWS"
+race_fis$scenario = "Race: FIS"
+
+race_comb <- rbind(race_dws, race_fis)
+
+race_comb$txtcol = ifelse(race_comb$value < 35, "white", "black")
+# race_comb_short <- race_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "white (n=855)" = "White\n(n=855)",
+#                            "black (n=186)" = "Black\n(n=186)",
+#                            "asian (n=58)" = "Asian\n(n=58)",
+#                            "indian (n=18)" = "Native\nAmerican\n(n=18)",
+#                            "islander (n=3)" = "Pacific\nIslander\n(n=3)",
+#                            "other (n=35)" = "Other\n(n=35)",
+#                            "prefer (n=9)" = "Prefer\nnot to say\n(n=9)"))
+
+# , oob=squish: If, rather than dropping values outside of the range, you want them to be 
+# set to the limits of the range, you need the squish option of the oob argument to scales:
+race_plot = ggplot(race_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = race_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50), oob=squish) +
+  facet_wrap(~scenario)
 
 # EDU
 sec_drive_edu = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -2311,6 +3091,42 @@ edu_fl_tbl <- gt(sec_flood_edu$pertab[,-ncol(sec_flood_edu$pertab)]) |>
 
 edu_tb = gt_group(edu_tbl, edu_fl_tbl)
 gtsave(edu_tb, "paper2/edu_reasoning.docx")
+gtsave(edu_tb, "paper2/edu_reasoning.tex")
+
+# Education
+edu_dws = melt(sec_drive_edu$pertab[,-ncol(sec_drive_edu$pertab)]) 
+edu_fis = melt(sec_flood_edu$pertab[,-ncol(sec_flood_edu$pertab)])
+
+edu_dws$scenario = "Education: DWS"
+edu_fis$scenario = "Education: FIS"
+
+edu_comb <- rbind(edu_dws, edu_fis)
+
+edu_comb$txtcol = ifelse(edu_comb$value < 35, "white", "black")
+# edu_comb_short <- edu_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS etc.) (n=133)" = "Postgrad\n(n=133)",
+#                            "Bachelor’s degree (n=259)" = "Bach.\n(n=259)",
+#                            "Associates or technical degree (n=154)" = "Associates\n(n=154)",
+#                            "Some college, but no degree (n=278)" = "Some\ncollege\n(n=278)",
+#                            "High school diploma or GED (n=296)" = "HS\nor GED\n(n=296)",
+#                            "Some high school or less (n=40)" = "Some HS\nor less\n(n=40)",
+#                            "Prefer not to say (n=4)" = "Prefer\nnot to say\n(n=4)"))
+
+edu_plot = ggplot(edu_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = edu_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
 
 # Work
 sec_drive_work = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
@@ -2335,15 +3151,50 @@ work_fl_tbl <- gt(sec_flood_work$pertab[,-ncol(sec_flood_work$pertab)]) |>
 work_tb = gt_group(work_tbl, work_fl_tbl)
 gtsave(work_tb, "paper2/work_reasoning.docx")
 
+# Work
+work_dws = melt(sec_drive_work$pertab[,-ncol(sec_drive_work$pertab)]) 
+work_fis = melt(sec_flood_work$pertab[,-ncol(sec_flood_work$pertab)])
+
+work_dws$scenario = "Employment: DWS"
+work_fis$scenario = "Employment: FIS"
+
+work_comb <- rbind(work_dws, work_fis)
+
+work_comb$txtcol = ifelse(work_comb$value < 35, "white", "black")
+# work_comb_short <- work_comb %>% 
+#   mutate(variable = recode(variable, 
+#                            "Other (n=53)" = "Other\n(n=53)",
+#                            "Retired (n=258)" = "Retired\n(n=258)",
+#                            "Working full-time (n=463)" = "Full-time\n(n=463)",
+#                            "Working part-time (n=153)" = "Part-time\n(n=153)",
+#                            "A homemaker or stay-at-home parent (n=71)" = "Home.\n(n=71)",
+#                            "Student (n=39)" = "Student\n(n=39)",
+#                            "Unemployed and looking for work (n=127)" = "Unemploy.\n(n=127)"))
+
+work_plot = ggplot(work_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = work_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
 # Income
 sec_drive_income = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code", 
-                              varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
+                              varname="income", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
                                                              "75,000-99,999", "100,000-149,999", "150,000 or more"), 
                               subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
                                             "75,000-99,999", "100,000-149,999", "150,000+"), 
                               color_codes, scenname="driveway", dirname="paper2/")
 sec_flood_income = group_perc(textchoices=char_prochoices, codename="Primary.cycle.code.1", 
-                              varname="incGroup", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
+                              varname="income", groupstr=c("Less than 25,000", "25,000-49,999", "50,000-74,999",
                                                              "75,000-99,999", "100,000-149,999", "150,000 or more"), 
                               subgroupstr=c("<25,000", "25,000-49,999", "50,000-74,999",
                                             "75,000-99,999", "100,000-149,999", "150,000+"), 
@@ -2359,6 +3210,161 @@ income_fl_tbl <- gt(sec_flood_income$pertab[,-ncol(sec_flood_income$pertab)]) |>
 
 income_tb = gt_group(income_tbl, income_fl_tbl)
 gtsave(income_tb, "paper2/income_reasoning.docx")
+
+# Income
+income_dws = melt(sec_drive_income$pertab[,-ncol(sec_drive_income$pertab)]) 
+income_fis = melt(sec_flood_income$pertab[,-ncol(sec_flood_income$pertab)])
+
+income_dws$scenario = "Income: DWS"
+income_fis$scenario = "Income: FIS"
+
+inc_comb <- rbind(income_dws, income_fis)
+
+inc_comb$txtcol = ifelse(inc_comb$value < 35, "white", "black")
+# inc_comb_short <- inc_comb %>% mutate(variable = recode(variable, 
+#                            "Less than 25,000 (n=283)" = "< 25k\n(n=283)",
+#                            "25,000-49,999 (n=320)" = "25-49.9k\n(n=320)",
+#                            "50,000-74,999 (n=259)" = "50-74.9k\n(n=259)",
+#                            "75,000-99,999 (n=126)" = "75-99.9k\n(n=126)",
+#                            "100,000-149,999 (n=89)" = "100-149.9k\n(n=89)",
+#                            "150,000 or more (n=79)" = "150k+\n(n=79)"))
+
+inc_plot = ggplot(inc_comb, aes(y = Theme, x = variable, fill = value)) +
+  geom_tile(color = "black") + theme_bw() + theme(legend.position = "none", 
+                                     panel.grid.major = element_blank(),
+                                     panel.grid.minor = element_blank(),
+                                     strip.text = element_text(size = 7),
+                                     axis.title.y = element_blank(), 
+                                     axis.title.x = element_blank(),
+                                     axis.text = element_text(size = 6),  
+                                     legend.text = element_text(size=6),
+                                     axis.title = element_text(size = 7))+
+  geom_text(aes(label = value), color = inc_comb$txtcol, size = 2) +
+  scale_y_discrete(labels = label_wrap(22)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+  facet_wrap(~scenario)
+
+# inc_dws = ggplot(income_dws_short, aes(y = Theme, x = variable, fill = value)) +
+#   geom_tile(color = "black") + theme(legend.position = "none", axis.title.y = element_blank())+
+#   geom_text(aes(label = value), color = df$txtcol, size = 2) +
+#   scale_y_discrete(labels = label_wrap(20)) +
+#   coord_fixed() + scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+#   labs(x = "Driveway Washout Scenario")
+# 
+# inc_fis = ggplot(income_fis_short, aes(y = Theme, x = variable, fill = value)) +
+#   geom_tile(color = "black") + theme(legend.position = "none", axis.title.y = element_blank(), 
+#                                      axis.text.y=element_blank(),axis.ticks.y=element_blank())+
+#   geom_text(aes(label = value), color = df$txtcol, size = 2) +
+#   coord_fixed() + scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+#   labs(x = "Flood Insurance Scenario")
+
+# png(file="paper2/Fig_Decision_test.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# ggarrange(inc_dws+theme(plot.margin = margin(r = 1)), 
+#           inc_fis+theme(plot.margin = margin(r = 1, l = -1)), nrow=1, align = "h")
+# dev.off()
+# 
+# p1 = grid.grabExpr(inc_dws)
+# p2 = grid.grabExpr(inc_fis)
+# plot_grid(p1, p2)
+# 
+# pp = align_plots(inc_dws, inc_fis, align = 'v', axis = 'l')
+# plot_grid(pp[[2]], inc_dws)
+# 
+# plot_grid(test, test,
+#           test, 
+#           test,
+#           test, 
+#           test, 
+#           test, 
+#           test, 
+#           nrow=4, labels = letters, align = "h", axis = "b")
+# 
+# png(file="paper2/Fig_Decision_test.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(test, test,
+#           test, test,
+#           nrow=4, labels = letters)
+# dev.off()
+# 
+# df = melt(sec_drive_gender$pertab[,-ncol(sec_drive_gender$pertab)])
+# 
+# ggplot(df, aes(y = Theme, x = variable, fill = value)) +
+#   geom_tile(color = "black") +
+#   coord_fixed() + scale_fill_viridis_c(option = "inferno", limits = c(0,50)) +
+#   geom_text(aes(label = value), size = 2) +
+#   scale_color_manual(values = c('white', 'black'))
+#   scale_y_continuous(labels = scales::value)
+#   # https://lara-southard.medium.com/changing-geom-text-color-for-stacked-bar-graphs-in-ggplot-f0e45bfeaa56
+# 
+#   # geom_text(aes(label = value), color = "white", size = 2) +
+# 
+
+# # Extract the common legend:
+# reason_leg <- get_legend(age_plot + labs(fill="% of participants:") + 
+#                            theme(legend.position="bottom", 
+#                                  legend.text = element_text(size=6),
+#                                  legend.title = element_text(size=7)))
+# 
+# skillplot = plot_grid(clim_plot + theme(plot.margin = unit(c(0.1,0,0,0), "cm")),  
+#                      int_plot + theme(plot.margin = unit(c(0.1,0,0.1,0), "cm")), 
+#                      nrow=2, labels = letters, label_size=10)
+# 
+# png(file="paper2/Fig_Decision_skill.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*1.5, pointsize=10)
+# plot_grid(reason_leg, skillplot, nrow=2, labels = c("", ""), rel_heights = c(.1, 1))
+# dev.off()
+# 
+# pdf(file="paper2/Fig_2_skill.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*1.5, pointsize=10)
+# plot_grid(reason_leg, skillplot, nrow=2, labels = c("", ""), rel_heights = c(.1, 1))
+# dev.off()
+# 
+# idplot = plot_grid(pol_plot + theme(plot.margin = unit(c(0.1,0,0,0), "cm")), 
+#                    race_plot + theme(plot.margin = unit(c(0.1,0,0,0), "cm")), 
+#                    lat_plot + theme(plot.margin = unit(c(0.1,0,0,0), "cm")), 
+#                    gen_plot + theme(plot.margin = unit(c(0.1,0,0.1,0), "cm")), 
+#                      nrow=4, labels = letters, label_size=10)
+# 
+# png(file="paper2/Fig_Decision_identity.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*3, pointsize=10)
+# plot_grid(reason_leg, idplot, nrow=2, labels = c("", ""), rel_heights = c(.05, 1))
+# dev.off()
+# 
+# pdf(file="paper2/Fig_3_identity.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*3, pointsize=10)
+# plot_grid(reason_leg, idplot, nrow=2, labels = c("", ""), rel_heights = c(.05, 1))
+# dev.off()
+# 
+# lifeplot_1 = plot_grid(age_plot + theme(plot.margin = unit(c(0,0,0,0), "cm")), 
+#                      work_plot + theme(plot.margin = unit(c(0.2,0,0,0), "cm")), 
+#                      edu_plot + theme(plot.margin = unit(c(0.2,0,0.2,0), "cm")),
+#                      nrow=3, labels = letters, label_size=10)
+# 
+# lifeplot_2 = plot_grid(region_plot + theme(plot.margin = unit(c(0,0,0,0), "cm")), 
+#                      inc_plot + theme(plot.margin = unit(c(0.1,0,0.1,0), "cm")), 
+#                      nrow=2, labels = letters, label_size=10)
+# 
+# png(file="paper2/Fig_Decision_life.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(reason_leg, lifeplot, nrow=2, labels = c("", ""), rel_heights = c(.04, 1))
+# dev.off()
+# 
+# pdf(file="paper2/Fig_4_life.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.25, pointsize=10)
+# plot_grid(reason_leg, lifeplot_1, nrow=2, labels = c("", ""), rel_heights = c(.08, 1))
+# dev.off()
+# 
+# pdf(file="paper2/Fig_5_life.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*1.5, pointsize=10)
+# plot_grid(reason_leg, lifeplot_2, nrow=2, labels = c("", ""), rel_heights = c(.12, 1))
+# dev.off()
+
+# 
+# png(file="paper2/Fig_Decision_lifeleg.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(legend_b, lifeplot, nrow=2, labels = c("", ""), rel_heights = c(.04, 1)) # , align = "h", axis = "b"
+# dev.off()
 
 # -------------------------------------------------------------------------
 
@@ -2398,27 +3404,62 @@ gtsave(income_tb, "paper2/income_reasoning.docx")
 #           nrow=4, labels = "auto" , align = "h", axis = "b")
 # dev.off()
 
-png(file="paper2/Fig_DecisionMaking.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(drive_risk_full, flood_risk_full, 
-          drive_dec_full, flood_dec_full,
-          drive_con_full, flood_con_full, 
-          drive_txt_full, flood_txt_full,
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
+# png(file="paper2/Fig_DecisionMaking.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(drive_risk_full, flood_risk_full, 
+#           drive_dec_full, flood_dec_full,
+#           drive_con_full, flood_con_full, 
+#           drive_txt_full, flood_txt_full,
+#           nrow=4, labels = "auto") # , align = "h", axis = "b"
+# dev.off()
+# # + theme(legend.position = c(0.8, 0.42))
+# # margin(t, r, l, b)
+# pdf(file="paper2/Fig_1.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.75)
+# plot_grid(drive_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
+#           flood_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
+#           drive_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+#           flood_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
+#           drive_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+#           flood_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+#           drive_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
+#           flood_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
+#           nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
+# dev.off()
+
+legend_pro1 <- get_legend(drive_dec_full + theme(legend.position="right", 
+                                            legend.text = element_text(size=6),
+                                            legend.title = element_text(size = 6),
+                                            legend.key.size = unit(0.4, 'cm'),))
+legend_pro2 <- get_legend(flood_dec_full + theme(legend.position="right"))
+
+legend_con <- get_legend(flood_con_full + labs(fill="Confidence:") + theme(legend.position="right"))
+legend_lik <- get_legend(flood_risk_full + labs(fill="Likelihood:") + theme(legend.position="right"))
+legend_reason <- get_legend(drive_txt_full + theme(legend.position="right"))
+
+legend_tog = plot_grid(legend_lik, legend_pro1, legend_pro2, legend_con, legend_reason, nrow=5,
+                       rel_heights = c( 1, 0.5, 0.5,1, 1), labels = c("", paste0(letters[3:4], "."),"", ""), 
+                       label_size=10)
+
+dec_testing = plot_grid(
+  drive_risk_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,30) + ggtitle("Driveway Washout Scenario") + labs(x = "Likelihood"), 
+  flood_risk_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,30) + ggtitle("Flood Insurance Scenario") + labs(x = "Likelihood"),
+  drive_dec_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,50)+ labs(x = "Protection"), 
+                        flood_dec_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,80)+labs(x = "Protection"),
+                        drive_con_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        flood_con_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        drive_txt_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Reason"), 
+                        flood_txt_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Reason"),
+                        nrow=4, labels = paste0(letters, "."), align = "h", axis = "b", label_size=10)
+
+
+png(file="paper2/fig_1_new.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=10)
+plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
 dev.off()
-# + theme(legend.position = c(0.8, 0.42))
-# margin(t, r, l, b)
-pdf(file="paper2/Fig_1.pdf", family="Helvetica", 
-    width=maximum_width, height=column_height*2.75)
-plot_grid(drive_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
-          flood_risk_full + theme(plot.margin = unit(c(0.5, 0.1, 0.1, 0.1), "cm")), 
-          drive_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
-          flood_dec_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
-          drive_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
-          flood_con_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
-          drive_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")), 
-          flood_txt_full+ theme(plot.margin = unit(c(0, 0.1, 0.1, 0.1), "cm")),
-          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
+
+pdf(file="paper2/fig_1_new.pdf", family="Helvetica", width=maximum_width, height=column_height*3)
+plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
 dev.off()
 
 legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom", 
@@ -2440,6 +3481,96 @@ plot_grid(legend_a, legend_b,
           flood_decacc + theme(legend.position = "none")+ylim(0,90), 
           nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
           rel_heights = c(.25, 1, 1, 1, 1))
+dev.off()
+
+legend_pro1 <- get_legend(drive_dec_age + theme(legend.position="right", 
+                                                             legend.text = element_text(size=6),
+                                                             legend.title = element_text(size = 6),
+                                                             legend.key.size = unit(0.4, 'cm'),))
+legend_pro2 <- get_legend(flood_decage + theme(legend.position="right"))
+
+legend_con <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="right"))
+legend_lik <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="right"))
+
+
+legend_tog = plot_grid(legend_pro1, legend_pro2, legend_lik, legend_con, nrow=4,
+                       rel_heights = c(.5, 0.5, 1, 1), labels = c(letters[1:2], "", ""), label_size=10)
+
+age_testing = plot_grid(drive_dec_age+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,55)+
+                          ggtitle("Age: DWS") + labs(x = "Protection"), 
+                        flood_decage+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,90)+
+                          ggtitle("Age: FIS") + labs(x = "Protection"),
+                        drive_risk_age+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"), 
+                        flood_riskage+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"),
+                        drive_conage+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        flood_conage+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        nrow=3, labels = letters, align = "h", axis = "b", label_size=10)
+
+
+png(file="paper2/figure_A4.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*2.25, pointsize=10)
+plot_grid(age_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pdf(file="paper2/figure_A4.pdf", family="Helvetica", width=maximum_width, height=column_height*2.25)
+plot_grid(age_testing, legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+clim_testing = plot_grid(drive_dec + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,55)+
+                          ggtitle("Climate Science Literacy: DWS") + labs(x = "Protection"), 
+                        flood_dec + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,90)+
+                          ggtitle("Climate Science Literacy: FIS") + labs(x = "Protection"),
+                        drive_risk+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"), 
+                        flood_risk+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"),
+                        drive_con+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        flood_con+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        nrow=3, labels = letters, align = "h", axis = "b", label_size=10)
+
+png(file="paper2/figure_A2.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*2.25, pointsize=10)
+plot_grid(clim_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pdf(file="paper2/figure_A2.pdf", family="Helvetica", width=maximum_width, height=column_height*2.25)
+plot_grid(clim_testing, legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+int_testing = plot_grid(drive_decacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,55)+
+                           ggtitle("Interpretation: DWS") + labs(x = "Protection"), 
+                         flood_decacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,90)+
+                           ggtitle("Interpretation: FIS") + labs(x = "Protection"),
+                         drive_riskacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"), 
+                         flood_riskacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"),
+                         drive_conacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                         flood_conacc + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                         nrow=3, labels = letters, align = "h", axis = "b", label_size=10)
+
+png(file="paper2/figure_A1.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*2.25, pointsize=10)
+plot_grid(int_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pdf(file="paper2/figure_A1.pdf", family="Helvetica", width=maximum_width, height=column_height*2.25)
+plot_grid(int_testing, legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pol_testing = plot_grid(drive_decpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,55)+
+                          ggtitle("Political preference: DWS") + labs(x = "Protection"), 
+                        flood_decpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,90)+
+                          ggtitle("Political preference: FIS") + labs(x = "Protection"),
+                        drive_riskpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"), 
+                        flood_riskpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"),
+                        drive_conpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        flood_conpol + theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        nrow=3, labels = letters, align = "h", axis = "b", label_size=10)
+
+png(file="paper2/figure_A3.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*2.25, pointsize=10)
+plot_grid(pol_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pdf(file="paper2/figure_A3.pdf", family="Helvetica", width=maximum_width, height=column_height*2.25)
+plot_grid(pol_testing, legend_tog, rel_widths = c(1,0.25))
 dev.off()
 
 pdf(file="paper2/Fig_2.pdf", family="Helvetica", 
@@ -2469,7 +3600,7 @@ dev.off()
 #           nrow=4, labels = "auto" , align = "h", axis = "b")
 # dev.off()
 
-legend_b <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
+legend_con <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
 
 conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"),
                     flood_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
@@ -2496,7 +3627,7 @@ plot_grid(legend_b, conplot,
           rel_heights = c(.05, 1)) # , align = "h", axis = "b"
 dev.off()
 
-legend_b <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="bottom"))
+legend_lik <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="bottom"))
 
 likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"), 
                     flood_riskage+theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
@@ -2725,3 +3856,7 @@ ggplot(sec_flood_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
   labs(y = "", x= "Percent (%) of participants", 
        fill="Reason")
 dev.off()
+
+49+35
+75+35
+

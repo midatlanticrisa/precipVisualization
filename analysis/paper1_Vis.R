@@ -181,7 +181,7 @@ tag_facet_flex <- function(p, position = 'both',
     g <- gtable::gtable_add_cols(g, wm, pos = 0)
     t <- unique(g$layout[grepl("panel", g$layout$name), "t"])
     g <- gtable::gtable_add_grob(g, grobs = rl, t = t, l = min(l))
-    g <- gtable::gtable_add_cols(g, unit(2, "mm"), pos = 0)
+    g <- gtable::gtable_add_cols(g, unit(0, "mm"), pos = 0)
     
   } else {
     
@@ -242,16 +242,50 @@ exp_gtable %>% cols_width("Question" ~ px(500)) %>%
   gtsave("exp_questions.png", path = "paper1", expand = 10)
 exp_drawtable <- ggdraw() + draw_image("paper1/exp_questions.png")#, scale = 0.95)
 
-facetover = ggplot(overaccTab, aes(fill=graph,y=percent, x=ques)) + 
-  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1) +
+exp_ques_key_3 = data.frame(ID = c(paste0("EXP", 1:4), paste0("EMP", 1:5)),
+                            Question = c("Understand info. in the frequency graph", 
+                                         "Identify purpose of the frequency graph", 
+                                         "Understand info/ in the intensity graph",
+                                         "Identify purpose of the intensity graph",
+                                         "Define gray/blue/red shaded areas", 
+                                         "Define red area (high emissions)",
+                                         'Define "hindcast"',
+                                         "Define gray area (hindcast)",
+                                         "Identify purple area (overlapping areas)"), 
+                            ID2 = c("EMP6", paste0("ACC", 1:7), ""),
+                            Question2 = c('Define "emissions scenario"',
+                                         "Extract trend of high-emissions average", 
+                                         "Identify likelihood of more heavy rain days (high emissions)", 
+                                         "Compare high vs. low-emissions averages",
+                                         "Extract annual total rainfall average",
+                                         "Extract trend of low-emissions average", 
+                                         "Identify likelihood of more heavy rain events (low emissions)",
+                                         "Compare high vs. low-emissions averages",
+                                         ""))
+colnames(exp_ques_key_3) = c("ID", "Abbreviated question", "ID2", "Abbreviated question2")
+
+exp_gtable_3 = gt(exp_ques_key_3) |>
+  # tab_source_note(source_note = "* Full questions provided in Table Ax.") |>
+  tab_style(style = cell_text(size = "smaller", weight = "bold"),
+            locations = cells_body(columns = c(ID, ID2))) |>
+  cols_label(ID = md("**ID**"), ID2 = md("**ID**"), "Abbreviated question2" = html("Abbreviated question")
+  ) |> tab_options(table.font.size = "18px")
+
+exp_gtable_3 %>% cols_width("Abbreviated question" ~ px(700)) %>% 
+  cols_width("Abbreviated question2" ~ px(1000)) %>%
+  gtsave("exp_questions_3.png", path = "paper1", expand = 10)
+exp_drawtable_3 <- ggdraw() + draw_image("paper1/exp_questions_3.png")#, scale = 0.95)
+
+facetover = ggplot(overaccTab, aes(fill=graph,y=percent, x=toupper(ques))) + 
+  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1, width = 0.80) +
   labs(x = "Question ID", y= "Percent (%) of participants with correct response", 
        fill="") + 
   # define colors
   scale_fill_manual(values=graphcol) +
-  theme_bw() + geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.9), size = 2) +
+  theme_bw() + geom_text(aes(label = round(percent)), vjust=-0.1, position = position_dodge(0.8), size = 2) +
   theme(legend.title = element_text(size=8), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), legend.position = "none", #"inside"
-        legend.position.inside = c(0.16, 0.96), 
+        panel.grid.minor = element_blank(), legend.position = "inside", #"none", #
+        legend.position.inside = c(0.94, 0.2), 
         legend.background = element_rect(fill = NA, colour = NA)) +
   facet_wrap(~acctype, ncol=1, scales = "free_x")
 
@@ -262,6 +296,22 @@ outside_legend <- function(){
          col = graphcol, pt.cex=2)}
 
 leg_tab = plot_grid(outside_legend, exp_drawtable, nrow=2, rel_heights = c(0.25, 2))
+# 
+# plot_grid(exp_drawtable_1, exp_drawtable_2, nrow=1)
+# 
+# plot_grid(facetover, exp_drawtable_3, nrow=2, rel_heights = c(3, 1))
+
+png(file="paper1/Fig3_DiagwithIDstest.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=12)
+plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable_3, 
+          nrow=2, rel_heights = c(3, 0.9))
+dev.off()
+
+pdf(file="paper1/figure03_new.pdf", family="Helvetica", 
+    width=maximum_width, height=column_height*3, pointsize=12)
+plot_grid(tag_facet_flex(facetover, position = 'right'), exp_drawtable_3, 
+          nrow=2, rel_heights = c(3, 0.9))
+dev.off()
 
 png(file="paper1/Fig3_DiagwithIDswidth.png", family="Helvetica", res=300,
     units="in", width=double_column, height=column_height*2.35, pointsize=9)
@@ -678,7 +728,13 @@ sus_score = rbind(susAF, susAI, susBF, susBI, susXF, susXI)
 fullsus = c(susAF$TOT, susAI$TOT, susBF$TOT, susBI$TOT, susXF$TOT, susXI$TOT)
 # mean(fullsus)
 # summary(fullsus)
+mean(sus_score$USE3)
+summary(sus_score$USE3)
 
+table(sus_score$USE3)
+
+length(sus_score$USE3[which(sus_score$USE3 == 2)])
+which(sus_score$USE3 == 5)
 # - -----------------------------------------------------------------------
 # Is there a graph thats more useful?
 areasus = c(susAF$TOT, susAI$TOT)
@@ -689,6 +745,23 @@ susdat = data.frame(sus = c(areasus,barsus,boxsus),
                     name = c(rep("Area", length(areasus)), rep("Bar", length(barsus)), 
                                     rep("Box", length(boxsus))))
 susdat$name = factor(susdat$name, levels = c("Bar", "Box", "Area"))
+
+# plot(all.size.df$val, susdat$sus)
+
+# datasus = data.frame(val=all.size.df$val, sus=susdat$sus, use=overallUse$val)
+
+# # Show the area only
+# ggplot(datasus, aes(x=val, y=sus) ) +
+#   stat_density_2d(aes(fill = ..level..), geom = "polygon")
+# 
+# ggplot(datasus, aes(x=val, y=use) ) +
+#   stat_density_2d(aes(fill = ..level..), geom = "polygon")
+# 
+# cor.test(datasus$sus, datasus$val)
+# 
+# cor.test(datasus$use, datasus$val)
+# 
+# plot(datasus$val, datasus$use)
 
 # Calculate descriptive stats, i.e., mean and standard deviation
 aggregate(sus ~ name, data = susdat,
@@ -753,12 +826,13 @@ indscoredf$ques = factor(indscoredf$ques, levels = c("USE2", "USE3", "USE4", "US
 
 # # Grouped plot by graph type split into graphs of accuracy type
 susQues = ggplot(indscoredf, aes(fill=graph,y=val, x=ques)) + 
-  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1, show.legend = FALSE) +
+  geom_bar(position="dodge", stat="identity", colour="black", linewidth = 0.1, show.legend = FALSE, width=0.8) +
   labs(x = "Question ID", y= "SUS score per question", fill="Graph type:") +
   scale_fill_manual(values=graphcol) + #ylim(0, 10) +
-  theme_bw() + geom_text(aes(label = round(val)), vjust=-0.1, position = position_dodge(0.9), size = 2.2) +
+  theme_bw() + geom_text(aes(label = round(val)), vjust=-0.1, position = position_dodge(0.8), size = 2.2) +
   theme(legend.title = element_text(size=9), 
-        axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust=1), 
+        # axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust=1), 
+        axis.text.x = element_text(size = 8), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
@@ -774,31 +848,66 @@ sus_questions = data.frame(ID = paste0("USE", 2:11),
                                         questions$USE8, questions$USE9, questions$USE10,
                                         questions$USE11))
 
-sus_gt = gt(sus_questions, rowname_col = "ID")
+# sus_gt = gt(sus_questions, rowname_col = "ID")
+
+sus_gt = gt(sus_questions) |>
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_body(columns = ID)) |>
+  cols_label(ID = md("**ID**"))
 
 sus_gt %>%
   gtsave("sus_gt_table.png", path = "paper1")
 sus_gt_table <- ggdraw() + draw_image("paper1/sus_gt_table.png")#, scale = 0.95)
+
+# a_comolegend <- function(){
+#   par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(0,0,0,0))
+#   plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+#   legend("top", legend =c("Median", "Mean", "Bar", "Box", "Area"), pch=c(NA, 21, 15, 15, 15), 
+#          pt.bg = c(NA,"white", NA, NA, NA), lty=c(1, NA, NA, NA, NA), bty='n',
+#          col = c('black', 'black', graphcol), pt.cex=c(NA, 1,2,2,2))}
 
 a_comolegend <- function(){
   par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(0,0,0,0))
   plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
   legend("top", legend =c("Median", "Mean", "Bar", "Box", "Area"), pch=c(NA, 21, 15, 15, 15), 
          pt.bg = c(NA,"white", NA, NA, NA), lty=c(1, NA, NA, NA, NA), bty='n',
-         col = c('black', 'black', graphcol), pt.cex=c(NA, 1,2,2,2))}
+         col = c('black', 'black', graphcol), pt.cex=c(NA, 1,2,2,2), horiz = TRUE, 
+         x.intersp=0.1, cex=0.8, text.width=c(0.1,0.08,0.05,0.05,0.05))}
 
-sus_plot = plot_grid(susDen, a_comolegend, susQues, nrow=2, 
-                   labels = c("a.", "", "b."), rel_widths=c(1,0.25))
+# sus_plot = plot_grid(susDen, a_comolegend, susQues, nrow=2, 
+#                    labels = c("a.", "", "b."), rel_widths=c(1,0.25))
+# 
+# sus_den = plot_grid(susDen, a_comolegend, nrow=1, 
+#                      labels = c("a.", ""), rel_widths=c(1,0.25))
+# 
+# sus_den_tab = plot_grid(sus_den, sus_gt_table, nrow=1, 
+#                     labels = c("", ""), rel_widths=c(1,1), rel_heights = c(0.5,1))
 
-png(file="paper1/Fig4_SUS.png", family="Helvetica", res=300,
-    units="in", width=med_column, height=column_height*3, pointsize=10)
-plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
+sus_den_tab = plot_grid(a_comolegend, sus_gt_table, nrow=2, 
+                        labels = c("", ""), rel_widths=c(0.5,1), rel_heights = c(0.1,1))
+
+sus_den_test = plot_grid(susDen, NULL, sus_den_tab, nrow=1, 
+                    labels = c("a.", ""), rel_widths=c(0.8, 0.025, 0.95))
+
+png(file="paper1/Fig4_SUStest.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*2, pointsize=10)
+plot_grid(sus_den_test, susQues, ncol=1, labels = c("", "b."), rel_heights = c(1,1))
 dev.off()
 
-pdf(file="paper1/figure04.pdf", family="Helvetica", width=med23_column, height=column_height*3, pointsize=10)
 # png(file="paper1/Fig4_SUS.png", family="Helvetica", res=300,
-#     units="in", width=med23_column, height=column_height*3, pointsize=10)
-plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
+#     units="in", width=med_column, height=column_height*3, pointsize=10)
+# plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
+# dev.off()
+
+# pdf(file="paper1/figure04.pdf", family="Helvetica", width=med23_column, height=column_height*3, pointsize=10)
+# # png(file="paper1/Fig4_SUS.png", family="Helvetica", res=300,
+# #     units="in", width=med23_column, height=column_height*3, pointsize=10)
+# plot_grid(sus_plot, sus_gt_table, ncol=1, rel_heights = c(2.1,0.9))
+# dev.off()
+
+pdf(file="paper1/figure04_new.pdf", family="Helvetica", width=maximum_width, 
+    height=column_height*2, pointsize=10)
+plot_grid(sus_den_test, susQues, ncol=1, labels = c("", "b."), rel_heights = c(1,1))
 dev.off()
 ## Figure 4 end
 
@@ -1334,6 +1443,42 @@ plot_grid(drive_dec, flood_dec, drive_con, flood_con, drive_risk, flood_risk,
 dev.off()
 ## Fig. 5
 
+legend_pro1 <- get_legend(drive_dec + theme(legend.position="right", 
+                                                legend.text = element_text(size=6),
+                                                legend.title = element_text(size = 6),
+                                                legend.key.size = unit(0.4, 'cm'),))
+legend_pro2 <- get_legend(flood_dec + theme(legend.position="right"))
+
+legend_con <- get_legend(flood_con + labs(fill="Confidence:") + theme(legend.position="right"))
+legend_lik <- get_legend(flood_risk + labs(fill="Likelihood:") + theme(legend.position="right"))
+legend_reason <- get_legend(drive_sec_reason + theme(legend.position="right"))
+
+legend_tog = plot_grid(legend_pro1, legend_pro2, legend_con, legend_lik, legend_reason, nrow=5,
+                       rel_heights = c(.5, 0.5, 1, 1, 1), labels = c(paste0(letters[1:2], "."), "", "", ""), 
+                       label_size=10)
+
+dec_testing = plot_grid(drive_dec+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) + ylim(0,55)+
+                          ggtitle("Driveway Washout Scenario") + labs(x = "Protection"), 
+                        flood_dec+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ ylim(0,90)+
+                          ggtitle("Flood Insurance Scenario") + labs(x = "Protection"),
+                        drive_con+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        flood_con+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5)) +ylim(0,40) + labs(x = "Confidence"),
+                        drive_risk+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"), 
+                        flood_risk+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Likelihood"),
+                        drive_sec_reason+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Reason"), 
+                        flood_sec_reason+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Reason"),
+                        nrow=4, labels = paste0(letters, "."), align = "h", axis = "b", label_size=10)
+
+
+png(file="paper1/Fig_Decision_testing_new.png", family="Helvetica", res=300,
+    units="in", width=maximum_width, height=column_height*3, pointsize=10)
+plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
+pdf(file="paper1/figure05_new.pdf", family="Helvetica", width=maximum_width, height=column_height*3)
+plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
+dev.off()
+
 # png(file="Pub1/Fig4_Decision_poster.png", family="Helvetica", res=300,
 #     units="in", width=column_height*8, height=7, pointsize=10)
 # plot_grid(drive_dec, drive_con, drive_risk, drive_sec_reason, flood_dec, 
@@ -1706,6 +1851,22 @@ aggregate(val ~ race_largest, data = all.pro.df,
 aggregate(val ~ region, data = all.pro.df,
           function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
 
+# Location vs climate science lit:
+aggregate(val ~ region, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x), n = length(x)), 1))
+aggregate(val ~ division, data = all.size.df,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x), n = length(x)), 1))
+aggregate(clim ~ region, data = DEMrespcensus,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x), n = length(x)), 1))
+aggregate(clim ~ division, data = DEMrespcensus,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x), n = length(x)), 1))
+aggregate(politics ~ division, data = DEMrespcensus,
+          function(x) round(c(mean = mean(x), med = median(x), sd = sd(x), n = length(x)), 1))
+# aggregate(climGroup ~ region, data = DEMrespcensus,
+#           function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+# aggregate(climGroup ~ division, data = DEMrespcensus,
+#           function(x) round(c(mean = mean(x), med = median(x), sd = sd(x)), 1))
+
 # Table S2 ----------------------------------------------------------------
 # Gender
 round((table(all.size.df$gender[all.size.df$name == "Area"])/length(all.size.df$gender[all.size.df$name == "Area"]))*100, 1)
@@ -1867,6 +2028,32 @@ length(names(total.region.modedu$coefficients))
 round(summary(total.region.modedu)[["coefficients"]],3)
 
 write.csv(summary(total.region.modedu)[["coefficients"]], "paper1/SuppTab1_DemRegion.csv")
+
+total.div.modedu<- lm(val~ name + division + gender + age + latino + racelarge + 
+                           as.numeric(edunum) + work + politics + money + clim, 
+                         data= all.size.df)
+summary(total.div.modedu)
+
+# Climate info test
+total.clim.modedu<- lm(clim~ name + region+ gender + age + latino + racelarge + 
+                         as.numeric(edunum) + work + politics + money + val, 
+                       data= all.size.df)
+summary(total.clim.modedu)
+
+total.clim.modedu<- lm(clim~ name + division+ gender + age + latino + racelarge + 
+                           as.numeric(edunum) + work + politics + money + val, 
+                         data= all.size.df)
+summary(total.clim.modedu)
+
+total.pol.modedu<- lm(politics~ name + division+ gender + age + latino + racelarge + 
+                         as.numeric(edunum) + work + clim + money + val, 
+                       data= all.size.df)
+summary(total.pol.modedu)
+
+total.pol.modedu<- lm(politics~ name + region+ gender + age + latino + racelarge + 
+                        as.numeric(edunum) + work + clim + money + val, 
+                      data= all.size.df)
+summary(total.pol.modedu)
 
 
 # Demographic comparison --------------------------------------------------
