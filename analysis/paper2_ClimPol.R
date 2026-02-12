@@ -4,7 +4,10 @@
 # Kelsey Ruckert (klr324@psu.edu)
 # Created: 
 #
-# This script....
+# This script creates some of the tables and figures found in the supplementary material.
+# These tables and figures include the demographic distributions and the linear 
+# regression of climate science literacy, accuracy/ interpretation, political 
+# preference, and age. 
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -539,18 +542,23 @@ gencol = brewer.pal(5, "Pastel2")
 polcol = brewer.pal(3, "RdYlBu")
 
 # Linear regression -------------------------------------------------------
+
+# Regression model of accuracy
 val.region.modedu <- lm(val ~ name + division + gender + age + latino + racelarge +
                                 as.numeric(edunum) + work + politics + clim + money, data = all.size.df)
 summary(val.region.modedu)
 
+# Regression model of political preference
 political.region.modedu <- lm(politics ~ val + name + division + gender + age + latino + racelarge +
                                as.numeric(edunum) + work + clim + money, data = all.size.df)
 summary(political.region.modedu)
 
+# Regression model of climate science literacy
 clim.region.modedu<- lm(clim ~ val + name + division + gender + age + latino + racelarge +
                           as.numeric(edunum) + work + politics + money, data = all.size.df)
 summary(clim.region.modedu)
 
+# Regression model of age
 age.region.modedu<- lm(age ~ val + name + division + gender + latino + racelarge +
                          as.numeric(edunum) + work + clim + politics + money, data = all.size.df)
 summary(age.region.modedu)
@@ -623,7 +631,7 @@ valGraphStat = aggregate(val ~ name, data = plotvars,
                         function(x) round(c(mean = mean(x), med = median(x),  sd = sd(x), size = length(x)), 2))
 
 ##########################################################################
-# Generate figures
+# Generate supplementary figures of demographic distributions
 ##########################################################################
 # Climate
 pdf(file="paper2/climatefactors1.pdf", family="Helvetica", width=double_column, 

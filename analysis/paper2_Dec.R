@@ -73,17 +73,6 @@ yesNoCols = c("#cab2d6", "#6a3d9a")
 
 ##########################################################################
 # Set plotting dimensions
-mm_TO_inches = function(mm){
-  mm * 0.039370
-}
-
-# single_column = mm_TO_inches(84)
-# med_column = mm_TO_inches(129)
-# double_column = mm_TO_inches(174)
-# maximum_width = mm_TO_inches(234)
-# column_height = 2.7
-# double_height = column_height * 2
-
 # Original width	      Final width*
 #                       Picas	Inches	Centimeters
 # One column	          19	  3.2	    8
@@ -653,7 +642,7 @@ flood_risk_full = scen_likflood %>%
 #   linear regression (38 tests = 1+ 1+ 6 + 6 +6 + 1 + 3+ 14)(PA)
 
 # Income ------------------------------------------------------------------
-options(max.print=1164)
+# options(max.print=1164)
 income = c(split.by.block$Area_Freq$DEM8_AF, split.by.block$Area_Int$DEM8_AI,
            split.by.block$Bar_freq$DEM8_BF, split.by.block$Bar_int$DEM8_BI,
            split.by.block$Box_freq$DEM8_XF, split.by.block$Box_int$DEM8_XI)
@@ -2117,7 +2106,7 @@ gldatconfloreg <- ptab %>%
   dplyr::mutate(region = factor(region, levels = c("South", "Midwest", "Northeast", "West")))
 
 # create grouped bar plot
-flood_conreg = ggplot(gldatconfloacc, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
+flood_conreg = ggplot(gldatconfloreg, aes(CHAL2_conVal, Percent, fill = CHAL2_conVal)) +
   facet_grid(~region) +
   geom_bar(stat="identity", position=position_dodge(), colour="black", linewidth = 0.1) +
   geom_line() + geom_text(aes(label = round(Percent), x=CHAL2_conVal), vjust=-0.1, size = 1.9) +
@@ -3091,7 +3080,7 @@ edu_fl_tbl <- gt(sec_flood_edu$pertab[,-ncol(sec_flood_edu$pertab)]) |>
 
 edu_tb = gt_group(edu_tbl, edu_fl_tbl)
 gtsave(edu_tb, "paper2/edu_reasoning.docx")
-gtsave(edu_tb, "paper2/edu_reasoning.tex")
+# gtsave(edu_tb, "paper2/edu_reasoning.tex")
 
 # Education
 edu_dws = melt(sec_drive_edu$pertab[,-ncol(sec_drive_edu$pertab)]) 
@@ -3427,6 +3416,7 @@ inc_plot = ggplot(inc_comb, aes(y = Theme, x = variable, fill = value)) +
 #           nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
 # dev.off()
 
+# Figure #1
 legend_pro1 <- get_legend(drive_dec_full + theme(legend.position="right", 
                                             legend.text = element_text(size=6),
                                             legend.title = element_text(size = 6),
@@ -3452,7 +3442,6 @@ dec_testing = plot_grid(
                         flood_txt_full+ theme(legend.position = "none", strip.text = element_text(size = 7), plot.title = element_text(size = 10, hjust = 0.5))+ylim(0,40) + labs(x = "Reason"),
                         nrow=4, labels = paste0(letters, "."), align = "h", axis = "b", label_size=10)
 
-
 png(file="paper2/fig_1_new.png", family="Helvetica", res=300,
     units="in", width=maximum_width, height=column_height*3, pointsize=10)
 plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
@@ -3462,27 +3451,30 @@ pdf(file="paper2/fig_1_new.pdf", family="Helvetica", width=maximum_width, height
 plot_grid(dec_testing,legend_tog, rel_widths = c(1,0.25))
 dev.off()
 
-legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom", 
-                                                             legend.text = element_text(size=6),
-                                                             legend.title = element_text(size = 6),
-                                                             legend.key.size = unit(0.4, 'cm'),))
-legend_b <- get_legend(flood_decage + theme(legend.position="bottom"))
+# End Figure #1
 
-png(file="paper2/Fig_Decision_protectionleg.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(legend_a, legend_b,
-          drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
-          flood_decage+ theme(legend.position = "none")+ylim(0,90),
-          drive_dec + theme(legend.position = "none")+ylim(0,55), 
-          flood_dec + theme(legend.position = "none")+ylim(0,90), 
-          drive_decpol + theme(legend.position = "none")+ylim(0,55), 
-          flood_decpol + theme(legend.position = "none")+ylim(0,90), 
-          drive_decacc + theme(legend.position = "none")+ylim(0,55), 
-          flood_decacc + theme(legend.position = "none")+ylim(0,90), 
-          nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
-          rel_heights = c(.25, 1, 1, 1, 1))
-dev.off()
+# legend_a <- get_legend(addSmallLegend(drive_dec_age) + theme(legend.position="bottom", 
+#                                                              legend.text = element_text(size=6),
+#                                                              legend.title = element_text(size = 6),
+#                                                              legend.key.size = unit(0.4, 'cm'),))
+# legend_b <- get_legend(flood_decage + theme(legend.position="bottom"))
+# 
+# png(file="paper2/Fig_Decision_protectionleg.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(legend_a, legend_b,
+#           drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decage+ theme(legend.position = "none")+ylim(0,90),
+#           drive_dec + theme(legend.position = "none")+ylim(0,55), 
+#           flood_dec + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decpol + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decpol + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decacc + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decacc + theme(legend.position = "none")+ylim(0,90), 
+#           nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
+#           rel_heights = c(.25, 1, 1, 1, 1))
+# dev.off()
 
+# Appendix figures
 legend_pro1 <- get_legend(drive_dec_age + theme(legend.position="right", 
                                                              legend.text = element_text(size=6),
                                                              legend.title = element_text(size = 6),
@@ -3573,20 +3565,23 @@ pdf(file="paper2/figure_A3.pdf", family="Helvetica", width=maximum_width, height
 plot_grid(pol_testing, legend_tog, rel_widths = c(1,0.25))
 dev.off()
 
-pdf(file="paper2/Fig_2.pdf", family="Helvetica", 
-    width=maximum_width, height=column_height*2.75)
-plot_grid(legend_a, legend_b,
-          drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
-          flood_decage+ theme(legend.position = "none")+ylim(0,90),
-          drive_dec + theme(legend.position = "none")+ylim(0,55), 
-          flood_dec + theme(legend.position = "none")+ylim(0,90), 
-          drive_decpol + theme(legend.position = "none")+ylim(0,55), 
-          flood_decpol + theme(legend.position = "none")+ylim(0,90), 
-          drive_decacc + theme(legend.position = "none")+ylim(0,55), 
-          flood_decacc + theme(legend.position = "none")+ylim(0,90), 
-          nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
-          rel_heights = c(.25, 1, 1, 1, 1), label_size=10)
-dev.off()
+# END: Appendix figures
+
+# 
+# pdf(file="paper2/Fig_2.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.75)
+# plot_grid(legend_a, legend_b,
+#           drive_dec_age + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decage+ theme(legend.position = "none")+ylim(0,90),
+#           drive_dec + theme(legend.position = "none")+ylim(0,55), 
+#           flood_dec + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decpol + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decpol + theme(legend.position = "none")+ylim(0,90), 
+#           drive_decacc + theme(legend.position = "none")+ylim(0,55), 
+#           flood_decacc + theme(legend.position = "none")+ylim(0,90), 
+#           nrow=5, labels = c("", "", letters[1:8]) , align = "h", axis = "b", 
+#           rel_heights = c(.25, 1, 1, 1, 1), label_size=10)
+# dev.off()
 
 # png(file="paper2/Fig_Decision_protectionage.png", family="Helvetica", res=300,
 #     units="in", width=maximum_width, height=column_height*4, pointsize=10)
@@ -3600,59 +3595,59 @@ dev.off()
 #           nrow=4, labels = "auto" , align = "h", axis = "b")
 # dev.off()
 
-legend_con <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
-
-conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"),
-                    flood_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
-                    drive_con + theme(legend.position = "none")+ylim(0,40), 
-                    flood_con + theme(legend.position = "none")+ylim(0,40), 
-                    drive_conpol + theme(legend.position = "none")+ylim(0,40), 
-                    flood_conpol + theme(legend.position = "none")+ylim(0,40), 
-                    drive_conacc + theme(legend.position = "none")+ylim(0,40), 
-                    flood_conacc + theme(legend.position = "none")+ylim(0,40), 
-                    nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), 
-                    label_size=10)
-
-png(file="paper2/Fig_Decision_confidenceleg.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(legend_b, conplot, 
-          nrow=2, labels = c("", ""), 
-          rel_heights = c(.05, 1)) # , align = "h", axis = "b"
-dev.off()
-
-pdf(file="paper2/Fig_3.pdf", family="Helvetica", 
-    width=maximum_width, height=column_height*2.75)
-plot_grid(legend_b, conplot, 
-          nrow=2, labels = c("", ""), 
-          rel_heights = c(.05, 1)) # , align = "h", axis = "b"
-dev.off()
-
-legend_lik <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="bottom"))
-
-likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"), 
-                    flood_riskage+theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
-          drive_risk + theme(legend.position = "none")+ylim(0,40), 
-          flood_risk + theme(legend.position = "none")+ylim(0,40), 
-          drive_riskpol + theme(legend.position = "none")+ylim(0,40), 
-          flood_riskpol + theme(legend.position = "none")+ylim(0,40), 
-          drive_riskacc + theme(legend.position = "none")+ylim(0,40), 
-          flood_riskacc + theme(legend.position = "none")+ylim(0,40),
-          nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), label_size=10)
-
-
-png(file="paper2/Fig_Decision_riskleg.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(legend_b, likplot,
-          nrow=2, labels = c("", ""), 
-          rel_heights = c(.06, 1)) # , align = "h", axis = "b"
-dev.off()
-
-pdf(file="paper2/Fig_4.pdf", family="Helvetica", 
-    width=maximum_width, height=column_height*2.75)
-plot_grid(legend_b, likplot,
-          nrow=2, labels = c("", ""), 
-          rel_heights = c(.06, 1)) # , align = "h", axis = "b"
-dev.off()
+# legend_con <- get_legend(flood_conage + labs(fill="Confidence:") + theme(legend.position="bottom"))
+# 
+# conplot = plot_grid(drive_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"),
+#                     flood_conage + theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
+#                     drive_con + theme(legend.position = "none")+ylim(0,40), 
+#                     flood_con + theme(legend.position = "none")+ylim(0,40), 
+#                     drive_conpol + theme(legend.position = "none")+ylim(0,40), 
+#                     flood_conpol + theme(legend.position = "none")+ylim(0,40), 
+#                     drive_conacc + theme(legend.position = "none")+ylim(0,40), 
+#                     flood_conacc + theme(legend.position = "none")+ylim(0,40), 
+#                     nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), 
+#                     label_size=10)
+# 
+# png(file="paper2/Fig_Decision_confidenceleg.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(legend_b, conplot, 
+#           nrow=2, labels = c("", ""), 
+#           rel_heights = c(.05, 1)) # , align = "h", axis = "b"
+# dev.off()
+# 
+# pdf(file="paper2/Fig_3.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.75)
+# plot_grid(legend_b, conplot, 
+#           nrow=2, labels = c("", ""), 
+#           rel_heights = c(.05, 1)) # , align = "h", axis = "b"
+# dev.off()
+# 
+# legend_lik <- get_legend(flood_riskage + labs(fill="Likelihood:") + theme(legend.position="bottom"))
+# 
+# likplot = plot_grid(drive_risk_age+ theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Driveway washout scenario"), 
+#                     flood_riskage+theme(legend.position = "none", plot.title = element_text(size=7, hjust=0.5))+ylim(0,40)+ggtitle("Flood insurance scenario"),
+#           drive_risk + theme(legend.position = "none")+ylim(0,40), 
+#           flood_risk + theme(legend.position = "none")+ylim(0,40), 
+#           drive_riskpol + theme(legend.position = "none")+ylim(0,40), 
+#           flood_riskpol + theme(legend.position = "none")+ylim(0,40), 
+#           drive_riskacc + theme(legend.position = "none")+ylim(0,40), 
+#           flood_riskacc + theme(legend.position = "none")+ylim(0,40),
+#           nrow=4, labels = "auto", rel_heights = c(1.1, 1, 1, 1), label_size=10)
+# 
+# 
+# png(file="paper2/Fig_Decision_riskleg.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(legend_b, likplot,
+#           nrow=2, labels = c("", ""), 
+#           rel_heights = c(.06, 1)) # , align = "h", axis = "b"
+# dev.off()
+# 
+# pdf(file="paper2/Fig_4.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.75)
+# plot_grid(legend_b, likplot,
+#           nrow=2, labels = c("", ""), 
+#           rel_heights = c(.06, 1)) # , align = "h", axis = "b"
+# dev.off()
 
 # png(file="paper2/Fig_Decision_reason.png", family="Helvetica", res=300,
 #     units="in", width=maximum_width, height=column_height*4, pointsize=10)
@@ -3667,22 +3662,22 @@ dev.off()
 #           flood_sec_reasonacc + theme(legend.position = "none")+ylim(0,50),
 #           nrow=4, labels = "auto") # , align = "h", axis = "b"
 # dev.off()
-
-png(file="paper2/Fig_Decision_reasonleg.png", family="Helvetica", res=300,
-    units="in", width=maximum_width, height=column_height*4, pointsize=10)
-plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
-          reason_pol+labs(y="Political affiliation"), 
-          reason_acc+labs(y="Interpretation"),
-          nrow=4, labels = "auto") # , align = "h", axis = "b"
-dev.off()
-
-pdf(file="paper2/Fig_5.pdf", family="Helvetica", 
-    width=maximum_width, height=column_height*2.75)
-plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
-          reason_pol+labs(y="Political affiliation"), 
-          reason_acc+labs(y="Interpretation"),
-          nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
-dev.off()
+# 
+# png(file="paper2/Fig_Decision_reasonleg.png", family="Helvetica", res=300,
+#     units="in", width=maximum_width, height=column_height*4, pointsize=10)
+# plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
+#           reason_pol+labs(y="Political affiliation"), 
+#           reason_acc+labs(y="Interpretation"),
+#           nrow=4, labels = "auto") # , align = "h", axis = "b"
+# dev.off()
+# 
+# pdf(file="paper2/Fig_5.pdf", family="Helvetica", 
+#     width=maximum_width, height=column_height*2.75)
+# plot_grid(reason_age+labs(y="Age"), reason_clim+labs(y="Climate science literacy"), 
+#           reason_pol+labs(y="Political affiliation"), 
+#           reason_acc+labs(y="Interpretation"),
+#           nrow=4, labels = "auto", label_size=10) # , align = "h", axis = "b"
+# dev.off()
 
 # Primary graph -----------------------------------------------------------
 # drive_age_prim = grouped_primary(topics, sec_text_age, subgroupstr=c("18-34", "35-54", "55+"), color_codes, 
@@ -3705,158 +3700,338 @@ dev.off()
 # flood_acc_prim = grouped_primary(topics, sec_text_floodacc, subgroupstr=c("Below", "Average", "Above"), color_codes, 
 #                                  groupstr=c("Below average", "Average", "Above average"))
 
-png(file="paper2/Fig_primarydriveage.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# png(file="paper2/Fig_primarydriveage.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_drive_age$prim.df = arrange(sec_drive_age$prim.df, sec_drive_age$prim.df$topic)
+# sec_drive_age$prim.df$word = factor(sec_drive_age$prim.df$word, levels = unique(sec_drive_age$prim.df$word))
+# sec_drive_age$prim.df$level = factor(sec_drive_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+# 
+# ggplot(sec_drive_age$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 16) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primaryfloodage.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_flood_age$prim.df = arrange(sec_flood_age$prim.df, sec_flood_age$prim.df$topic)
+# sec_flood_age$prim.df$word = factor(sec_flood_age$prim.df$word, levels = unique(sec_flood_age$prim.df$word))
+# sec_flood_age$prim.df$level = factor(sec_flood_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+# 
+# ggplot(sec_flood_age$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 16) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primarydriveclim.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_drive_clim$prim.df = arrange(sec_drive_clim$prim.df, sec_drive_clim$prim.df$topic)
+# sec_drive_clim$prim.df$word = factor(sec_drive_clim$prim.df$word, levels = unique(sec_drive_clim$prim.df$word))
+# sec_drive_clim$prim.df$level = factor(sec_drive_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
+# levels(sec_drive_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
+# 
+# ggplot(sec_drive_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 16) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primaryfloodclim.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_flood_clim$prim.df = arrange(sec_flood_clim$prim.df, sec_flood_clim$prim.df$topic)
+# sec_flood_clim$prim.df$word = factor(sec_flood_clim$prim.df$word, levels = unique(sec_flood_clim$prim.df$word))
+# sec_flood_clim$prim.df$level = factor(sec_flood_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
+# levels(sec_flood_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
+# 
+# ggplot(sec_flood_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 16) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primarydrivePol.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_drive_pol$prim.df = arrange(sec_drive_pol$prim.df, sec_drive_pol$prim.df$topic)
+# sec_drive_pol$prim.df$word = factor(sec_drive_pol$prim.df$word, levels = unique(sec_drive_pol$prim.df$word))
+# sec_drive_pol$prim.df$level = factor(sec_drive_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
+# 
+# ggplot(sec_drive_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 14) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primaryfloodPol.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_flood_pol$prim.df = arrange(sec_flood_pol$prim.df, sec_flood_pol$prim.df$topic)
+# sec_flood_pol$prim.df$word = factor(sec_flood_pol$prim.df$word, levels = unique(sec_flood_pol$prim.df$word))
+# sec_flood_pol$prim.df$level = factor(sec_flood_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
+# 
+# ggplot(sec_flood_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 14) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primarydriveAcc.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_drive_acc$prim.df = arrange(sec_drive_acc$prim.df, sec_drive_acc$prim.df$topic)
+# sec_drive_acc$prim.df$word = factor(sec_drive_acc$prim.df$word, levels = unique(sec_drive_acc$prim.df$word))
+# sec_drive_acc$prim.df$level = factor(sec_drive_acc$prim.df$level, levels = c("Below", "Average", "Above"))
+# levels(sec_drive_acc$prim.df$level) <- c("Below average", "Average", "Above average")
+# 
+# ggplot(sec_drive_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 14) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), 
+#                                  hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", 
+#        fill="Reason")
+# dev.off()
+# 
+# png(file="paper2/Fig_primaryfloodAcc.png", 
+#     family="Helvetica", res=300, 
+#     units="in", width=double_column, height=column_height*3, pointsize=10)
+# par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# 
+# sec_flood_acc$prim.df = arrange(sec_flood_acc$prim.df, sec_flood_acc$prim.df$topic)
+# sec_flood_acc$prim.df$word = factor(sec_flood_acc$prim.df$word, levels = unique(sec_flood_acc$prim.df$word))
+# sec_flood_acc$prim.df$level = factor(sec_flood_acc$prim.df$level, levels = c("Below", "Average", "Above"))
+# levels(sec_flood_acc$prim.df$level) <- c("Below average", "Average", "Above average")
+# 
+# ggplot(sec_flood_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
+#   scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
+#   xlim(0, 26) +
+#   geom_bar(stat="identity", position=position_dodge()) +
+#   theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
+#   facet_wrap(~level) + geom_text(aes(label = percent, y=word), 
+#                                  hjust=0, size = 3) +
+#   labs(y = "", x= "Percent (%) of participants", 
+#        fill="Reason")
+# dev.off()
+# 
+# -------------------- DEMOGRAPHIC GROUP
+# Step 1: Create grouped demographic structure
+group_info <- data.frame(
+  Group = c(
+    rep("Age", 3),
+    rep("Employment", 7),
+    rep("Region", 4),
+    rep("Education", 6),
+    rep("Income", 6),
+    rep("Literacy", 3),
+    rep("Interpretation", 3),
+    rep("Political", 3),
+    rep("Race", 4),
+    rep("Ethnicity", 2),
+    rep("Gender", 2)
+  ),
+  Demographic = c(
+    "Age", rep("", 2),
+    "Employment", rep("", 6),
+    "Region", rep("", 3),
+    "Education", rep("", 5),
+    "Income", rep("", 5),
+    "Climate literacy", rep("", 2),
+    "Interpretation", rep("", 2),
+    "Political", rep("", 2),
+    "Race", rep("", 3),
+    "Ethnicity", "",
+    "Gender", ""
+  ),
+  Subgroup = c(
+    "18–34", "35–54", "55+",
+    "Other", "Retired", "Full-time", "Part-time", "Homemaker", "Student", "Unemployed",
+    "South", "Midwest", "Northeast", "West",
+    "Postgrad", "BA", "Associates", "Some college", "HS or GED", "Some HS or less",  
+    "<$25k", "$25–49.9k", "$50-74.9k", "$75–99.9k", "100-149.9k", "$150k+",
+    "Lower", "Moderate lit.", "Higher",
+    "Below average", "Average", "Above average",
+    "Conservative", "Moderate", "Liberal", 
+    "White", "Black", "Asian", "Native American",
+    "Non-Hispanic", "Hispanic",
+    "Male", "Female"
+  )
+)
 
-sec_drive_age$prim.df = arrange(sec_drive_age$prim.df, sec_drive_age$prim.df$topic)
-sec_drive_age$prim.df$word = factor(sec_drive_age$prim.df$word, levels = unique(sec_drive_age$prim.df$word))
-sec_drive_age$prim.df$level = factor(sec_drive_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+# Add composite label (Subgroup + Group) for use in plotting
+group_info <- group_info %>%
+  #  mutate(Label = paste0(Subgroup:, "\n<b>", Demographic, "</b>"))
+  mutate(Label = paste0("<b>", Demographic, "</b>\n", Subgroup))
+# mutate(Label = Subgroup)
 
-ggplot(sec_drive_age$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# Create reasoning types
+# reasoning_types <- c("Flood risk", "Preparedness", "Personal judgment", 
+#                      "No Reason", "Economics", "Data interp.")
+reasoning_types <- c("Economics", "Flood risk", "Data interp.", "Personal\njudgment", 
+                     "Preparedness", "No Reason")
+
+# Expand for full heatmap structure
+dws_data <- expand.grid(
+  Reason = reasoning_types,
+  Label = group_info$Label
+)
+
+# Merge back the original subgroup info
+dws_data <- dws_data %>%
+  left_join(group_info, by = "Label")
+
+# Add percentages
+dws_data$Percent = c(age_dws$value,
+                     work_dws$value,
+                     region_dws$value,
+                     edu_dws$value[-grep("Prefer", edu_dws$variable)],
+                     income_dws$value,
+                     clim_dws$value,
+                     int_dws$value,
+                     pol_dws$value,
+                     race_dws$value[grep("white|black|asian|indian", race_dws$variable)],
+                     lat_dws$value,
+                     gen_dws$value[grep("Male|Female", gen_dws$variable)])
+
+# Factor the labels in order of appearance
+dws_data$Label <- factor(dws_data$Label, levels = rev(group_info$Label))
+# dws_data$Label <- factor(dws_data$Label, levels = rev(group_info$Label))
+dws_data$txtcol = ifelse(dws_data$Percent < 35, "white", "black")
+
+# Plot
+ttplot = ggplot(dws_data, aes(x = Reason, y = Label, fill = Percent)) +
+  geom_tile(color = "gray") +
+  scale_fill_viridis_c(
+    option = "inferno",
+    limits = c(0, 50),
+    name = "% of participants", oob=squish
+  ) +
+  geom_text(aes(label = round(Percent)), color = dws_data$txtcol, size = 2) +
+  scale_y_discrete(labels = function(x) x) +  # allow HTML-style labels
+  labs(
+    title = NULL, #"Driveway Washout Scenario",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.y = element_markdown(hjust = 1, size = 7),
+    axis.text.x = element_text(size = 9),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    # legend.position = c(0,0),
+    legend.position = "top",
+    legend.title = element_text(size = 8),
+    legend.box.spacing = unit(-0.2, 'cm'),
+    legend.key.height = unit(0.4,"line"),
+    legend.key.width = unit(1, 'cm'),
+    # legend.margin=margin(0,170,100,0),
+    panel.grid.major = element_blank()
+  )
+
+pdf(file="paper2/fig_DWS_reasoning.pdf", family="Helvetica", width=maximum_width, height=column_height*3)
+facet(ttplot, facet.by = "Group", scales = "free_y", ncol=1, strip.position="left") +
+  theme(strip.text=element_blank())# 
 dev.off()
 
-png(file="paper2/Fig_primaryfloodage.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
+# Expand for full heatmap structure
+fis_data <- expand.grid(
+  Reason = reasoning_types,
+  Label = group_info$Label
+)
 
-sec_flood_age$prim.df = arrange(sec_flood_age$prim.df, sec_flood_age$prim.df$topic)
-sec_flood_age$prim.df$word = factor(sec_flood_age$prim.df$word, levels = unique(sec_flood_age$prim.df$word))
-sec_flood_age$prim.df$level = factor(sec_flood_age$prim.df$level, levels = c("18-34", "35-54", "55+"))
+# Merge back the original subgroup info
+fis_data <- fis_data %>%
+  left_join(group_info, by = "Label")
 
-ggplot(sec_flood_age$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
+# Add percentages
+fis_data$Percent = c(age_fis$value,
+                     work_fis$value,
+                     region_fis$value,
+                     edu_fis$value[-grep("Prefer", edu_fis$variable)],
+                     income_fis$value,
+                     clim_fis$value,
+                     int_fis$value,
+                     pol_fis$value,
+                     race_fis$value[grep("white|black|asian|indian", race_fis$variable)],
+                     lat_fis$value,
+                     gen_fis$value[grep("Male|Female", gen_fis$variable)])
+
+# Factor the labels in order of appearance
+fis_data$Label <- factor(fis_data$Label, levels = rev(group_info$Label))
+# dws_data$Label <- factor(dws_data$Label, levels = rev(group_info$Label))
+fis_data$txtcol = ifelse(fis_data$Percent < 35, "white", "black")
+
+# Plot
+fisplot = ggplot(fis_data, aes(x = Reason, y = Label, fill = Percent)) +
+  geom_tile(color = "gray") +
+  scale_fill_viridis_c(
+    option = "inferno",
+    limits = c(0, 50),
+    name = "% of participants", oob=squish
+  ) +
+  geom_text(aes(label = round(Percent)), color = fis_data$txtcol, size = 2) +
+  scale_y_discrete(labels = function(x) x) +  # allow HTML-style labels
+  labs(
+    title = NULL, #"Flood insurance Scenario",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.y = element_markdown(hjust = 1, size = 7),
+    axis.text.x = element_text(size = 9),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    # legend.position = c(0,0),
+    legend.position = "top",
+    legend.title = element_text(size = 8),
+    legend.box.spacing = unit(-0.2, 'cm'),
+    legend.key.height = unit(0.4,"line"),
+    legend.key.width = unit(1, 'cm'),
+    # legend.margin=margin(0,170,100,0),
+    panel.grid.major = element_blank()
+  )
+
+pdf(file="paper2/fig_FIS_reasoning.pdf", family="Helvetica", width=maximum_width, height=column_height*3)
+facet(fisplot, facet.by = "Group", scales = "free_y", ncol=1, strip.position="left") +
+  theme(strip.text=element_blank())# 
 dev.off()
 
-png(file="paper2/Fig_primarydriveclim.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_drive_clim$prim.df = arrange(sec_drive_clim$prim.df, sec_drive_clim$prim.df$topic)
-sec_drive_clim$prim.df$word = factor(sec_drive_clim$prim.df$word, levels = unique(sec_drive_clim$prim.df$word))
-sec_drive_clim$prim.df$level = factor(sec_drive_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
-levels(sec_drive_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
-
-ggplot(sec_drive_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = round(percent,1), y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
-
-png(file="paper2/Fig_primaryfloodclim.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_flood_clim$prim.df = arrange(sec_flood_clim$prim.df, sec_flood_clim$prim.df$topic)
-sec_flood_clim$prim.df$word = factor(sec_flood_clim$prim.df$word, levels = unique(sec_flood_clim$prim.df$word))
-sec_flood_clim$prim.df$level = factor(sec_flood_clim$prim.df$level, levels = c("Low", "Neutral", "High"))
-levels(sec_flood_clim$prim.df$level) <- c("Lower literacy", "Neutral", "Higher literacy")
-
-ggplot(sec_flood_clim$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 16) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
-
-png(file="paper2/Fig_primarydrivePol.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_drive_pol$prim.df = arrange(sec_drive_pol$prim.df, sec_drive_pol$prim.df$topic)
-sec_drive_pol$prim.df$word = factor(sec_drive_pol$prim.df$word, levels = unique(sec_drive_pol$prim.df$word))
-sec_drive_pol$prim.df$level = factor(sec_drive_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
-
-ggplot(sec_drive_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 14) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
-
-png(file="paper2/Fig_primaryfloodPol.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_flood_pol$prim.df = arrange(sec_flood_pol$prim.df, sec_flood_pol$prim.df$topic)
-sec_flood_pol$prim.df$word = factor(sec_flood_pol$prim.df$word, levels = unique(sec_flood_pol$prim.df$word))
-sec_flood_pol$prim.df$level = factor(sec_flood_pol$prim.df$level, levels = c("Conservative", "Neutral", "Liberal"))
-
-ggplot(sec_flood_pol$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 14) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", fill="Reason")
-dev.off()
-
-png(file="paper2/Fig_primarydriveAcc.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_drive_acc$prim.df = arrange(sec_drive_acc$prim.df, sec_drive_acc$prim.df$topic)
-sec_drive_acc$prim.df$word = factor(sec_drive_acc$prim.df$word, levels = unique(sec_drive_acc$prim.df$word))
-sec_drive_acc$prim.df$level = factor(sec_drive_acc$prim.df$level, levels = c("Below", "Average", "Above"))
-levels(sec_drive_acc$prim.df$level) <- c("Below average", "Average", "Above average")
-
-ggplot(sec_drive_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 14) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), 
-                                 hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", 
-       fill="Reason")
-dev.off()
-
-png(file="paper2/Fig_primaryfloodAcc.png", 
-    family="Helvetica", res=300, 
-    units="in", width=double_column, height=column_height*3, pointsize=10)
-par(mfrow=c(1,1), mgp=c(1.25,0.5,0), mar=c(2.5,2.5,1.5,0.75))
-
-sec_flood_acc$prim.df = arrange(sec_flood_acc$prim.df, sec_flood_acc$prim.df$topic)
-sec_flood_acc$prim.df$word = factor(sec_flood_acc$prim.df$word, levels = unique(sec_flood_acc$prim.df$word))
-sec_flood_acc$prim.df$level = factor(sec_flood_acc$prim.df$level, levels = c("Below", "Average", "Above"))
-levels(sec_flood_acc$prim.df$level) <- c("Below average", "Average", "Above average")
-
-ggplot(sec_flood_acc$prim.df, aes(x = percent, y = word, fill=topic)) +
-  scale_fill_manual(values=color_codes$color, labels = function(x) str_wrap(x, width = 22)) + 
-  xlim(0, 26) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  theme(legend.position="top", legend.text=element_text(size=8), legend.box.spacing = unit(0, "pt")) +
-  facet_wrap(~level) + geom_text(aes(label = percent, y=word), 
-                                 hjust=0, size = 3) +
-  labs(y = "", x= "Percent (%) of participants", 
-       fill="Reason")
-dev.off()
-
-49+35
-75+35
 
