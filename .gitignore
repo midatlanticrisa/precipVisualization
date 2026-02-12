@@ -6,7 +6,8 @@ analysis/paper2_Dec.R
 # PDF files
 *.pdf
 !/outlooks/*.pdf
-!/analysis/*/*.pdf
+#!/analysis/*/*.pdf
+!/analysis/paper1/*.pdf
 
 # Hide reasoning tables and csv
 /analysis/*/*.docx
