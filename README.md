@@ -4,9 +4,9 @@ We conducted an online survey of U.S. adults to test 1) how graph type influence
 
 Full Citation:
 
-> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (2026). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
+> Ruckert, K. L., C. Cooper, S. Roth, and R. E. Nicholas, 2026: Survey of U.S. Adults Reveals Simpler Graph Types Improve Interpretation of Extreme Precipitation. *Wea. Climate Soc.*, 18, 183–200, https://doi.org/10.1175/WCAS-D-25-0087.1.
 
-> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in review). National survey reveals how climate knowledge, visual interpretation, and sociodemographics shape U.S. flood risk responses. *Weather, Climate, and Society*, ...
+> Ruckert, K. L., S. Roth, C. Cooper, and R. E. Nicholas, 2026: National Survey Explores Associations between Climate Knowledge, Visual Interpretation, Sociodemographics, and Flood Risk Perceptions in U.S. Adults. *Wea. Climate Soc.*, 18, 857–883, https://doi.org/10.1175/WCAS-D-25-0216.1.
 
 ## Survey graph development and design
 The survey used three graph types for extreme precipitation following the style used in the [Local Hazard Outlooks](https://www.marisa.psu.edu/outlooks/). To generate the extreme precipitation data, we use the code and data available in the [Outlooks repository](https://github.com/midatlanticrisa/communityClimateOutlooks). Since, the Outlooks cover the Mid-Atlantic region on a county scale, we provide the scripts for the 100 x 100 km area center on Mt. Sunapee, NH in this repo. If you do not wish to rerun the graph development scripts for the survey, you can skip this part and just run the survey analyses.
@@ -74,12 +74,12 @@ The scripts `analysis/paper1_Vis.R` and `analysis/paper2_Dec.R` analyze the impa
 ### Paper 1
 In this analysis, we tested how graph type influenced the interpretation, usability, and decision-making related to information about extreme precipitation in flood risk scenarios. To generate the figures you can simply source the script (`analysis/paper1_Vis.R`), however, we recommend opening the script and running it by each line. Running the script by each line will allow the user to see results of statistical testing. 
 
-> Ruckert, K.L., Cooper, C., Roth, S., and Nicholas, R.E. (2026). Survey of U.S. adults reveals simpler graph types improve interpretation of extreme precipitation. *Weather, Climate, and Society*, ...
+> Ruckert, K. L., C. Cooper, S. Roth, and R. E. Nicholas, 2026: Survey of U.S. Adults Reveals Simpler Graph Types Improve Interpretation of Extreme Precipitation. *Wea. Climate Soc.*, 18, 183–200, https://doi.org/10.1175/WCAS-D-25-0087.1.
 
 ### Paper 2
-For this paper, we investigated how U.S. adults make flood preparedness decisions, focusing on the influence of climate science literacy, graph interpretation skills, and a range of demographic and socio-political factors. To generate the figures you can simply source the script (`analysis/paper2_Dec.R`), however, we again recommend opening the script and running it by each line. Running the script by each line will allow the user to see results of statistical testing.
+For this paper, we investigated how U.S. adults make flood preparedness decisions, focusing on the influence of climate science literacy, graph interpretation skills, and a range of demographic and socio-political factors. To generate the figures and the Kruskal-Wallis tests you can simply source the script `analysis/paper2_Dec_grouping.R`. The regression analyzes are run in `analysis/paper2_Dec_regression.R` and `analysis/paper2_ClimPol.R` creates some supplementary material figures and tables. However, we again recommend opening the scripts and running them by each line. Running the script by each line will allow the user to see results of statistical testing.
 
-> Ruckert, K.L., Cooper, C., and Nicholas, R.E. (in review). National survey reveals how climate knowledge, visual interpretation, and sociodemographics shape U.S. flood risk responses. *Weather, Climate, and Society*, ...
+> Ruckert, K. L., S. Roth, C. Cooper, and R. E. Nicholas, 2026: National Survey Explores Associations between Climate Knowledge, Visual Interpretation, Sociodemographics, and Flood Risk Perceptions in U.S. Adults. *Wea. Climate Soc.*, 18, 857–883, https://doi.org/10.1175/WCAS-D-25-0216.1.
 
 ## Other files/analyses
 ### Survey testing
@@ -89,7 +89,7 @@ The survey was initially tested with Amazon MTurk. The survey responses and init
 Kelsey Ruckert (klr324@psu.edu)  
 Robert Nicholas (ren10@psu.edu)  
 Courtney Cooper (ccooper@berry.edu)   
-Samantha Roth (Samantha.M.Roth@dartmouth.edu)
+Samantha Roth (samantha.roth@villanova.edu)
 
 ## License
 Copyright 2025 Kelsey Ruckert

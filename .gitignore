@@ -1,7 +1,8 @@
 # Hide paper2 for now
 analysis/paper2/*
-analysis/paper2_ClimPol.R
+#analysis/paper2_ClimPol.R
 analysis/paper2_Dec.R
+analysis/theshold.png
 
 # PDF files
 *.pdf
